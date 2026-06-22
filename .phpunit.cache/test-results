@@ -1,0 +1,1 @@
+{"version":2,"defects":[],"times":{"Tests\\TenantIsolationTest::testListOnlyReturnsOwnOfficeClients":0.079,"Tests\\TenantIsolationTest::testFindCannotReachOtherOfficeRecord":0.013,"Tests\\TenantIsolationTest::testInsertForcesOwnOfficeId":0}}

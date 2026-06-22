@@ -1,0 +1,21 @@
+{% extends 'layouts/portal.twig' %}
+{% block title %}{{ item.title }} — Ügyfélportál{% endblock %}
+
+{% block main %}
+<a href="/portal/tanacsadas" class="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-muted transition hover:text-ink">
+  <i data-lucide="arrow-left" class="h-4 w-4"></i> Vissza az anyagokhoz
+</a>
+
+<article class="mt-5 rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft sm:p-8">
+  <h1 class="text-[24px] font-extrabold tracking-tight text-ink sm:text-[28px]">{{ item.title }}</h1>
+  {% if item.created_at %}
+    <p class="mt-1.5 text-[13px] text-muted">{{ item.created_at|date('Y.m.d') }}</p>
+  {% endif %}
+
+  {% if item.body %}
+    <div class="mt-6 whitespace-pre-line text-[15px] leading-relaxed text-ink/90">{{ item.body }}</div>
+  {% else %}
+    <p class="mt-6 text-[14px] text-muted">Ehhez az anyaghoz nincs szöveges tartalom.</p>
+  {% endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Biztosítói küldés — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6">
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Biztosítói küldés</h1>
+  <p class="mt-1 text-[13.5px] text-muted">Egy szerződéshez tartozó megosztott dokumentumok elküldése a biztosító címlistájára</p>
+</div>
+
+<div class="mb-5 flex flex-wrap gap-1 border-b border-slate-200/70">
+  {% set tabs = [
+    { href: '/admin/email-sablonok', label: 'Sablonok', current: false },
+    { href: '/admin/email-folyamatok', label: 'Folyamatok', current: false },
+    { href: '/admin/email-naplo', label: 'Napló', current: false },
+    { href: '/admin/biztositoi-kuldes', label: 'Biztosítói küldés', current: true }
+  ] %}
+  {% for t in tabs %}
+    <a href="{{ t.href }}" class="border-b-2 px-4 py-2.5 text-[13.5px] font-semibold transition {{ t.current ? 'border-teal text-teal' : 'border-transparent text-muted hover:text-ink' }}">{{ t.label }}</a>
+  {% endfor %}
+</div>
+
+{% if flash %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border px-4 py-3 text-[13.5px] font-medium {{ flash.type == 'error' ? 'border-danger/20 bg-danger/5 text-danger' : 'border-success/20 bg-success/5 text-success' }}">
+    <i data-lucide="{{ flash.type == 'error' ? 'alert-circle' : 'check-circle-2' }}" class="h-4 w-4"></i> {{ flash.msg }}
+  </div>
+{% endif %}
+
+<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+  <h2 class="text-[15px] font-bold text-ink">Új küldés</h2>
+  <p class="mt-1 text-[13px] text-muted">A címzettek a szerződés biztosítója és kategóriája alapján automatikusan feloldódnak.</p>
+
+  {% if contracts is empty %}
+    <p class="mt-5 text-[13.5px] text-muted">Nincs elérhető szerződés.</p>
+  {% else %}
+    <form method="post" action="/admin/biztositoi-kuldes" class="mt-5 flex flex-wrap items-end gap-3">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+      <div class="flex-1 min-w-[260px]">
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Szerződés</label>
+        <select name="contract_id" required class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <option value="">— Válassz szerződést —</option>
+          {% for c in contracts %}
+            <option value="{{ c.id }}">{{ c.policy_number ?: ('#' ~ c.id) }}{% if c.module_name %} – {{ c.module_name }}{% endif %}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+        <i data-lucide="send" class="h-[17px] w-[17px]"></i> Küldés
+      </button>
+    </form>
+  {% endif %}
+</div>
+
+<div class="mt-6 rounded-2xl border border-slate-200/70 bg-white shadow-card">
+  <div class="border-b border-slate-100 px-5 py-3.5">
+    <h2 class="text-[14px] font-bold text-ink">Legutóbbi küldések</h2>
+  </div>
+  {% if dispatches is empty %}
+    <div class="px-5 py-12 text-center text-[13px] text-muted">Még nincs küldés.</div>
+  {% else %}
+    {% set chip = { 'sent': 'bg-success/10 text-success', 'failed': 'bg-danger/10 text-danger', 'queued': 'bg-amber-100 text-amber-700' } %}
+    {% set chipLabel = { 'sent': 'elküldve', 'failed': 'sikertelen', 'queued': 'várakozik' } %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-[13.5px]">
+        <thead class="border-b border-slate-100 text-[12px] uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Állapot</th>
+            <th class="px-5 py-3 font-semibold">Szerződés</th>
+            <th class="px-5 py-3 font-semibold">Címzettek</th>
+            <th class="px-5 py-3 font-semibold">Elküldve</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for d in dispatches %}
+            <tr class="transition hover:bg-surface/60">
+              <td class="px-5 py-3.5">
+                <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ chip[d.status] ?? 'bg-slate-100 text-muted' }}">{{ chipLabel[d.status] ?? d.status }}</span>
+              </td>
+              <td class="px-5 py-3.5 text-muted">#{{ d.contract_id }}</td>
+              <td class="px-5 py-3.5 text-muted">{{ d.recipients ?: '—' }}</td>
+              <td class="px-5 py-3.5 text-muted">{{ d.sent_at ?: '—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

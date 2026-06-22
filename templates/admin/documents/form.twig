@@ -1,0 +1,70 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Dokumentum feltöltése — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/dokumentumok" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Dokumentum feltöltése</h1>
+</div>
+
+{% if flash %}
+  <div class="mx-auto mb-4 max-w-3xl flex items-center gap-2 rounded-xl border border-danger/20 bg-danger/5 px-4 py-3 text-[13.5px] font-medium text-danger">
+    <i data-lucide="alert-circle" class="h-4 w-4"></i> {{ flash.msg }}
+  </div>
+{% endif %}
+
+<form method="post" action="/admin/dokumentumok" enctype="multipart/form-data" class="mx-auto max-w-3xl"
+  x-data="{ fileName: '' }">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Dokumentum adatai</h2>
+
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Ügyfél</label>
+        <select name="client_id" class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <option value="">— Nincs ügyfélhez rendelve —</option>
+          {% for c in clients %}
+            <option value="{{ c.id }}" {{ old.client_id == c.id ? 'selected' }}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Típus</label>
+        <input type="text" name="type" value="{{ old.type }}" placeholder="Pl. szerződés, igazolás"
+          class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Láthatóság</label>
+      <select name="visibility" class="rounded-xl border border-slate-200 bg-surface px-3 py-2.5 text-[14px] outline-none focus:border-teal">
+        <option value="agent_only" {{ old.visibility == 'agent_only' ? 'selected' }}>Csak ügynök</option>
+        <option value="shared" {{ old.visibility == 'shared' ? 'selected' }}>Megosztott (ügyfél is látja)</option>
+      </select>
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Fájl</label>
+      <label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed {{ errors.file is defined ? 'border-danger/50 bg-danger/5' : 'border-slate-200 bg-surface' }} px-6 py-10 text-center transition hover:border-teal hover:bg-teal/5">
+        <i data-lucide="upload-cloud" class="h-8 w-8 text-muted"></i>
+        <span class="text-[13.5px] font-semibold text-ink" x-text="fileName || 'Húzd ide a fájlt, vagy kattints a tallózáshoz'"></span>
+        <span class="text-[12px] text-muted">PDF, kép, Word, Excel vagy szöveg — legfeljebb 20 MB</span>
+        <input type="file" name="file" class="hidden"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.txt"
+          @change="fileName = $event.target.files.length ? $event.target.files[0].name : ''">
+      </label>
+      {% if errors.file is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.file }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/dokumentumok" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}

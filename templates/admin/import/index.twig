@@ -1,0 +1,59 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Adatimport — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6">
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Adatimport</h1>
+  <p class="mt-1 text-[13.5px] text-muted">Ügyfél- és szerződésadatok importja Excel-fájlból</p>
+</div>
+
+{% if flash %}
+  {% set tone = flash.type == 'error' ? 'danger' : (flash.type == 'warning' ? 'gold' : 'success') %}
+  <div class="mb-4 rounded-xl border border-{{ tone }}/20 bg-{{ tone }}/5 px-4 py-3 text-[13.5px] font-medium text-{{ tone }}">
+    <div class="flex items-center gap-2">
+      <i data-lucide="{{ flash.type == 'error' ? 'alert-circle' : (flash.type == 'warning' ? 'alert-triangle' : 'check-circle-2') }}" class="h-4 w-4 shrink-0"></i>
+      <span>{{ flash.msg }}</span>
+    </div>
+    {% if flash.errors is defined and flash.errors %}
+      <ul class="mt-2 list-disc space-y-0.5 pl-7 text-[12.5px] font-normal">
+        {% for err in flash.errors %}
+          <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endif %}
+
+<div class="mx-auto max-w-3xl">
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Excel-import</h2>
+    <p class="mt-2 text-[13.5px] leading-relaxed text-muted">
+      Töltse fel a meglévő ügyfél- és szerződésállományt tartalmazó Excel-fájlt (.xlsx vagy .xls).
+      A fájl első sorának a magyar oszlopneveket kell tartalmaznia, és minden sor egy szerződésnek
+      felel meg, az ismétlődő ügyféladatok mellett. Az importáló az ügyfeleket a nevük alapján
+      összevonja, így egy ügyfélhez több szerződés is kapcsolódhat.
+    </p>
+
+    <div class="mt-4 flex items-start gap-2 rounded-xl border border-teal/20 bg-teal/5 px-4 py-3 text-[13px] text-ink">
+      <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-teal"></i>
+      <span>Az importált adatok az Ön aktuális irodájához kerülnek hozzáadásra.</span>
+    </div>
+
+    <form method="post" action="/admin/import" enctype="multipart/form-data" class="mt-6">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Excel-fájl</label>
+      <input type="file" name="file" accept=".xlsx,.xls" required
+        class="block w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition file:mr-4 file:rounded-lg file:border-0 file:bg-ink file:px-4 file:py-2 file:text-[13px] file:font-semibold file:text-white hover:file:bg-ink/90 focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+      <p class="mt-1.5 text-[12px] text-muted">Maximális méret: 30 MB.</p>
+
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+          <i data-lucide="upload" class="h-[17px] w-[17px]"></i> Import indítása
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

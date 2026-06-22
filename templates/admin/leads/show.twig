@@ -1,0 +1,73 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ lead.name }} — {{ app_name }}{% endblock %}
+
+{% set stageStyles = {
+  'new': 'bg-slate-100 text-muted',
+  'contacted': 'bg-teal/10 text-teal',
+  'offer': 'bg-gold/15 text-gold',
+  'won': 'bg-success/10 text-success',
+  'lost': 'bg-danger/10 text-danger'
+} %}
+
+{% macro row(label, value) %}
+  <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3">
+    <span class="text-[13px] text-muted">{{ label }}</span>
+    <span class="text-right text-[13.5px] font-semibold text-ink">{{ value ?: '—' }}</span>
+  </div>
+{% endmacro %}
+{% import _self as r %}
+
+{% block main %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div class="flex items-center gap-3">
+    <a href="/admin/leadek" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+    <div>
+      <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ lead.name }}</h1>
+      <span class="mt-1 inline-block rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ stageStyles[lead.stage] ?? 'bg-slate-100 text-muted' }}">{{ stages[lead.stage] ?? lead.stage }}</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="/admin/leadek/{{ lead.id }}/szerkesztes" class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="pencil" class="h-[17px] w-[17px]"></i> Szerkesztés</a>
+    <form method="post" action="/admin/leadek/{{ lead.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt a leadet?');">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+      <button type="submit" class="flex items-center gap-2 rounded-xl border border-danger/20 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-danger transition hover:bg-danger/5"><i data-lucide="trash-2" class="h-[17px] w-[17px]"></i> Törlés</button>
+    </form>
+  </div>
+</div>
+
+{% if flash %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-[13.5px] font-medium text-success"><i data-lucide="check-circle-2" class="h-4 w-4"></i> {{ flash.msg }}</div>
+{% endif %}
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card">
+    <h2 class="text-[15px] font-bold text-ink">Adatok</h2>
+    <div class="mt-4 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+      {{ r.row('E-mail', lead.email) }}
+      {{ r.row('Telefon', lead.phone) }}
+      {{ r.row('Forrás', lead.source) }}
+      {{ r.row('Felelős', lead.assigned_to) }}
+    </div>
+    {% if lead.notes %}
+      <h3 class="mt-6 text-[13px] font-semibold text-ink">Megjegyzés</h3>
+      <p class="mt-2 whitespace-pre-line text-[13.5px] leading-relaxed text-muted">{{ lead.notes }}</p>
+    {% endif %}
+  </div>
+
+  <div class="space-y-6">
+    <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal/10"><i data-lucide="user-check" class="h-[22px] w-[22px] text-teal"></i></div>
+      <h3 class="mt-4 text-[15px] font-bold text-ink">Ügyféllé alakítás</h3>
+      <p class="mt-2 text-[12.5px] leading-relaxed text-muted">A lead adataiból új partner jön létre, a lead pedig „Megnyert” fázisba kerül.</p>
+      <form method="post" action="/admin/leadek/{{ lead.id }}/atalakitas" class="mt-4" onsubmit="return confirm('Biztosan partnerré alakítod ezt a leadet?');">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal px-5 py-3 text-[14px] font-semibold text-white shadow-soft transition hover:bg-teal/90">
+          <i data-lucide="user-plus" class="h-[18px] w-[18px]"></i> Ügyféllé alakítás
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

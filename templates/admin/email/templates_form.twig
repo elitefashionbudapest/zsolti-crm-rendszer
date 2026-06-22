@@ -1,0 +1,44 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új sablon' : 'Sablon szerkesztése' }} — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/email-sablonok" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új e-mail sablon' : 'Sablon szerkesztése' }}</h1>
+</div>
+
+<form method="post" action="{{ action }}" class="mx-auto max-w-3xl">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Sablon neve</label>
+        <input type="text" name="name" value="{{ template.name }}" placeholder="Pl. Évfordulós emlékeztető"
+          class="w-full rounded-xl border {{ errors.name is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+        {% if errors.name is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.name }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Tárgy</label>
+        <input type="text" name="subject" value="{{ template.subject }}" placeholder="Pl. Közeleg a szerződés évfordulója"
+          class="w-full rounded-xl border {{ errors.subject is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+        {% if errors.subject is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.subject }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Levél törzse (HTML megengedett)</label>
+        <textarea name="body" rows="12" placeholder="<p>Kedves Ügyfelünk!</p>"
+          class="w-full rounded-xl border {{ errors.body is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 font-mono text-[13px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">{{ template.body }}</textarea>
+        {% if errors.body is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.body }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/email-sablonok" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}

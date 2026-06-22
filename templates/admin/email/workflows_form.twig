@@ -1,0 +1,81 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új folyamat' : 'Folyamat szerkesztése' }} — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/email-folyamatok" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új e-mail folyamat' : 'Folyamat szerkesztése' }}</h1>
+</div>
+
+<form method="post" action="{{ action }}" class="mx-auto max-w-3xl" x-data="{ trigger: '{{ workflow.trigger_type }}' }">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Folyamat neve</label>
+        <input type="text" name="name" value="{{ workflow.name }}" placeholder="Pl. Évfordulós kampány"
+          class="w-full rounded-xl border {{ errors.name is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+        {% if errors.name is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.name }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Sablon</label>
+        <select name="template_id" class="w-full rounded-xl border {{ errors.template_id is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <option value="">— Válassz sablont —</option>
+          {% for t in templates %}
+            <option value="{{ t.id }}" {{ workflow.template_id == t.id ? 'selected' }}>{{ t.name }}</option>
+          {% endfor %}
+        </select>
+        {% if errors.template_id is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.template_id }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Trigger típusa</label>
+        <select name="trigger_type" x-model="trigger" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          {% for value, label in triggerTypes %}
+            <option value="{{ value }}" {{ workflow.trigger_type == value ? 'selected' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div x-show="trigger === 'anniversary' || trigger === 'expiry'" x-cloak>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Napok (a triggerhez képest)</label>
+        <input type="number" name="trigger_days" value="{{ workflow.trigger_days }}" min="0" placeholder="Pl. 30"
+          class="w-full rounded-xl border {{ errors.trigger_days is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+        {% if errors.trigger_days is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.trigger_days }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Célközönség</label>
+        <select name="audience" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          {% for value, label in audiences %}
+            <option value="{{ value }}" {{ workflow.audience == value ? 'selected' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Ütemezés (opcionális)</label>
+        <input type="datetime-local" name="schedule_at" value="{{ workflow.schedule_at ? workflow.schedule_at|replace({' ': 'T'})|slice(0, 16) : '' }}"
+          class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+          <input type="checkbox" name="is_active" value="1" {{ workflow.is_active ? 'checked' }} class="h-4 w-4 rounded border-slate-300 text-teal focus:ring-teal/30">
+          Aktív folyamat
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/email-folyamatok" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}

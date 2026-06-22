@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Console\GenerateKeyCommand;
+use App\Console\ImapSyncCommand;
+use App\Console\ScheduleRunCommand;
+use App\Console\WorkerCommand;
+use App\Imap\ImapSyncService;
+use App\Kernel\CliKernel;
+use App\Mail\MailService;
+use Symfony\Component\Console\Application;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$container = CliKernel::container(dirname(__DIR__));
+$pdo = $container->get(PDO::class);
+
+$app = new Application('AegisCRM CLI', '1.0.0');
+$app->add(new GenerateKeyCommand());
+$app->add(new ScheduleRunCommand($pdo, $container->get(MailService::class)));
+$app->add(new WorkerCommand($pdo));
+$app->add(new ImapSyncCommand($pdo, $container->get(ImapSyncService::class)));
+
+$app->run();

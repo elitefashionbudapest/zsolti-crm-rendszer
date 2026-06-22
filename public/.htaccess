@@ -1,0 +1,13 @@
+# Minden kérés az index.php-ra (Slim front controller)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Rejtett és érzékeny fájlok tiltása
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

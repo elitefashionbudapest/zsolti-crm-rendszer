@@ -1,0 +1,69 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új feladat' : 'Feladat szerkesztése' }} — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/feladatok" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új feladat' : 'Feladat szerkesztése' }}</h1>
+</div>
+
+<form method="post" action="{{ action }}" class="mx-auto max-w-3xl">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Alapadatok</h2>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Cím</label>
+      <input type="text" name="title" value="{{ task.title }}" placeholder="Pl. Ügyfél visszahívása"
+        class="w-full rounded-xl border {{ errors.title is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+      {% if errors.title is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.title }}</p>{% endif %}
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Leírás</label>
+      <textarea name="description" rows="4" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">{{ task.description }}</textarea>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Partner</label>
+        <select name="client_id" class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none focus:border-teal">
+          <option value="">— Nincs partner —</option>
+          {% for c in clients %}
+            <option value="{{ c.id }}" {{ task.client_id == c.id ? 'selected' }}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Határidő</label>
+        <input type="datetime-local" name="due_at" value="{{ task.due_at ? task.due_at|date('Y-m-d\\TH:i') }}"
+          class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Prioritás</label>
+        <select name="priority" class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none focus:border-teal">
+          <option value="low" {{ task.priority == 'low' ? 'selected' }}>Alacsony</option>
+          <option value="normal" {{ task.priority == 'normal' ? 'selected' }}>Normál</option>
+          <option value="high" {{ task.priority == 'high' ? 'selected' }}>Magas</option>
+        </select>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Státusz</label>
+        <select name="status" class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none focus:border-teal">
+          <option value="open" {{ task.status == 'open' ? 'selected' }}>Nyitott</option>
+          <option value="done" {{ task.status == 'done' ? 'selected' }}>Kész</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/feladatok" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}

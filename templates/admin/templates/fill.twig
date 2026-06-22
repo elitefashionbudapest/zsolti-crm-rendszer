@@ -1,0 +1,65 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Sablon kitöltése — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/sablonok" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <div>
+    <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Sablon kitöltése</h1>
+    <p class="mt-1 text-[13.5px] text-muted">{{ template.name }}</p>
+  </div>
+</div>
+
+{% if flash %}
+  <div class="mx-auto mb-4 max-w-2xl flex items-center gap-2 rounded-xl border px-4 py-3 text-[13.5px] font-medium
+    {{ flash.type == 'error' ? 'border-danger/20 bg-danger/5 text-danger' : 'border-success/20 bg-success/5 text-success' }}">
+    <i data-lucide="{{ flash.type == 'error' ? 'alert-circle' : 'check-circle-2' }}" class="h-4 w-4"></i> {{ flash.msg }}
+  </div>
+{% endif %}
+
+<form method="post" action="/admin/sablonok/{{ template.id }}/kitoltes" class="mx-auto max-w-2xl"
+  x-data="{
+    clientId: '',
+    contracts: {{ contracts|json_encode }},
+    get filtered() {
+      if (!this.clientId) return [];
+      return this.contracts.filter(c => String(c.client_id) === String(this.clientId));
+    }
+  }">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <div>
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Ügyfél</label>
+      <select name="client_id" x-model="clientId" required
+        class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+        <option value="">— Válassz ügyfelet —</option>
+        {% for c in clients %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Szerződés <span class="font-normal text-muted">(opcionális)</span></label>
+      <select name="contract_id"
+        class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15"
+        :disabled="!clientId">
+        <option value="">— Nincs szerződés —</option>
+        <template x-for="ct in filtered" :key="ct.id">
+          <option :value="ct.id" x-text="ct.label"></option>
+        </template>
+      </select>
+      <p class="mt-1.5 text-[12px] text-muted" x-show="clientId && filtered.length === 0">Ehhez az ügyfélhez nincs rögzített szerződés.</p>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/sablonok" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="download" class="h-[17px] w-[17px]"></i> Kitöltés és letöltés
+    </button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vezérlőpult — Biztosítási CRM (admin)</title>
+  <meta name="robots" content="noindex,nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --color-ink: #0F2A4A;
+      --color-teal: #0E9F6E;
+      --color-gold: #F4B740;
+      --color-surface: #F5F7FA;
+      --color-body: #1E293B;
+      --color-muted: #64748B;
+      --color-success: #16A34A;
+      --color-warning: #D97706;
+      --color-danger: #DC2626;
+      --shadow-soft: 0 1px 2px rgba(15,42,74,0.04), 0 4px 16px rgba(15,42,74,0.06);
+      --shadow-card: 0 1px 3px rgba(15,42,74,0.05), 0 8px 24px rgba(15,42,74,0.05);
+    }
+  </style>
+  <style>
+    html, body { margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #F5F7FA; }
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.25); border-radius: 8px; }
+    [x-cloak] { display: none !important; }
+  </style>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body>
+<div
+  x-data="dashboard()"
+  x-init="$nextTick(() => refreshIcons());
+          $watch('sidebarOpen', () => $nextTick(refreshIcons))"
+  x-cloak
+  class="min-h-screen bg-surface text-body font-sans antialiased"
+>
+
+  <!-- Mobil overlay -->
+  <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-ink/40 backdrop-blur-sm lg:hidden"></div>
+
+  <!-- Oldalsáv -->
+  <aside
+    class="fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col bg-ink text-white transition-transform duration-300 lg:translate-x-0"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+  >
+    <div class="flex h-16 items-center gap-3 px-6">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-teal shadow-soft">
+        <i data-lucide="shield-check" class="h-5 w-5 text-white"></i>
+      </div>
+      <div class="leading-tight">
+        <div class="text-[15px] font-bold tracking-tight">Aegis CRM</div>
+        <div class="text-[11px] font-medium text-white/50">Biztosítás &amp; Pénzügy</div>
+      </div>
+    </div>
+
+    <nav class="mt-2 flex-1 space-y-0.5 overflow-y-auto px-3 pb-6">
+      <template x-for="item in menu" :key="item.label">
+        <a href="#" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-colors"
+           :class="item.active ? 'bg-teal text-white shadow-soft' : 'text-white/65 hover:bg-white/10 hover:text-white'">
+          <i :data-lucide="item.icon" class="h-[18px] w-[18px] shrink-0"></i>
+          <span x-text="item.label"></span>
+          <span x-show="item.badge" class="ml-auto rounded-full bg-gold px-2 py-0.5 text-[11px] font-bold text-ink" x-text="item.badge"></span>
+        </a>
+      </template>
+    </nav>
+
+    <div class="border-t border-white/10 p-4">
+      <div class="flex items-center gap-3 rounded-xl bg-white/5 p-3">
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gold/90 text-[13px] font-bold text-ink">KB</div>
+        <div class="min-w-0 leading-tight">
+          <div class="truncate text-[13px] font-semibold">Kis Balázs</div>
+          <div class="truncate text-[11px] text-white/50">Senior tanácsadó</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Fő -->
+  <div class="lg:pl-[260px]">
+
+    <!-- Fejléc -->
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200/70 bg-white px-4 sm:px-6">
+      <button @click="sidebarOpen = true" class="flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface lg:hidden">
+        <i data-lucide="menu" class="h-5 w-5"></i>
+      </button>
+
+      <div class="relative hidden flex-1 max-w-md sm:block">
+        <i data-lucide="search" class="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted"></i>
+        <input type="text" placeholder="Keresés partnerek, szerződések, dokumentumok között…" class="w-full rounded-xl border border-slate-200 bg-surface py-2.5 pl-11 pr-4 text-[13.5px] text-body placeholder:text-muted/80 outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+      </div>
+
+      <div class="ml-auto flex items-center gap-2 sm:gap-3">
+        <button class="flex items-center gap-2 rounded-xl bg-teal px-3.5 py-2.5 text-[13.5px] font-semibold text-white shadow-soft transition hover:bg-teal/90">
+          <i data-lucide="plus" class="h-[18px] w-[18px]"></i>
+          <span class="hidden sm:inline">Új</span>
+        </button>
+
+        <button class="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface">
+          <i data-lucide="bell" class="h-[19px] w-[19px]"></i>
+          <span class="absolute right-2 top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">5</span>
+        </button>
+
+        <button class="flex items-center gap-2 rounded-xl py-1 pl-1 pr-1 sm:pr-2 transition hover:bg-surface">
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-white">KB</div>
+          <i data-lucide="chevron-down" class="hidden h-4 w-4 text-muted sm:block"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tartalom -->
+    <main class="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8">
+
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Vezérlőpult</h1>
+          <p class="mt-1 text-[13.5px] text-muted">Üdv újra, Balázs — itt a mai legfontosabb feladataid és teendőid.</p>
+        </div>
+        <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-muted shadow-soft">
+          <i data-lucide="calendar" class="h-4 w-4 text-teal"></i>
+          2026. június 22.
+        </div>
+      </div>
+
+      <!-- Statisztikai kártyák -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <template x-for="s in stats" :key="s.label">
+          <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+            <div class="flex items-start justify-between">
+              <div class="flex h-11 w-11 items-center justify-center rounded-xl" :class="s.iconWrap">
+                <i :data-lucide="s.icon" class="h-[22px] w-[22px]"></i>
+              </div>
+              <div class="flex items-center gap-1 rounded-full px-2 py-1 text-[12px] font-semibold" :class="s.trendCls">
+                <i :data-lucide="s.trendIcon" class="h-3.5 w-3.5"></i>
+                <span x-text="s.trend"></span>
+              </div>
+            </div>
+            <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink" x-text="s.value"></div>
+            <div class="mt-1.5 text-[13px] font-medium text-muted" x-text="s.label"></div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Két oszlop -->
+      <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
+
+        <!-- Teendők -->
+        <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-3">
+          <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <div class="flex items-center gap-2.5">
+              <i data-lucide="list-checks" class="h-[19px] w-[19px] text-teal"></i>
+              <h2 class="text-[15px] font-bold text-ink">Teendők</h2>
+              <span class="rounded-full bg-surface px-2 py-0.5 text-[12px] font-semibold text-muted"><span x-text="openCount"></span> nyitott</span>
+            </div>
+            <a href="#" class="text-[13px] font-semibold text-teal hover:underline">Összes</a>
+          </div>
+
+          <ul class="divide-y divide-slate-100">
+            <template x-for="t in todos" :key="t.id">
+              <li class="flex items-center gap-3.5 px-5 py-3.5 transition hover:bg-surface/60">
+                <button @click="done[t.id] = !done[t.id]"
+                        class="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-md border-2 transition"
+                        :class="done[t.id] ? 'border-teal bg-teal' : 'border-slate-300 bg-white hover:border-teal'">
+                  <i data-lucide="check" class="h-3.5 w-3.5 text-white" x-show="done[t.id]"></i>
+                </button>
+                <div class="min-w-0 flex-1">
+                  <div class="truncate text-[14px] font-semibold" :class="done[t.id] ? 'text-muted line-through' : 'text-body'" x-text="t.title"></div>
+                  <div class="mt-0.5 flex items-center gap-1.5 text-[12.5px] text-muted">
+                    <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                    <span x-text="t.date"></span>
+                  </div>
+                </div>
+                <span class="shrink-0 rounded-full px-2.5 py-1 text-[11.5px] font-semibold"
+                      :class="done[t.id] ? 'bg-surface text-muted' : t.chipCls"
+                      x-text="done[t.id] ? 'kész' : t.chip"></span>
+              </li>
+            </template>
+          </ul>
+        </section>
+
+        <!-- Legutóbbi tevékenység -->
+        <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-2">
+          <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <div class="flex items-center gap-2.5">
+              <i data-lucide="activity" class="h-[19px] w-[19px] text-teal"></i>
+              <h2 class="text-[15px] font-bold text-ink">Legutóbbi tevékenység</h2>
+            </div>
+          </div>
+
+          <div class="px-5 py-4">
+            <ol class="relative ml-1 border-l-2 border-slate-100">
+              <template x-for="a in activity" :key="a.title">
+                <li class="relative ml-5 pb-5 last:pb-0">
+                  <span class="absolute -left-[27px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full ring-4 ring-white" :class="a.dotWrap">
+                    <i :data-lucide="a.icon" class="h-3 w-3"></i>
+                  </span>
+                  <div class="text-[13.5px] font-semibold leading-snug text-ink" x-text="a.title"></div>
+                  <div class="mt-0.5 text-[12.5px] text-muted" x-text="a.meta"></div>
+                  <div class="mt-0.5 text-[11.5px] font-medium text-muted/80" x-text="a.time"></div>
+                </li>
+              </template>
+            </ol>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  function dashboard() {
+    const chips = {
+      aktiv: 'bg-success/10 text-success',
+      hamarosan: 'bg-warning/10 text-warning',
+      lejart: 'bg-danger/10 text-danger'
+    };
+    return {
+      sidebarOpen: false,
+      done: { t3: true },
+      menu: [
+        { label: 'Vezérlőpult', icon: 'layout-dashboard', active: true, badge: '' },
+        { label: 'Partnerek', icon: 'users', badge: '' },
+        { label: 'Szerződések', icon: 'file-text', badge: '' },
+        { label: 'Dokumentumok', icon: 'folder', badge: '' },
+        { label: 'Postaláda', icon: 'inbox', badge: '3' },
+        { label: 'Feladatok', icon: 'check-square', badge: '' },
+        { label: 'Leadek', icon: 'user-plus', badge: '' },
+        { label: 'E-mail folyamatok', icon: 'mail', badge: '' },
+        { label: 'Riportok', icon: 'bar-chart-3', badge: '' },
+        { label: 'Jutalékok', icon: 'coins', badge: '' },
+        { label: 'Beállítások', icon: 'settings', badge: '' }
+      ],
+      stats: [
+        { label: 'Aktív ügyfelek', value: '1 248', icon: 'users', iconWrap: 'bg-ink/5 text-ink', trend: '+4,2%', trendIcon: 'trending-up', trendCls: 'bg-success/10 text-success' },
+        { label: 'Közelgő évfordulók', value: '37', icon: 'calendar-clock', iconWrap: 'bg-teal/10 text-teal', trend: '7 nap', trendIcon: 'clock', trendCls: 'bg-teal/10 text-teal' },
+        { label: 'Közelgő lejáratok', value: '19', icon: 'file-clock', iconWrap: 'bg-warning/10 text-warning', trend: '+3', trendIcon: 'trending-up', trendCls: 'bg-warning/10 text-warning' },
+        { label: 'Jóváhagyásra váró AI-kinyerések', value: '8', icon: 'sparkles', iconWrap: 'bg-gold/15 text-[#B8860B]', trend: 'Új', trendIcon: 'zap', trendCls: 'bg-gold/15 text-[#B8860B]' }
+      ],
+      todos: [
+        { id: 't1', title: 'Ügyfél visszahívása – Nagy Péter', date: '2026.06.22 · ma 14:00', chip: 'lejárt', chipCls: chips.lejart },
+        { id: 't2', title: 'KGFB szerződés megújításának jóváhagyása', date: '2026.06.23 · holnap', chip: 'hamarosan lejár', chipCls: chips.hamarosan },
+        { id: 't3', title: 'Hiányzó dokumentum bekérése – Kovács Anna', date: '2026.06.24', chip: 'aktív', chipCls: chips.aktiv },
+        { id: 't4', title: 'AI-kinyerés ellenőrzése – lakásbiztosítás', date: '2026.06.25', chip: 'aktív', chipCls: chips.aktiv },
+        { id: 't5', title: 'Évforduló e-mail folyamat jóváhagyása', date: '2026.06.26', chip: 'hamarosan lejár', chipCls: chips.hamarosan }
+      ],
+      activity: [
+        { title: 'Új szerződés rögzítve', meta: 'Tóth Gábor · Casco', time: '10 perce', icon: 'file-plus', dotWrap: 'bg-teal/15 text-teal' },
+        { title: 'AI-kinyerés jóváhagyva', meta: 'Lakásbiztosítás · 12 mező', time: '32 perce', icon: 'sparkles', dotWrap: 'bg-gold/20 text-[#B8860B]' },
+        { title: 'Új lead érkezett', meta: 'Weboldal · ajánlatkérő űrlap', time: '1 órája', icon: 'user-plus', dotWrap: 'bg-ink/10 text-ink' },
+        { title: 'E-mail folyamat elindítva', meta: 'Évforduló emlékeztető · 24 címzett', time: '2 órája', icon: 'mail', dotWrap: 'bg-teal/15 text-teal' },
+        { title: 'Partner adatai frissítve', meta: 'Szabó Réka · elérhetőség', time: '3 órája', icon: 'pencil', dotWrap: 'bg-ink/10 text-ink' }
+      ],
+      get openCount() {
+        return this.todos.filter(t => !this.done[t.id]).length;
+      },
+      refreshIcons() {
+        try { window.lucide && window.lucide.createIcons(); } catch (e) {}
+      }
+    };
+  }
+</script>
+</body>
+</html>

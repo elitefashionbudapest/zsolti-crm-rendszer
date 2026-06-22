@@ -1,0 +1,102 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Riportok — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Riportok</h1>
+    <p class="mt-1 text-[13.5px] text-muted">Áttekintő elemzések az iroda ügyfeleiről, szerződéseiről és jutalékairól.</p>
+  </div>
+  <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-muted shadow-soft">
+    <i data-lucide="calendar" class="h-4 w-4 text-teal"></i> {{ "now"|date("Y. m. d.") }}
+  </div>
+</div>
+
+{# Felső statisztikai kártyák #}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+    <div class="flex items-start justify-between">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ink/5 text-ink"><i data-lucide="users" class="h-[22px] w-[22px]"></i></div>
+    </div>
+    <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink">{{ totalClients|number_format(0, ',', ' ') }}</div>
+    <div class="mt-1.5 text-[13px] font-medium text-muted">Ügyfelek</div>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+    <div class="flex items-start justify-between">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal/10 text-teal"><i data-lucide="file-text" class="h-[22px] w-[22px]"></i></div>
+    </div>
+    <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink">{{ totalContracts|number_format(0, ',', ' ') }}</div>
+    <div class="mt-1.5 text-[13px] font-medium text-muted">Szerződések</div>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+    <div class="flex items-start justify-between">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gold/15 text-[#B8860B]"><i data-lucide="user-plus" class="h-[22px] w-[22px]"></i></div>
+    </div>
+    <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink">{{ totalLeads|number_format(0, ',', ' ') }}</div>
+    <div class="mt-1.5 text-[13px] font-medium text-muted">Leadek</div>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+    <div class="flex items-start justify-between">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-warning/10 text-warning"><i data-lucide="file-clock" class="h-[22px] w-[22px]"></i></div>
+      <div class="flex items-center gap-1 rounded-full bg-warning/10 px-2 py-1 text-[12px] font-semibold text-warning"><i data-lucide="clock" class="h-3.5 w-3.5"></i> 30 nap</div>
+    </div>
+    <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink">{{ upcomingExpiries|number_format(0, ',', ' ') }}</div>
+    <div class="mt-1.5 text-[13px] font-medium text-muted">Közelgő lejáratok</div>
+  </div>
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
+  {# Szerződések terméktípus szerint #}
+  <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-3">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-2.5"><i data-lucide="bar-chart-3" class="h-[19px] w-[19px] text-teal"></i><h2 class="text-[15px] font-bold text-ink">Szerződések terméktípus szerint</h2></div>
+    </div>
+    <div class="space-y-4 px-5 py-5">
+      {% for cat in categories %}
+        <div>
+          <div class="mb-1.5 flex items-center justify-between text-[13px]">
+            <span class="font-medium text-ink">{{ cat.label }}</span>
+            <span class="font-semibold text-muted">{{ cat.count|number_format(0, ',', ' ') }}</span>
+          </div>
+          <div class="h-2.5 w-full overflow-hidden rounded-full bg-surface">
+            <div class="h-full rounded-full bg-teal transition-all" style="width: {{ cat.percent }}%"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# Leadek fázis szerint #}
+  <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-2">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-2.5"><i data-lucide="filter" class="h-[19px] w-[19px] text-teal"></i><h2 class="text-[15px] font-bold text-ink">Leadek fázis szerint</h2></div>
+    </div>
+    <ul class="divide-y divide-slate-100 px-5">
+      {% for stage in stages %}
+        <li class="flex items-center justify-between py-3.5 text-[13.5px]">
+          <span class="font-medium text-ink">{{ stage.label }}</span>
+          <span class="inline-flex min-w-[2.25rem] items-center justify-center rounded-full bg-surface px-2.5 py-1 text-[13px] font-semibold text-ink">{{ stage.count|number_format(0, ',', ' ') }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+{# Jutalékok #}
+<section class="mt-6">
+  <div class="mb-3 flex items-center gap-2.5"><i data-lucide="coins" class="h-[19px] w-[19px] text-teal"></i><h2 class="text-[15px] font-bold text-ink">Jutalékok</h2></div>
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+      <div class="flex items-center gap-2 text-[13px] font-medium text-muted"><i data-lucide="hourglass" class="h-4 w-4 text-warning"></i> Függő összeg</div>
+      <div class="mt-3 text-[28px] font-extrabold leading-none tracking-tight text-ink">{{ commissionPending|number_format(0, ',', ' ') }} Ft</div>
+    </div>
+    <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+      <div class="flex items-center gap-2 text-[13px] font-medium text-muted"><i data-lucide="check-circle-2" class="h-4 w-4 text-success"></i> Rendezett összeg</div>
+      <div class="mt-3 text-[28px] font-extrabold leading-none tracking-tight text-ink">{{ commissionSettled|number_format(0, ',', ' ') }} Ft</div>
+    </div>
+  </div>
+</section>
+{% endblock %}

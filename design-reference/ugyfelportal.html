@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ügyfélportál — Biztosítási CRM</title>
+  <meta name="robots" content="noindex,nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind v4 (böngésző CDN) — a design @theme színeivel -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --color-ink: #0F2A4A;
+      --color-teal: #0E9F6E;
+      --color-surface: #F5F7FA;
+      --color-body: #1E293B;
+      --color-muted: #64748B;
+      --color-success: #16A34A;
+      --color-warning: #D97706;
+      --shadow-soft: 0 1px 2px rgba(15,42,74,0.04), 0 4px 16px rgba(15,42,74,0.06);
+      --shadow-card: 0 1px 3px rgba(15,42,74,0.05), 0 10px 30px rgba(15,42,74,0.06);
+    }
+  </style>
+  <style>
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #F5F7FA; color: #1E293B; }
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.28); border-radius: 9px; }
+    [x-cloak] { display: none !important; }
+  </style>
+
+  <!-- Lucide ikonok -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js (a DCLogic reaktivitás helyett) -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body>
+<div
+  x-data="portal()"
+  x-init="$nextTick(() => refreshIcons());
+          $watch('view', () => $nextTick(refreshIcons));
+          $watch('step', () => $nextTick(refreshIcons));
+          $watch('submitted', () => $nextTick(refreshIcons))"
+  x-cloak
+  class="min-h-screen bg-surface font-sans text-body antialiased"
+>
+
+  <!-- Fejléc -->
+  <header class="sticky top-0 z-40 border-b border-slate-100 bg-white">
+    <div class="flex h-16 items-center justify-between px-5 sm:px-7">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-ink">
+          <i data-lucide="shield-check" class="h-5 w-5 text-teal"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-[15px] font-extrabold tracking-tight text-ink">Biztosító Iroda</div>
+          <div class="text-[11px] font-medium text-muted">Ügyfélportál</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden text-[13.5px] font-semibold text-ink sm:block">Kovács Anna</span>
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-[14px] font-bold text-white">AK</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Oldalsáv (asztal) -->
+  <aside class="fixed bottom-0 left-0 top-16 z-30 hidden w-60 flex-col border-r border-slate-100 bg-white px-4 py-6 lg:flex">
+    <nav class="flex flex-col gap-1.5">
+      <template x-for="n in nav" :key="n.id">
+        <button
+          @click="view = n.id"
+          class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[14.5px] font-semibold transition"
+          :class="view === n.id ? 'bg-ink text-white shadow-soft' : 'text-muted hover:bg-surface hover:text-ink'"
+        >
+          <i :data-lucide="n.icon" class="h-5 w-5 shrink-0"></i>
+          <span x-text="n.label"></span>
+        </button>
+      </template>
+    </nav>
+    <div class="mt-auto rounded-2xl bg-surface p-4">
+      <div class="flex items-center gap-2 text-[13px] font-bold text-ink">
+        <i data-lucide="phone-call" class="h-4 w-4 text-teal"></i> Segítségre van szüksége?
+      </div>
+      <p class="mt-1.5 text-[12.5px] leading-relaxed text-muted">Hívja ügynökét hétköznap 9–17 óra között.</p>
+    </div>
+  </aside>
+
+  <!-- Fő tartalom -->
+  <main class="px-5 pb-28 pt-6 sm:px-7 lg:pb-10 lg:pl-[272px] lg:pr-8">
+    <div class="mx-auto w-full max-w-4xl">
+
+      <!-- KEZDŐ -->
+      <div x-show="view === 'home'">
+        <h1 class="text-[26px] font-extrabold tracking-tight text-ink sm:text-[30px]">Üdv, Anna! 👋</h1>
+        <p class="mt-1.5 text-[15px] text-muted">Itt egy helyen látja szerződéseit, a közelgő határidőket és ügynökét.</p>
+
+        <div class="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Következő évforduló -->
+          <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft">
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ink/5">
+              <i data-lucide="calendar-heart" class="h-[22px] w-[22px] text-ink"></i>
+            </div>
+            <div class="mt-4 text-[13px] font-semibold text-muted">Következő évforduló</div>
+            <div class="mt-1 text-[20px] font-extrabold text-ink">2026. augusztus 14.</div>
+            <div class="mt-1 text-[12.5px] text-muted">Életbiztosítás · 53 nap múlva</div>
+          </div>
+
+          <!-- Közelgő lejárat -->
+          <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft">
+            <div class="flex items-start justify-between">
+              <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-warning/10">
+                <i data-lucide="clock-alert" class="h-[22px] w-[22px] text-warning"></i>
+              </div>
+              <span class="rounded-full bg-warning/10 px-2.5 py-1 text-[11.5px] font-semibold text-warning">hamarosan lejár</span>
+            </div>
+            <div class="mt-4 text-[13px] font-semibold text-muted">Közelgő lejárat</div>
+            <div class="mt-1 text-[20px] font-extrabold text-ink">2026. július 5.</div>
+            <div class="mt-1 text-[12.5px] text-muted">KGFB · gépjármű-biztosítás</div>
+          </div>
+
+          <!-- Ügynök -->
+          <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft sm:col-span-2 lg:col-span-1">
+            <div class="text-[13px] font-semibold text-muted">Ügynököm</div>
+            <div class="mt-3 flex items-center gap-3.5">
+              <div class="relative">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-ink to-teal text-[18px] font-bold text-white">KB</div>
+                <span class="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-success"></span>
+              </div>
+              <div class="leading-tight">
+                <div class="text-[15.5px] font-bold text-ink">Kis Balázs</div>
+                <div class="text-[12.5px] text-muted">Senior tanácsadó</div>
+              </div>
+            </div>
+            <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-teal py-3 text-[14px] font-semibold text-white transition hover:bg-teal/90">
+              <i data-lucide="message-circle" class="h-[18px] w-[18px]"></i> Kapcsolatfelvétel
+            </button>
+          </div>
+        </div>
+
+        <!-- Szerződések áttekintő -->
+        <div class="mt-5 rounded-2xl border border-slate-200/70 bg-white shadow-soft">
+          <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <div class="flex items-center gap-2.5">
+              <i data-lucide="file-text" class="h-5 w-5 text-teal"></i>
+              <h2 class="text-[15px] font-bold text-ink">Szerződéseim</h2>
+            </div>
+            <button @click="view = 'szerzodesek'" class="text-[13px] font-semibold text-teal hover:underline">Összes</button>
+          </div>
+          <ul class="divide-y divide-slate-100">
+            <template x-for="c in contracts" :key="c.title">
+              <li class="flex items-center gap-4 px-5 py-4">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface">
+                  <i :data-lucide="c.icon" class="h-5 w-5 text-ink"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="truncate text-[14.5px] font-semibold text-ink" x-text="c.title"></div>
+                  <div class="text-[12.5px] text-muted" x-text="c.meta"></div>
+                </div>
+                <span class="shrink-0 rounded-full px-2.5 py-1 text-[11.5px] font-semibold" :class="c.chipCls" x-text="c.status"></span>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ADATAIM WIZARD -->
+      <div x-show="view === 'adatok'">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h1 class="text-[26px] font-extrabold tracking-tight text-ink sm:text-[30px]">Adataim</h1>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-[12.5px] font-semibold text-warning">
+            <i data-lucide="clock" class="h-3.5 w-3.5"></i> Jóváhagyásra vár
+          </span>
+        </div>
+        <p class="mt-1.5 text-[15px] text-muted">Kérjük, ellenőrizze és frissítse adatait. A beküldött adatokat ügynöke hagyja jóvá.</p>
+
+        <!-- Haladásjelző -->
+        <div class="mt-7 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft sm:p-6">
+          <div class="flex items-center">
+            <template x-for="(label, i) in stepLabels" :key="i">
+              <div class="flex items-center" :class="(i+1) === 3 ? '' : 'flex-1'">
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-bold transition"
+                    :class="(i+1) < step ? 'bg-teal text-white' : (i+1) === step ? 'bg-ink text-white' : 'bg-surface text-muted'"
+                  >
+                    <i data-lucide="check" class="h-4 w-4" x-show="(i+1) < step"></i>
+                    <span x-show="(i+1) >= step" x-text="i+1"></span>
+                  </div>
+                  <div
+                    class="hidden text-[13px] font-semibold sm:block"
+                    :class="(i+1) === step ? 'text-ink' : (i+1) < step ? 'text-teal' : 'text-muted'"
+                    x-text="label"
+                  ></div>
+                </div>
+                <div x-show="(i+1) !== 3" class="mx-2 h-0.5 flex-1 rounded" :class="(i+1) < step ? 'bg-teal' : 'bg-slate-200'"></div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Sikeres beküldés -->
+        <div x-show="submitted" class="mt-5 rounded-2xl border border-success/20 bg-white p-8 text-center shadow-soft">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+            <i data-lucide="check-circle-2" class="h-9 w-9 text-success"></i>
+          </div>
+          <h2 class="mt-5 text-[20px] font-extrabold text-ink">Köszönjük, Anna!</h2>
+          <p class="mx-auto mt-2 max-w-md text-[14.5px] leading-relaxed text-muted">Adatait sikeresen beküldtük jóváhagyásra. Ügynöke hamarosan ellenőrzi azokat, és értesítjük az eredményről.</p>
+          <button @click="submitted = false; step = 1" class="mt-6 rounded-xl border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition hover:bg-ink hover:text-white">Vissza az adataimhoz</button>
+        </div>
+
+        <!-- Űrlap -->
+        <div x-show="!submitted" class="mt-5 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft sm:p-7">
+
+          <!-- 1. lépés -->
+          <div x-show="step === 1">
+            <h2 class="text-[17px] font-bold text-ink">Személyes adatok</h2>
+            <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Vezetéknév</label>
+                <input x-model="form.vezeteknev" placeholder="Kovács" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Keresztnév</label>
+                <input x-model="form.keresztnev" placeholder="Anna" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Születési dátum</label>
+                <input x-model="form.szuletesiDatum" type="text" placeholder="1990. 05. 12." class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Születési hely</label>
+                <input x-model="form.szuletesiHely" placeholder="Budapest" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Anyja neve</label>
+                <input x-model="form.anyjaNeve" placeholder="Nagy Mária" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Adóazonosító jel</label>
+                <input x-model="form.adoazonosito" placeholder="8 _ _ _ _ _ _ _ _ _" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. lépés -->
+          <div x-show="step === 2">
+            <h2 class="text-[17px] font-bold text-ink">Elérhetőség</h2>
+            <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">E-mail cím</label>
+                <input x-model="form.email" type="email" placeholder="anna@email.hu" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Telefonszám</label>
+                <input x-model="form.telefon" placeholder="+36 30 123 4567" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Irányítószám</label>
+                <input x-model="form.iranyitoszam" placeholder="1051" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Város</label>
+                <input x-model="form.varos" placeholder="Budapest" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Közterület neve</label>
+                <input x-model="form.kozterulet" placeholder="Fő utca" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-[13px] font-semibold text-ink">Házszám</label>
+                <input x-model="form.hazszam" placeholder="12." class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. lépés: áttekintés -->
+          <div x-show="step === 3">
+            <h2 class="text-[17px] font-bold text-ink">Áttekintés</h2>
+            <p class="mt-1.5 text-[13.5px] text-muted">Kérjük, ellenőrizze az adatokat beküldés előtt.</p>
+            <div class="mt-5 grid grid-cols-1 gap-x-8 gap-y-px sm:grid-cols-2">
+              <template x-for="r in review" :key="r.label">
+                <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3">
+                  <span class="text-[13px] text-muted" x-text="r.label"></span>
+                  <span class="text-right text-[13.5px] font-semibold text-ink" x-text="r.value"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Wizard gombok -->
+          <div class="mt-7 flex items-center justify-between gap-3">
+            <button @click="step = Math.max(1, step - 1)" class="flex items-center gap-1.5 rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-surface" :class="step === 1 ? 'invisible' : ''">
+              <i data-lucide="arrow-left" class="h-[17px] w-[17px]"></i> Vissza
+            </button>
+            <button x-show="step === 3" @click="submitted = true" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+              <i data-lucide="send" class="h-[17px] w-[17px]"></i> Beküldés
+            </button>
+            <button x-show="step !== 3" @click="step = Math.min(3, step + 1)" class="flex items-center gap-2 rounded-xl bg-ink px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-ink/90">
+              Tovább <i data-lucide="arrow-right" class="h-[17px] w-[17px]"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOVÁBBI NÉZETEK (helykitöltő) -->
+      <div x-show="view === 'szerzodesek'" class="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-soft">
+          <i data-lucide="file-text" class="h-8 w-8 text-teal"></i>
+        </div>
+        <h1 class="mt-5 text-[22px] font-extrabold text-ink">Szerződéseim</h1>
+        <p class="mt-2 max-w-sm text-[14.5px] text-muted">Ez a felület hamarosan elérhető lesz az ügyfélportálon.</p>
+      </div>
+      <div x-show="view === 'dokumentumok'" class="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-soft">
+          <i data-lucide="folder" class="h-8 w-8 text-teal"></i>
+        </div>
+        <h1 class="mt-5 text-[22px] font-extrabold text-ink">Dokumentumaim</h1>
+        <p class="mt-2 max-w-sm text-[14.5px] text-muted">Ez a felület hamarosan elérhető lesz az ügyfélportálon.</p>
+      </div>
+      <div x-show="view === 'uzenetek'" class="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-soft">
+          <i data-lucide="message-circle" class="h-8 w-8 text-teal"></i>
+        </div>
+        <h1 class="mt-5 text-[22px] font-extrabold text-ink">Üzenetek</h1>
+        <p class="mt-2 max-w-sm text-[14.5px] text-muted">Ez a felület hamarosan elérhető lesz az ügyfélportálon.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Alsó navigáció (mobil) -->
+  <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-100 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
+    <div class="grid grid-cols-5">
+      <template x-for="n in nav" :key="n.id">
+        <button @click="view = n.id" class="flex flex-col items-center gap-1 py-2.5 transition" :class="view === n.id ? 'text-teal' : 'text-muted'">
+          <i :data-lucide="n.icon" class="h-[22px] w-[22px]"></i>
+          <span class="text-[10.5px] font-semibold" x-text="n.short"></span>
+        </button>
+      </template>
+    </div>
+  </nav>
+
+</div>
+
+<script>
+  function portal() {
+    return {
+      view: 'home',
+      step: 1,
+      submitted: false,
+      form: {
+        vezeteknev: 'Kovács', keresztnev: 'Anna', szuletesiDatum: '1990. 05. 12.',
+        szuletesiHely: 'Budapest', anyjaNeve: 'Nagy Mária', adoazonosito: '8412345678',
+        email: 'anna.kovacs@email.hu', telefon: '+36 30 123 4567', iranyitoszam: '1051',
+        varos: 'Budapest', kozterulet: 'Fő utca', hazszam: '12.'
+      },
+      nav: [
+        { id: 'home', label: 'Kezdő', short: 'Kezdő', icon: 'home' },
+        { id: 'szerzodesek', label: 'Szerződéseim', short: 'Szerződés', icon: 'file-text' },
+        { id: 'dokumentumok', label: 'Dokumentumaim', short: 'Dokumentum', icon: 'folder' },
+        { id: 'adatok', label: 'Adataim', short: 'Adataim', icon: 'id-card' },
+        { id: 'uzenetek', label: 'Üzenetek', short: 'Üzenet', icon: 'message-circle' }
+      ],
+      stepLabels: ['Személyes adatok', 'Elérhetőség', 'Áttekintés'],
+      contracts: [
+        { icon: 'heart-pulse', title: 'Életbiztosítás', meta: 'Kötvényszám: 100-2451 · évforduló: aug. 14.', status: 'aktív', chipCls: 'bg-success/10 text-success' },
+        { icon: 'car', title: 'KGFB — gépjármű', meta: 'Kötvényszám: 220-8810 · lejár: júl. 5.', status: 'hamarosan lejár', chipCls: 'bg-warning/10 text-warning' },
+        { icon: 'home', title: 'Lakásbiztosítás', meta: 'Kötvényszám: 330-1207 · évforduló: nov. 2.', status: 'aktív', chipCls: 'bg-success/10 text-success' }
+      ],
+      get review() {
+        const f = this.form;
+        const cim = ((f.iranyitoszam || '') + ' ' + (f.varos || '') + ', ' + (f.kozterulet || '') + ' ' + (f.hazszam || '')).trim();
+        return [
+          { label: 'Vezetéknév', value: f.vezeteknev || '—' },
+          { label: 'Keresztnév', value: f.keresztnev || '—' },
+          { label: 'Születési dátum', value: f.szuletesiDatum || '—' },
+          { label: 'Születési hely', value: f.szuletesiHely || '—' },
+          { label: 'Anyja neve', value: f.anyjaNeve || '—' },
+          { label: 'Adóazonosító', value: f.adoazonosito || '—' },
+          { label: 'E-mail', value: f.email || '—' },
+          { label: 'Telefonszám', value: f.telefon || '—' },
+          { label: 'Cím', value: cim || '—' }
+        ];
+      },
+      refreshIcons() {
+        try { window.lucide && window.lucide.createIcons(); } catch (e) {}
+      }
+    };
+  }
+</script>
+</body>
+</html>

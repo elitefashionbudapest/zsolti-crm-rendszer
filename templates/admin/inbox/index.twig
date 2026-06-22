@@ -1,0 +1,57 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Postaláda — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Postaláda</h1>
+    <p class="mt-1 text-[13.5px] text-muted">Beérkező e-mailek az iroda IMAP-fiókjából</p>
+  </div>
+  {% if configured %}
+    <form method="post" action="/admin/postalada/szinkron">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+      <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-soft transition hover:bg-teal/90"><i data-lucide="refresh-cw" class="h-[18px] w-[18px]"></i> Szinkronizálás most</button>
+    </form>
+  {% endif %}
+</div>
+
+{% if flash %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border px-4 py-3 text-[13.5px] font-medium {{ flash.type == 'error' ? 'border-danger/20 bg-danger/5 text-danger' : 'border-success/20 bg-success/5 text-success' }}">
+    <i data-lucide="{{ flash.type == 'error' ? 'alert-circle' : 'check-circle-2' }}" class="h-4 w-4"></i> {{ flash.msg }}
+  </div>
+{% endif %}
+
+{% if not configured %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border border-warning/20 bg-warning/5 px-4 py-3 text-[13.5px] font-medium text-warning">
+    <i data-lucide="info" class="h-4 w-4"></i> Az IMAP-fiók nincs beállítva. Állítsd be a <a href="/admin/beallitasok" class="font-semibold underline">Beállításoknál</a>.
+  </div>
+{% endif %}
+
+<div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+  {% if emails is empty %}
+    <div class="px-5 py-16 text-center">
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface"><i data-lucide="inbox" class="h-7 w-7 text-muted"></i></div>
+      <p class="mt-4 text-[14px] font-medium text-ink">Nincs beérkező levél</p>
+      <p class="mt-1 text-[13px] text-muted">Kösd be az IMAP-fiókot és szinkronizálj.</p>
+    </div>
+  {% else %}
+    <ul class="divide-y divide-slate-100">
+      {% for m in emails %}
+        <li class="flex items-start gap-4 px-5 py-4 transition hover:bg-surface/60">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface"><i data-lucide="mail" class="h-5 w-5 text-ink"></i></div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="truncate text-[14px] font-semibold text-ink">{{ m.subject ?: '(nincs tárgy)' }}</span>
+              {% if m.category %}<span class="rounded-full bg-teal/10 px-2 py-0.5 text-[11px] font-semibold text-teal">{{ m.category }}</span>{% endif %}
+            </div>
+            <div class="mt-0.5 text-[12.5px] text-muted">{{ m.from_email }}</div>
+            {% if m.body %}<p class="mt-1 line-clamp-2 text-[12.5px] text-muted">{{ m.body|slice(0, 160) }}</p>{% endif %}
+          </div>
+          <div class="shrink-0 text-[12px] text-muted">{{ m.received_at }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endblock %}

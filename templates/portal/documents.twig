@@ -1,0 +1,41 @@
+{% extends 'layouts/portal.twig' %}
+{% block title %}Dokumentumaim — Ügyfélportál{% endblock %}
+
+{% macro filesize(bytes) %}
+  {%- set b = bytes|default(0) -%}
+  {%- if b >= 1048576 -%}{{ (b / 1048576)|round(1) }} MB
+  {%- elseif b >= 1024 -%}{{ (b / 1024)|round(0) }} KB
+  {%- else -%}{{ b }} B
+  {%- endif -%}
+{% endmacro %}
+{% import _self as fmt %}
+
+{% block main %}
+<h1 class="text-[26px] font-extrabold tracking-tight text-ink sm:text-[30px]">Dokumentumaim</h1>
+<p class="mt-1.5 text-[15px] text-muted">Itt találja az ügynöke által megosztott dokumentumokat.</p>
+
+{% if documents is empty %}
+  <div class="mt-7 rounded-2xl border border-slate-200/70 bg-white px-5 py-14 text-center shadow-soft">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface"><i data-lucide="folder" class="h-7 w-7 text-muted"></i></div>
+    <p class="mt-4 text-[14.5px] font-semibold text-ink">Még nincs megosztott dokumentumod</p>
+    <p class="mt-1 text-[13.5px] text-muted">Amint az ügynököd megoszt egy dokumentumot, az itt fog megjelenni.</p>
+  </div>
+{% else %}
+  <div class="mt-7 space-y-3">
+    {% for d in documents %}
+      <div class="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-soft sm:p-5">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal/10"><i data-lucide="file-text" class="h-[22px] w-[22px] text-teal"></i></div>
+        <div class="min-w-0 flex-1 leading-tight">
+          <div class="truncate text-[14.5px] font-bold text-ink">{{ d.original_name }}</div>
+          <div class="mt-0.5 text-[12.5px] text-muted">
+            {{ d.type ?: 'dokumentum' }} · {{ fmt.filesize(d.size_bytes) }}{% if d.created_at %} · {{ d.created_at|date('Y-m-d') }}{% endif %}
+          </div>
+        </div>
+        <a href="/portal/dokumentumaim/{{ d.id }}/letoltes" class="flex shrink-0 items-center gap-2 rounded-xl bg-teal px-4 py-2.5 text-[13.5px] font-semibold text-white transition hover:bg-teal/90">
+          <i data-lucide="download" class="h-[17px] w-[17px]"></i> <span class="hidden sm:inline">Letöltés</span>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Beállítások — {{ app_name }}{% endblock %}
+
+{% macro field(label, name, v, type, placeholder, help) %}
+  <div>
+    <label class="mb-1.5 block text-[13px] font-semibold text-ink">{{ label }}</label>
+    <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ v[name] }}" placeholder="{{ placeholder|default('') }}"
+      class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+    {% if help %}<p class="mt-1 text-[12px] text-muted">{{ help }}</p>{% endif %}
+  </div>
+{% endmacro %}
+
+{% macro secret(label, name, isSet) %}
+  <div>
+    <label class="mb-1.5 block text-[13px] font-semibold text-ink">{{ label }}</label>
+    <input type="password" name="{{ name }}" autocomplete="new-password"
+      placeholder="{{ isSet ? '•••• (beállítva)' : '' }}"
+      class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+    <p class="mt-1 text-[12px] text-muted">Hagyd üresen, ha nem változtatod.</p>
+  </div>
+{% endmacro %}
+
+{% import _self as f %}
+
+{% block main %}
+<div class="mb-6">
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Beállítások</h1>
+  <p class="mt-1 text-[13.5px] text-muted">Az iroda e-mail-, AI-, naptár- és arculati beállításai.</p>
+</div>
+
+{% if flash %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-[13.5px] font-medium text-success">
+    <i data-lucide="check-circle-2" class="h-4 w-4"></i> {{ flash.msg }}
+  </div>
+{% endif %}
+
+{% if noOffice %}
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-8 text-center shadow-card">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface"><i data-lucide="building-2" class="h-7 w-7 text-muted"></i></div>
+    <p class="mt-4 text-[14px] font-medium text-ink">Nincs elérhető beállítás</p>
+    <p class="mt-1 text-[13px] text-muted">Beállításokat csak irodához tartozó felhasználók kezelhetnek.</p>
+  </div>
+{% else %}
+<form method="post" action="/admin/beallitasok" x-data="{ tab: 'email' }" class="mx-auto max-w-3xl">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="mb-5 flex flex-wrap gap-1.5 rounded-xl border border-slate-200/70 bg-white p-1.5 shadow-card">
+    {% set tabs = [
+      { id: 'email', label: 'E-mail', icon: 'mail' },
+      { id: 'ai', label: 'AI (Claude)', icon: 'sparkles' },
+      { id: 'google', label: 'Google Naptár', icon: 'calendar' },
+      { id: 'branding', label: 'Arculat', icon: 'palette' }
+    ] %}
+    {% for t in tabs %}
+      <button type="button" @click="tab = '{{ t.id }}'"
+        :class="tab === '{{ t.id }}' ? 'bg-teal text-white shadow-soft' : 'text-muted hover:bg-surface hover:text-ink'"
+        class="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13.5px] font-semibold transition-colors">
+        <i data-lucide="{{ t.icon }}" class="h-[17px] w-[17px]"></i> {{ t.label }}
+      </button>
+    {% endfor %}
+  </div>
+
+  {# E-mail #}
+  <div x-show="tab === 'email'" x-cloak class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Kimenő levél (SMTP)</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('SMTP-kiszolgáló', 'smtp_host', v, 'text', 'smtp.example.com') }}
+      {{ f.field('Port', 'smtp_port', v, 'text', '587') }}
+      {{ f.field('Felhasználónév', 'smtp_user', v, 'text', 'nev@iroda.hu') }}
+      {{ f.secret('Jelszó', 'smtp_password', secret.smtp_password_set) }}
+      {{ f.field('Feladó e-mail', 'smtp_from_email', v, 'email', 'iroda@iroda.hu') }}
+      {{ f.field('Feladó neve', 'smtp_from_name', v, 'text', 'Aegis Iroda') }}
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Beérkező levél (IMAP)</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('IMAP-kiszolgáló', 'imap_host', v, 'text', 'imap.example.com') }}
+      {{ f.field('Port', 'imap_port', v, 'text', '993') }}
+      {{ f.field('Felhasználónév', 'imap_username', v, 'text', 'nev@iroda.hu') }}
+      {{ f.secret('Jelszó', 'imap_password', secret.imap_password_set) }}
+    </div>
+  </div>
+
+  {# AI #}
+  <div x-show="tab === 'ai'" x-cloak class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Claude (Anthropic)</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.secret('API-kulcs', 'anthropic_api_key', secret.anthropic_api_key_set) }}
+      {{ f.field('Modell', 'anthropic_model', v, 'text', 'claude-opus-4-8', 'Alapértelmezett: claude-opus-4-8') }}
+    </div>
+  </div>
+
+  {# Google Naptár #}
+  <div x-show="tab === 'google'" x-cloak class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-[15px] font-bold text-ink">Google Naptár (OAuth)</h2>
+      {% if googleConnected %}
+        <span class="flex items-center gap-1.5 rounded-full border border-success/20 bg-success/5 px-3 py-1.5 text-[12.5px] font-semibold text-success">
+          <i data-lucide="check-circle-2" class="h-4 w-4"></i> Összekötve
+        </span>
+      {% else %}
+        <span class="flex items-center gap-1.5 rounded-full border border-slate-200 bg-surface px-3 py-1.5 text-[12.5px] font-semibold text-muted">
+          <i data-lucide="x-circle" class="h-4 w-4"></i> Nincs összekötve
+        </span>
+      {% endif %}
+    </div>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Client ID', 'google_client_id', v, 'text', '...apps.googleusercontent.com') }}
+      {{ f.secret('Client Secret', 'google_client_secret', secret.google_client_secret_set) }}
+    </div>
+    <p class="mt-4 text-[12.5px] text-muted">Az összekötést (OAuth-tokeneket) a Google bejelentkezési folyamat állítja be, miután a Client ID és a Client Secret elmentésre került.</p>
+  </div>
+
+  {# Arculat #}
+  <div x-show="tab === 'branding'" x-cloak class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Arculat</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Márkanév', 'brand_name', v, 'text', 'Aegis CRM') }}
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Elsődleges szín</label>
+        <div class="flex items-center gap-3">
+          <input type="color" name="brand_primary_color" value="{{ v.brand_primary_color|default('#0F2A4A') }}"
+            class="h-12 w-16 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-surface p-1">
+          <input type="text" value="{{ v.brand_primary_color|default('#0F2A4A') }}" readonly
+            class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] text-muted outline-none">
+        </div>
+        <p class="mt-1 text-[12px] text-muted">Alapértelmezett: #0F2A4A</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end">
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új partner' : 'Partner szerkesztése' }} — {{ app_name }}{% endblock %}
+
+{% macro field(label, name, client, errors, type, placeholder) %}
+  <div>
+    <label class="mb-1.5 block text-[13px] font-semibold text-ink">{{ label }}</label>
+    <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ client[name] }}" placeholder="{{ placeholder|default('') }}"
+      class="w-full rounded-xl border {{ errors[name] is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+    {% if errors[name] is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors[name] }}</p>{% endif %}
+  </div>
+{% endmacro %}
+{% import _self as f %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/partnerek" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új partner' : 'Partner szerkesztése' }}</h1>
+</div>
+
+<form method="post" action="{{ action }}" class="mx-auto max-w-3xl">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Alapadatok</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Név', 'name', client, errors, 'text', 'Pl. Kovács Anna') }}
+      {{ f.field('E-mail', 'email', client, errors, 'email', 'nev@email.hu') }}
+      {{ f.field('Telefon', 'phone', client, errors, 'text', '+36 1 234 5678') }}
+      {{ f.field('Mobil', 'mobile', client, errors, 'text', '+36 30 123 4567') }}
+      <div class="sm:col-span-2">{{ f.field('Cím', 'address', client, errors, 'text', '1051 Budapest, Fő utca 12.') }}</div>
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Személyes adatok</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Adóazonosító jel', 'tax_id', client, errors) }}
+      {{ f.field('Születési dátum (ÉÉÉÉ-HH-NN)', 'birth_date', client, errors, 'text', '1990-05-12') }}
+      {{ f.field('Születési hely', 'birth_place', client, errors) }}
+      {{ f.field('Anyja neve', 'mother_name', client, errors) }}
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Megjegyzés</label>
+      <textarea name="notes" rows="3" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">{{ client.notes }}</textarea>
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Státusz</label>
+      <select name="status" class="rounded-xl border border-slate-200 bg-surface px-3 py-2.5 text-[14px] outline-none focus:border-teal">
+        <option value="active" {{ client.status == 'active' ? 'selected' }}>Aktív</option>
+        <option value="inactive" {{ client.status == 'inactive' ? 'selected' }}>Inaktív</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/partnerek" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}

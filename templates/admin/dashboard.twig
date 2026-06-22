@@ -1,0 +1,49 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Vezérlőpult — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Vezérlőpult</h1>
+    <p class="mt-1 text-[13.5px] text-muted">Üdv újra, {{ current_user.name }} — itt a mai legfontosabb feladataid és teendőid.</p>
+  </div>
+  <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-muted shadow-soft">
+    <i data-lucide="calendar" class="h-4 w-4 text-teal"></i> {{ "now"|date("Y. m. d.") }}
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  {% for s in stats %}
+    <div class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card">
+      <div class="flex items-start justify-between">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ s.iconWrap }}"><i data-lucide="{{ s.icon }}" class="h-[22px] w-[22px]"></i></div>
+        <div class="flex items-center gap-1 rounded-full px-2 py-1 text-[12px] font-semibold {{ s.trendCls }}"><i data-lucide="{{ s.trendIcon }}" class="h-3.5 w-3.5"></i> {{ s.trend }}</div>
+      </div>
+      <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink">{{ s.value }}</div>
+      <div class="mt-1.5 text-[13px] font-medium text-muted">{{ s.label }}</div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
+  <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-3">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-2.5"><i data-lucide="list-checks" class="h-[19px] w-[19px] text-teal"></i><h2 class="text-[15px] font-bold text-ink">Teendők</h2></div>
+    </div>
+    <div class="px-5 py-10 text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-surface"><i data-lucide="check-square" class="h-6 w-6 text-muted"></i></div>
+      <p class="mt-3 text-[13.5px] text-muted">Még nincs teendő. A feladatok modul a következő fázisban készül el.</p>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-2">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-2.5"><i data-lucide="activity" class="h-[19px] w-[19px] text-teal"></i><h2 class="text-[15px] font-bold text-ink">Legutóbbi tevékenység</h2></div>
+    </div>
+    <div class="px-5 py-10 text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-surface"><i data-lucide="activity" class="h-6 w-6 text-muted"></i></div>
+      <p class="mt-3 text-[13.5px] text-muted">Nincs még tevékenység.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'layouts/base.twig' %}
+{% block title %}Dolgozók — Szuperadmin — {{ app_name }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-surface">
+  <header class="sticky top-0 z-40 border-b border-slate-100 bg-white">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gold"><i data-lucide="crown" class="h-5 w-5 text-ink"></i></div>
+        <span class="text-[16px] font-extrabold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span> · Szuperadmin</span>
+      </div>
+      <form method="post" action="/kilepes">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <button type="submit" class="flex items-center gap-2 rounded-xl border border-slate-200 px-3.5 py-2 text-[13.5px] font-semibold text-danger hover:bg-danger/5"><i data-lucide="log-out" class="h-4 w-4"></i> Kijelentkezés</button>
+      </form>
+    </div>
+    <div class="border-t border-slate-100 bg-white">
+      <div class="mx-auto flex max-w-6xl items-center gap-1 px-5 sm:px-8">
+        <a href="/superadmin" class="border-b-2 border-transparent px-3 py-3 text-[13.5px] font-semibold text-muted hover:text-ink">Vezérlőpult</a>
+        <a href="/superadmin/irodak" class="border-b-2 border-transparent px-3 py-3 text-[13.5px] font-semibold text-muted hover:text-ink">Irodák</a>
+        <a href="/superadmin/dolgozok" class="border-b-2 border-teal px-3 py-3 text-[13.5px] font-semibold text-ink">Dolgozók</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+    {% if flash %}
+      <div class="mb-5 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-[13.5px] font-semibold text-success">{{ flash.msg }}</div>
+    {% endif %}
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-[24px] font-bold tracking-tight text-ink">Dolgozók</h1>
+        <p class="mt-1 text-[14px] text-muted">Irodai munkatársak (tulajdonosok és asszisztensek) kezelése.</p>
+      </div>
+      <a href="/superadmin/dolgozok/uj" class="flex items-center gap-2 rounded-xl bg-teal px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-teal/90"><i data-lucide="plus" class="h-[18px] w-[18px]"></i> Új dolgozó</a>
+    </div>
+
+    <form method="get" action="/superadmin/dolgozok" class="mt-6 flex items-center gap-3">
+      <select name="office_id" onchange="this.form.submit()" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[14px] outline-none focus:border-teal">
+        <option value="">Összes iroda</option>
+        {% for o in offices %}
+          <option value="{{ o.id }}" {{ officeId == o.id ? 'selected' }}>{{ o.name }}</option>
+        {% endfor %}
+      </select>
+      {% if officeId %}<a href="/superadmin/dolgozok" class="text-[13.5px] font-semibold text-muted hover:text-ink">Szűrő törlése</a>{% endif %}
+    </form>
+
+    <div class="mt-5 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-card">
+      <table class="w-full text-left text-[14px]">
+        <thead class="border-b border-slate-100 bg-surface/60 text-[12.5px] uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Név</th>
+            <th class="px-5 py-3 font-semibold">E-mail</th>
+            <th class="px-5 py-3 font-semibold">Iroda</th>
+            <th class="px-5 py-3 font-semibold">Szerepkör</th>
+            <th class="px-5 py-3 font-semibold">Állapot</th>
+            <th class="px-5 py-3 text-right font-semibold">Műveletek</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for u in staff %}
+          <tr class="hover:bg-surface/40">
+            <td class="px-5 py-3.5 font-semibold text-ink">{{ u.name }}</td>
+            <td class="px-5 py-3.5 text-muted">{{ u.email }}</td>
+            <td class="px-5 py-3.5 text-ink">{{ u.office_name ?: '—' }}</td>
+            <td class="px-5 py-3.5">
+              {% for code in u.role_codes|split(',') %}
+                {% if code == 'owner' %}<span class="inline-flex rounded-full bg-gold/15 px-2.5 py-1 text-[12px] font-semibold text-warning">Tulajdonos</span>
+                {% elseif code == 'assistant' %}<span class="inline-flex rounded-full bg-teal/10 px-2.5 py-1 text-[12px] font-semibold text-teal">Asszisztens</span>{% endif %}
+              {% endfor %}
+            </td>
+            <td class="px-5 py-3.5">
+              {% if u.is_active %}
+                <span class="inline-flex rounded-full bg-success/10 px-2.5 py-1 text-[12px] font-semibold text-success">Aktív</span>
+              {% else %}
+                <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[12px] font-semibold text-muted">Inaktív</span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3.5">
+              <div class="flex items-center justify-end gap-2">
+                <a href="/superadmin/dolgozok/{{ u.id }}/szerkesztes" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Szerkesztés"><i data-lucide="pencil" class="h-[17px] w-[17px]"></i></a>
+                <form method="post" action="/superadmin/dolgozok/{{ u.id }}/allapot">
+                  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                  {% if u.is_active %}
+                    <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-warning/10 hover:text-warning" title="Inaktiválás"><i data-lucide="user-x" class="h-[17px] w-[17px]"></i></button>
+                  {% else %}
+                    <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-success/10 hover:text-success" title="Aktiválás"><i data-lucide="user-check" class="h-[17px] w-[17px]"></i></button>
+                  {% endif %}
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="px-5 py-10 text-center text-[14px] text-muted">Nincs megjeleníthető dolgozó.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

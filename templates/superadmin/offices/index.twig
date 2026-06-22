@@ -1,0 +1,84 @@
+{% extends 'layouts/base.twig' %}
+{% block title %}Irodák — Szuperadmin — {{ app_name }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-surface">
+  <header class="sticky top-0 z-40 border-b border-slate-100 bg-white">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gold"><i data-lucide="crown" class="h-5 w-5 text-ink"></i></div>
+        <span class="text-[16px] font-extrabold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span> · Szuperadmin</span>
+      </div>
+      <form method="post" action="/kilepes">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <button type="submit" class="flex items-center gap-2 rounded-xl border border-slate-200 px-3.5 py-2 text-[13.5px] font-semibold text-danger hover:bg-danger/5"><i data-lucide="log-out" class="h-4 w-4"></i> Kijelentkezés</button>
+      </form>
+    </div>
+    <div class="border-t border-slate-100 bg-white">
+      <div class="mx-auto flex max-w-6xl items-center gap-1 px-5 sm:px-8">
+        <a href="/superadmin" class="border-b-2 border-transparent px-3 py-3 text-[13.5px] font-semibold text-muted hover:text-ink">Vezérlőpult</a>
+        <a href="/superadmin/irodak" class="border-b-2 border-teal px-3 py-3 text-[13.5px] font-semibold text-ink">Irodák</a>
+        <a href="/superadmin/dolgozok" class="border-b-2 border-transparent px-3 py-3 text-[13.5px] font-semibold text-muted hover:text-ink">Dolgozók</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+    {% if flash %}
+      <div class="mb-5 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-[13.5px] font-semibold text-success">{{ flash.msg }}</div>
+    {% endif %}
+
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-[24px] font-bold tracking-tight text-ink">Irodák</h1>
+        <p class="mt-1 text-[14px] text-muted">Az összes iroda kezelése a rendszerben.</p>
+      </div>
+      <a href="/superadmin/irodak/uj" class="flex items-center gap-2 rounded-xl bg-teal px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-teal/90"><i data-lucide="plus" class="h-[18px] w-[18px]"></i> Új iroda</a>
+    </div>
+
+    <div class="mt-7 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-card">
+      <table class="w-full text-left text-[14px]">
+        <thead class="border-b border-slate-100 bg-surface/60 text-[12.5px] uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Név</th>
+            <th class="px-5 py-3 font-semibold">Azonosító (slug)</th>
+            <th class="px-5 py-3 font-semibold">Dolgozók</th>
+            <th class="px-5 py-3 font-semibold">Állapot</th>
+            <th class="px-5 py-3 text-right font-semibold">Műveletek</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for o in offices %}
+          <tr class="hover:bg-surface/40">
+            <td class="px-5 py-3.5 font-semibold text-ink">{{ o.name }}</td>
+            <td class="px-5 py-3.5 text-muted">{{ o.slug ?: '—' }}</td>
+            <td class="px-5 py-3.5 text-ink">{{ o.user_count }}</td>
+            <td class="px-5 py-3.5">
+              {% if o.is_active %}
+                <span class="inline-flex rounded-full bg-success/10 px-2.5 py-1 text-[12px] font-semibold text-success">Aktív</span>
+              {% else %}
+                <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[12px] font-semibold text-muted">Inaktív</span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3.5">
+              <div class="flex items-center justify-end gap-2">
+                <a href="/superadmin/irodak/{{ o.id }}/szerkesztes" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Szerkesztés"><i data-lucide="pencil" class="h-[17px] w-[17px]"></i></a>
+                <form method="post" action="/superadmin/irodak/{{ o.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt az irodát? A kapcsolódó adatok is törlődnek.');">
+                  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                  <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-danger/10 hover:text-danger" title="Törlés"><i data-lucide="trash-2" class="h-[17px] w-[17px]"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="px-5 py-10 text-center text-[14px] text-muted">Még nincs egyetlen iroda sem. Hozd létre az elsőt!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

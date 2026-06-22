@@ -1,0 +1,59 @@
+{% extends 'layouts/base.twig' %}
+{% block title %}{{ title }} — {{ app_name }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen items-center justify-center bg-surface px-5 py-10">
+  <div class="w-full max-w-md">
+    <a href="/" class="mb-8 flex items-center justify-center gap-2.5">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-ink"><i data-lucide="shield-check" class="h-5 w-5 text-teal"></i></div>
+      <span class="text-[18px] font-extrabold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span></span>
+    </a>
+
+    <div class="rounded-2xl border-2 {{ accent == 'teal' ? 'border-teal/20' : 'border-ink/10' }} bg-white p-7 shadow-card sm:p-8">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ accent == 'teal' ? 'bg-teal' : 'bg-ink' }}">
+          <i data-lucide="{{ accent == 'teal' ? 'user' : 'briefcase' }}" class="h-5 w-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-[17px] font-bold text-ink">{{ title }}</h1>
+          <p class="text-[13px] text-muted">{{ subtitle }}</p>
+        </div>
+      </div>
+
+      {% if error %}
+        <div class="mt-5 flex items-start gap-2 rounded-xl border border-danger/20 bg-danger/5 px-4 py-3 text-[13.5px] font-medium text-danger">
+          <i data-lucide="alert-circle" class="mt-0.5 h-4 w-4 shrink-0"></i><span>{{ error }}</span>
+        </div>
+      {% endif %}
+
+      <form method="post" action="{{ action }}" class="mt-6 space-y-4">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <div>
+          <label class="mb-1.5 block text-[13px] font-semibold text-ink">E-mail cím</label>
+          <input type="email" name="email" required autofocus class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:bg-white focus:ring-2 {{ accent == 'teal' ? 'focus:border-teal focus:ring-teal/15' : 'focus:border-ink focus:ring-ink/15' }}">
+        </div>
+        <div>
+          <div class="mb-1.5 flex items-center justify-between">
+            <label class="block text-[13px] font-semibold text-ink">Jelszó</label>
+            <a href="#" class="text-[12.5px] font-semibold {{ accent == 'teal' ? 'text-teal' : 'text-ink' }} hover:underline">Elfelejtett jelszó?</a>
+          </div>
+          <input type="password" name="password" required class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:bg-white focus:ring-2 {{ accent == 'teal' ? 'focus:border-teal focus:ring-teal/15' : 'focus:border-ink focus:ring-ink/15' }}">
+        </div>
+        <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl {{ accent == 'teal' ? 'bg-teal hover:bg-teal/90' : 'bg-ink hover:bg-ink/90' }} py-3.5 text-[15px] font-semibold text-white transition">
+          Belépés <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i>
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-6 text-center text-[13px] text-muted">
+      {% if accent == 'teal' %}
+        Ügynök vagy? <a href="/belepes/ugynok" class="font-semibold text-ink hover:underline">Ügynöki belépés</a>
+      {% else %}
+        Ügyfél vagy? <a href="/belepes/ugyfel" class="font-semibold text-teal hover:underline">Ügyfél belépés</a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+{% endblock %}

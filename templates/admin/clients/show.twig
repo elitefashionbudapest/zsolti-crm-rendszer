@@ -1,0 +1,232 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ client.name }} — {{ app_name }}{% endblock %}
+
+{% macro row(label, value) %}
+  <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3">
+    <span class="text-[13px] text-muted">{{ label }}</span>
+    <span class="text-right text-[13.5px] font-semibold text-ink">{{ value ?: '—' }}</span>
+  </div>
+{% endmacro %}
+{% import _self as r %}
+
+{% block main %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div class="flex items-center gap-3">
+    <a href="/admin/partnerek" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+    <div>
+      <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ client.name }}</h1>
+      <span class="mt-1 inline-block rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ client.status == 'active' ? 'bg-success/10 text-success' : 'bg-slate-100 text-muted' }}">{{ client.status == 'active' ? 'aktív' : 'inaktív' }}</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="/admin/partnerek/{{ client.id }}/szerkesztes" class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="pencil" class="h-[17px] w-[17px]"></i> Szerkesztés</a>
+    <form method="post" action="/admin/partnerek/{{ client.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt a partnert?');">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+      <button type="submit" class="flex items-center gap-2 rounded-xl border border-danger/20 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-danger transition hover:bg-danger/5"><i data-lucide="trash-2" class="h-[17px] w-[17px]"></i> Törlés</button>
+    </form>
+  </div>
+</div>
+
+{% if flash %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-[13.5px] font-medium text-success"><i data-lucide="check-circle-2" class="h-4 w-4"></i> {{ flash.msg }}</div>
+{% endif %}
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card">
+    <h2 class="text-[15px] font-bold text-ink">Adatok</h2>
+    <div class="mt-4 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+      {{ r.row('E-mail', client.email) }}
+      {{ r.row('Telefon', client.phone) }}
+      {{ r.row('Mobil', client.mobile) }}
+      {{ r.row('Cím', client.address) }}
+      {{ r.row('Adóazonosító', client.tax_id) }}
+      {{ r.row('Születési dátum', client.birth_date) }}
+      {{ r.row('Születési hely', client.birth_place) }}
+      {{ r.row('Anyja neve', client.mother_name) }}
+    </div>
+    {% if client.notes %}
+      <h3 class="mt-6 text-[13px] font-semibold text-ink">Megjegyzés</h3>
+      <p class="mt-2 whitespace-pre-line text-[13.5px] leading-relaxed text-muted">{{ client.notes }}</p>
+    {% endif %}
+  </div>
+
+  <div class="space-y-6">
+    <div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+      <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="file-text" class="h-[19px] w-[19px] text-teal"></i>
+          <h2 class="text-[15px] font-bold text-ink">Szerződések</h2>
+          <span class="rounded-full bg-surface px-2 py-0.5 text-[12px] font-semibold text-muted">{{ contractCount }}</span>
+        </div>
+        <a href="/admin/szerzodesek/uj" class="flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[12.5px] font-semibold text-white transition hover:bg-teal/90"><i data-lucide="plus" class="h-[15px] w-[15px]"></i> Új</a>
+      </div>
+      {% if contracts is empty %}
+        <div class="px-5 py-8 text-center">
+          <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-surface"><i data-lucide="file-text" class="h-5 w-5 text-muted"></i></div>
+          <p class="mt-2.5 text-[13px] text-muted">Nincs még szerződés ehhez a partnerhez.</p>
+        </div>
+      {% else %}
+        <ul class="divide-y divide-slate-100">
+          {% for c in contracts %}
+            <li>
+              <a href="/admin/szerzodesek/{{ c.id }}" class="flex items-center gap-3 px-5 py-3 transition hover:bg-surface/60">
+                <div class="min-w-0 flex-1">
+                  <div class="truncate text-[13.5px] font-semibold text-ink">{{ c.module_name ?: c.insurer_name ?: 'Szerződés' }}</div>
+                  <div class="text-[12px] text-muted">
+                    {%- if c.policy_number %}{{ c.policy_number }}{% endif -%}
+                    {%- if c.end_date %} · lejár: {{ c.end_date }}{% endif -%}
+                  </div>
+                </div>
+                <span class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ c.status == 'active' ? 'bg-success/10 text-success' : 'bg-slate-100 text-muted' }}">{{ c.status == 'active' ? 'aktív' : 'megszűnt' }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  {# Dokumentumok #}
+  <div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="folder" class="h-[19px] w-[19px] text-teal"></i>
+        <h2 class="text-[15px] font-bold text-ink">Dokumentumok</h2>
+        <span class="rounded-full bg-surface px-2 py-0.5 text-[12px] font-semibold text-muted">{{ documents|length }}</span>
+      </div>
+      <a href="/admin/dokumentumok/uj" class="flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[12.5px] font-semibold text-white transition hover:bg-teal/90"><i data-lucide="upload" class="h-[15px] w-[15px]"></i> Feltöltés</a>
+    </div>
+    {% if documents is empty %}
+      <div class="px-5 py-8 text-center">
+        <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-surface"><i data-lucide="folder" class="h-5 w-5 text-muted"></i></div>
+        <p class="mt-2.5 text-[13px] text-muted">Nincs feltöltött dokumentum.</p>
+      </div>
+    {% else %}
+      <ul class="divide-y divide-slate-100">
+        {% for d in documents %}
+          <li class="flex items-center gap-3 px-5 py-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface"><i data-lucide="file" class="h-[18px] w-[18px] text-ink"></i></div>
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-[13.5px] font-semibold text-ink">{{ d.original_name }}</div>
+              <div class="text-[12px] text-muted">
+                {{ d.type ?: 'dokumentum' }}
+                <span class="ml-1 rounded-full px-1.5 py-0.5 text-[10.5px] font-semibold {{ d.visibility == 'shared' ? 'bg-teal/10 text-teal' : 'bg-slate-100 text-muted' }}">{{ d.visibility == 'shared' ? 'megosztott' : 'csak ügynök' }}</span>
+                {% if d.size_bytes %} · {{ (d.size_bytes / 1024)|round }} KB{% endif %}
+              </div>
+            </div>
+            <a href="/admin/dokumentumok/{{ d.id }}/letoltes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Letöltés"><i data-lucide="download" class="h-4 w-4"></i></a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  {# Feladatok #}
+  <div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="check-square" class="h-[19px] w-[19px] text-teal"></i>
+        <h2 class="text-[15px] font-bold text-ink">Feladatok</h2>
+        <span class="rounded-full bg-surface px-2 py-0.5 text-[12px] font-semibold text-muted">{{ tasks|length }}</span>
+      </div>
+      <a href="/admin/feladatok/uj" class="flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[12.5px] font-semibold text-white transition hover:bg-teal/90"><i data-lucide="plus" class="h-[15px] w-[15px]"></i> Új</a>
+    </div>
+    {% if tasks is empty %}
+      <div class="px-5 py-8 text-center">
+        <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-surface"><i data-lucide="check-square" class="h-5 w-5 text-muted"></i></div>
+        <p class="mt-2.5 text-[13px] text-muted">Nincs feladat ehhez a partnerhez.</p>
+      </div>
+    {% else %}
+      <ul class="divide-y divide-slate-100">
+        {% for t in tasks %}
+          <li>
+            <a href="/admin/feladatok/{{ t.id }}" class="flex items-center gap-3 px-5 py-3 transition hover:bg-surface/60">
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-[13.5px] font-semibold {{ t.status == 'done' ? 'text-muted line-through' : 'text-ink' }}">{{ t.title }}</div>
+                {% if t.due_at %}<div class="text-[12px] text-muted">{{ t.due_at }}</div>{% endif %}
+              </div>
+              <span class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ t.status == 'done' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning' }}">{{ t.status == 'done' ? 'kész' : 'nyitott' }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  {# Üzenet küldése a partnernek #}
+  <div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+    <div class="flex items-center gap-2.5 border-b border-slate-100 px-5 py-4">
+      <i data-lucide="send" class="h-[19px] w-[19px] text-teal"></i>
+      <h2 class="text-[15px] font-bold text-ink">Üzenet küldése a partnernek</h2>
+    </div>
+    <div class="p-5">
+      {% if not client.email %}
+        <div class="flex items-center gap-2 rounded-xl border border-warning/20 bg-warning/5 px-4 py-3 text-[13px] font-medium text-warning"><i data-lucide="alert-circle" class="h-4 w-4"></i> A partnernek nincs e-mail címe. Add meg a szerkesztésnél.</div>
+      {% else %}
+        {% if not mailConfigured %}
+          <div class="mb-3 flex items-center gap-2 rounded-xl border border-warning/20 bg-warning/5 px-4 py-2.5 text-[12.5px] font-medium text-warning"><i data-lucide="info" class="h-4 w-4"></i> Az SMTP nincs beállítva (<a href="/admin/beallitasok" class="underline">Beállítások</a>) — a küldés enélkül nem megy ki.</div>
+        {% endif %}
+        <form method="post" action="/admin/partnerek/{{ client.id }}/uzenet" class="space-y-3">
+          <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+          <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+          <div class="text-[12.5px] text-muted">Címzett: <span class="font-semibold text-ink">{{ client.email }}</span></div>
+          <input type="text" name="subject" required placeholder="Tárgy" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-2.5 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <textarea name="message" rows="4" required placeholder="Üzenet…" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-2.5 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15"></textarea>
+          <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-teal/90"><i data-lucide="send" class="h-[17px] w-[17px]"></i> Küldés</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Belső megjegyzések #}
+  <div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+    <div class="flex items-center gap-2.5 border-b border-slate-100 px-5 py-4">
+      <i data-lucide="sticky-note" class="h-[19px] w-[19px] text-teal"></i>
+      <h2 class="text-[15px] font-bold text-ink">Belső megjegyzések</h2>
+      <span class="rounded-full bg-surface px-2 py-0.5 text-[11.5px] font-medium text-muted">csak az iroda látja</span>
+    </div>
+    <div class="p-5">
+      <form method="post" action="/admin/partnerek/{{ client.id }}/megjegyzes" class="space-y-3">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <textarea name="body" rows="2" required placeholder="Új megjegyzés…" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-2.5 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15"></textarea>
+        <button type="submit" class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-[13.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="plus" class="h-[16px] w-[16px]"></i> Hozzáadás</button>
+      </form>
+      {% if notes is not empty %}
+        <ul class="mt-4 space-y-3">
+          {% for nt in notes %}
+            <li class="rounded-xl bg-surface px-4 py-3">
+              <p class="whitespace-pre-line text-[13.5px] text-ink">{{ nt.body }}</p>
+              <div class="mt-1.5 text-[11.5px] text-muted">{{ nt.author ?: 'Iroda' }} · {{ nt.created_at }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="mt-4 text-[13px] text-muted">Még nincs belső megjegyzés.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if intake is not empty %}
+  <div class="mt-6 rounded-2xl border border-slate-200/70 bg-white shadow-card">
+    <div class="flex items-center gap-2.5 border-b border-slate-100 px-5 py-4">
+      <i data-lucide="clipboard-check" class="h-[19px] w-[19px] text-teal"></i>
+      <h2 class="text-[15px] font-bold text-ink">Ügyfél által beküldött adatlapok</h2>
+    </div>
+    <ul class="divide-y divide-slate-100">
+      {% for s in intake %}
+        <li class="flex items-center justify-between gap-3 px-5 py-3">
+          <div class="text-[13.5px] text-ink">Beküldve: {{ s.created_at }}</div>
+          <span class="rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold {{ s.status == 'pending' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success' }}">{{ s.status == 'pending' ? 'jóváhagyásra vár' : 'jóváhagyva' }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% endblock %}

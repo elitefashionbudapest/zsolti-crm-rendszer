@@ -1,0 +1,83 @@
+{% extends 'layouts/base.twig' %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% set nav = [
+  { id: 'dashboard', label: 'Vezérlőpult', icon: 'layout-dashboard', href: '/admin' },
+  { id: 'clients', label: 'Partnerek', icon: 'users', href: '/admin/partnerek' },
+  { id: 'excel', label: 'Ügyféltáblázat', icon: 'table', href: '/admin/ugyfel-tablazat' },
+  { id: 'contracts', label: 'Szerződések', icon: 'file-text', href: '/admin/szerzodesek' },
+  { id: 'documents', label: 'Dokumentumok', icon: 'folder', href: '/admin/dokumentumok' },
+  { id: 'ai', label: 'AI-kinyerés', icon: 'sparkles', href: '/admin/ai-kinyeres' },
+  { id: 'templates', label: 'Sablonok', icon: 'file-check-2', href: '/admin/sablonok' },
+  { id: 'inbox', label: 'Postaláda', icon: 'inbox', href: '/admin/postalada' },
+  { id: 'tasks', label: 'Feladatok', icon: 'check-square', href: '/admin/feladatok' },
+  { id: 'leads', label: 'Leadek', icon: 'user-plus', href: '/admin/leadek' },
+  { id: 'emails', label: 'E-mail folyamatok', icon: 'mail', href: '/admin/email-folyamatok' },
+  { id: 'insurers', label: 'Biztosítók', icon: 'building-2', href: '/admin/biztositok' },
+  { id: 'reports', label: 'Riportok', icon: 'bar-chart-3', href: '/admin/riportok' },
+  { id: 'commissions', label: 'Jutalékok', icon: 'coins', href: '/admin/jutalekok' },
+  { id: 'advisory', label: 'Tanácsadás', icon: 'book-open', href: '/admin/tanacsadas' },
+  { id: 'import', label: 'Import', icon: 'upload', href: '/admin/import' },
+  { id: 'settings', label: 'Beállítások', icon: 'settings', href: '/admin/beallitasok' }
+] %}
+
+{% block body %}
+<div x-data="{ sidebarOpen: false }" x-cloak class="min-h-screen bg-surface">
+
+  <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-ink/40 backdrop-blur-sm lg:hidden"></div>
+
+  <aside class="app-drawer fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col bg-ink text-white" :class="{ 'is-open': sidebarOpen }">
+    <div class="flex h-16 items-center gap-3 px-6">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-teal shadow-soft"><i data-lucide="shield-check" class="h-5 w-5 text-white"></i></div>
+      <div class="leading-tight"><div class="text-[15px] font-bold tracking-tight">Aegis CRM</div><div class="text-[11px] font-medium text-white/50">Biztosítás &amp; Pénzügy</div></div>
+    </div>
+    <nav class="mt-2 flex-1 space-y-0.5 overflow-y-auto px-3 pb-6">
+      {% for item in nav %}
+        <a href="{{ item.href }}" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-colors {{ active == item.id ? 'bg-teal text-white shadow-soft' : 'text-white/65 hover:bg-white/10 hover:text-white' }}">
+          <i data-lucide="{{ item.icon }}" class="h-[18px] w-[18px] shrink-0"></i><span>{{ item.label }}</span>
+        </a>
+      {% endfor %}
+    </nav>
+    <div class="border-t border-white/10 p-4">
+      <div class="flex items-center gap-3 rounded-xl bg-white/5 p-3">
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gold/90 text-[13px] font-bold text-ink">{{ current_user.name|slice(0,2)|upper }}</div>
+        <div class="min-w-0 leading-tight"><div class="truncate text-[13px] font-semibold">{{ current_user.name }}</div><div class="truncate text-[11px] text-white/50">{{ current_user.email }}</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="lg:pl-[260px]">
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200/70 bg-white px-4 sm:px-6">
+      <button @click="sidebarOpen = true" class="flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button>
+      <div class="relative hidden flex-1 max-w-md sm:block">
+        <i data-lucide="search" class="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted"></i>
+        <input type="text" placeholder="Keresés partnerek, szerződések, dokumentumok között…" class="w-full rounded-xl border border-slate-200 bg-surface py-2.5 pl-11 pr-4 text-[13.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+      </div>
+      <div class="ml-auto flex items-center gap-2 sm:gap-3">
+        <button class="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface"><i data-lucide="bell" class="h-[19px] w-[19px]"></i></button>
+        <div class="hidden h-9 w-9 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-white sm:flex">{{ current_user.name|slice(0,2)|upper }}</div>
+        <form method="post" action="/kilepes">
+          <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+          <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+          <button type="submit" class="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-danger transition hover:bg-danger/5"><i data-lucide="log-out" class="h-[17px] w-[17px]"></i><span class="hidden sm:inline">Kilépés</span></button>
+        </form>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-[1600px] px-4 py-6 pb-28 sm:px-6 sm:py-8 sm:pb-28 lg:pb-8">
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+
+  {# App-szerű alsó navigáció (mobil) #}
+  <nav class="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-slate-100 bg-white lg:hidden">
+    <div class="grid grid-cols-5">
+      <a href="/admin" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'dashboard' ? 'text-teal' : 'text-muted' }}"><i data-lucide="layout-dashboard" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Kezdő</span></a>
+      <a href="/admin/partnerek" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'clients' ? 'text-teal' : 'text-muted' }}"><i data-lucide="users" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Partnerek</span></a>
+      <a href="/admin/szerzodesek" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'contracts' ? 'text-teal' : 'text-muted' }}"><i data-lucide="file-text" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Szerződés</span></a>
+      <a href="/admin/feladatok" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'tasks' ? 'text-teal' : 'text-muted' }}"><i data-lucide="check-square" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Feladatok</span></a>
+      <button type="button" @click="sidebarOpen = true" class="flex flex-col items-center gap-1 py-2.5 text-muted transition"><i data-lucide="menu" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Menü</span></button>
+    </div>
+  </nav>
+</div>
+{% endblock %}

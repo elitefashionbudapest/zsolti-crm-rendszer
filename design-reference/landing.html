@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisCRM — Modern CRM biztosítási ügynököknek és pénzügyi tanácsadóknak</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --color-ink: #0F2A4A;
+      --color-teal: #0E9F6E;
+      --color-gold: #F4B740;
+      --color-surface: #F5F7FA;
+      --color-body: #1E293B;
+      --color-muted: #64748B;
+      --shadow-soft: 0 1px 2px rgba(15,42,74,0.04), 0 4px 16px rgba(15,42,74,0.06);
+      --shadow-card: 0 1px 3px rgba(15,42,74,0.05), 0 10px 30px rgba(15,42,74,0.07);
+      --shadow-float: 0 30px 60px -20px rgba(15,42,74,0.45);
+    }
+  </style>
+  <style>
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #FFFFFF; color: #1E293B; }
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 9px; }
+    [x-cloak] { display: none !important; }
+  </style>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body>
+<div
+  x-data="landing()"
+  x-init="$nextTick(() => refreshIcons())"
+  x-cloak
+  class="min-h-screen bg-white font-sans text-body antialiased"
+>
+
+  <!-- 1. Fejléc -->
+  <header class="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-md">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <a href="#" class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-ink">
+          <i data-lucide="shield-check" class="h-5 w-5 text-teal"></i>
+        </div>
+        <span class="text-[17px] font-extrabold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span></span>
+      </a>
+
+      <nav class="hidden items-center gap-8 lg:flex">
+        <a href="#funkciok" class="text-[14px] font-medium text-muted transition hover:text-ink">Funkciók</a>
+        <a href="#hogyan" class="text-[14px] font-medium text-muted transition hover:text-ink">Hogyan működik</a>
+        <a href="#kapcsolat" class="text-[14px] font-medium text-muted transition hover:text-ink">Kapcsolat</a>
+      </nav>
+
+      <div class="hidden items-center gap-3 lg:flex">
+        <a href="#belepes" class="rounded-xl bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-soft transition hover:bg-ink/90">Ügynöki belépés</a>
+        <a href="#belepes" class="rounded-xl border-2 border-ink px-4 py-2 text-[13.5px] font-semibold text-ink transition hover:bg-ink hover:text-white">Ügyfél belépés</a>
+      </div>
+
+      <button @click="menuOpen = !menuOpen" class="flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-surface lg:hidden">
+        <i data-lucide="menu" class="h-6 w-6" x-show="!menuOpen"></i>
+        <i data-lucide="x" class="h-6 w-6" x-show="menuOpen"></i>
+      </button>
+    </div>
+
+    <div x-show="menuOpen" class="border-t border-slate-100 bg-white px-5 py-4 lg:hidden">
+      <nav class="flex flex-col gap-1">
+        <a href="#funkciok" @click="menuOpen = false" class="rounded-lg px-3 py-2.5 text-[15px] font-medium text-body hover:bg-surface">Funkciók</a>
+        <a href="#hogyan" @click="menuOpen = false" class="rounded-lg px-3 py-2.5 text-[15px] font-medium text-body hover:bg-surface">Hogyan működik</a>
+        <a href="#kapcsolat" @click="menuOpen = false" class="rounded-lg px-3 py-2.5 text-[15px] font-medium text-body hover:bg-surface">Kapcsolat</a>
+      </nav>
+      <div class="mt-3 flex flex-col gap-2.5">
+        <a href="#belepes" @click="menuOpen = false" class="w-full rounded-xl bg-ink px-4 py-3 text-center text-[14px] font-semibold text-white">Ügynöki belépés</a>
+        <a href="#belepes" @click="menuOpen = false" class="w-full rounded-xl border-2 border-ink px-4 py-2.5 text-center text-[14px] font-semibold text-ink">Ügyfél belépés</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Hero -->
+  <section class="relative overflow-hidden bg-ink">
+    <div class="pointer-events-none absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 26px 26px;"></div>
+    <div class="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full" style="background: radial-gradient(circle, rgba(14,159,110,0.35), transparent 70%);"></div>
+    <div class="pointer-events-none absolute -right-16 bottom-0 h-96 w-96 rounded-full" style="background: radial-gradient(circle, rgba(244,183,64,0.18), transparent 70%);"></div>
+    <div class="pointer-events-none absolute inset-0" style="background: linear-gradient(180deg, rgba(15,42,74,0) 60%, rgba(15,42,74,0.6) 100%);"></div>
+
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-2 lg:py-28">
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[12.5px] font-semibold text-teal">
+          <span class="h-1.5 w-1.5 rounded-full bg-teal"></span>
+          Biztosítási &amp; pénzügyi szakembereknek
+        </div>
+        <h1 class="mt-6 text-[34px] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[44px] lg:text-[52px]">
+          Modern CRM biztosítási ügynököknek és pénzügyi tanácsadóknak
+        </h1>
+        <p class="mt-5 max-w-lg text-[16px] leading-relaxed text-slate-300 sm:text-[17px]">
+          Egységes felület az ügyfelekhez, szerződésekhez és dokumentumokhoz — AI-alapú adatkinyeréssel, automatikus e-mail folyamatokkal és külön ügyfélportállal.
+        </p>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <a href="#belepes" class="flex items-center justify-center gap-2 rounded-xl bg-teal px-6 py-3.5 text-[15px] font-semibold text-white shadow-soft transition hover:bg-teal/90">
+            <i data-lucide="briefcase" class="h-[18px] w-[18px]"></i>
+            Ügynöki belépés
+          </a>
+          <a href="#belepes" class="flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 px-6 py-3 text-[15px] font-semibold text-white transition hover:border-white hover:bg-white/10">
+            <i data-lucide="user" class="h-[18px] w-[18px]"></i>
+            Ügyfél belépés
+          </a>
+        </div>
+        <div class="mt-7 flex items-center gap-2 text-[13px] text-slate-400">
+          <i data-lucide="lock" class="h-4 w-4 text-teal"></i>
+          GDPR-megfelelő · banki szintű titkosítás
+        </div>
+      </div>
+
+      <!-- Termék-mockup böngészőkeretben -->
+      <div class="relative">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-float ring-1 ring-white/10">
+          <div class="flex items-center gap-2 border-b border-slate-100 bg-surface px-4 py-3">
+            <span class="h-3 w-3 rounded-full bg-[#FF5F57]"></span>
+            <span class="h-3 w-3 rounded-full bg-[#FEBC2E]"></span>
+            <span class="h-3 w-3 rounded-full bg-[#28C840]"></span>
+            <div class="ml-3 flex-1 rounded-md bg-white px-3 py-1 text-[11px] text-muted ring-1 ring-slate-200">app.aegiscrm.hu/vezerlopult</div>
+          </div>
+          <div class="flex h-[300px]">
+            <div class="hidden w-36 shrink-0 flex-col gap-1 bg-ink p-3 sm:flex">
+              <div class="mb-2 flex items-center gap-2 px-1 text-[11px] font-bold text-white">
+                <span class="flex h-5 w-5 items-center justify-center rounded-md bg-teal"><i data-lucide="shield-check" class="h-3 w-3 text-white"></i></span>
+                AegisCRM
+              </div>
+              <div class="flex items-center gap-2 rounded-lg bg-teal px-2.5 py-2 text-[11px] font-semibold text-white"><i data-lucide="layout-dashboard" class="h-3.5 w-3.5"></i> Vezérlőpult</div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-white/55"><i data-lucide="users" class="h-3.5 w-3.5"></i> Partnerek</div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-white/55"><i data-lucide="file-text" class="h-3.5 w-3.5"></i> Szerződések</div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-white/55"><i data-lucide="folder" class="h-3.5 w-3.5"></i> Dokumentumok</div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] text-white/55"><i data-lucide="mail" class="h-3.5 w-3.5"></i> Folyamatok</div>
+            </div>
+            <div class="flex-1 bg-surface p-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-xl bg-white p-3 shadow-soft">
+                  <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-ink/5"><i data-lucide="users" class="h-4 w-4 text-ink"></i></div>
+                  <div class="mt-2 text-[20px] font-extrabold text-ink">1 248</div>
+                  <div class="text-[10px] text-muted">Aktív ügyfelek</div>
+                </div>
+                <div class="rounded-xl bg-white p-3 shadow-soft">
+                  <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-teal/10"><i data-lucide="sparkles" class="h-4 w-4 text-teal"></i></div>
+                  <div class="mt-2 text-[20px] font-extrabold text-ink">8</div>
+                  <div class="text-[10px] text-muted">AI-kinyerések</div>
+                </div>
+              </div>
+              <div class="mt-3 rounded-xl bg-white p-3 shadow-soft">
+                <div class="flex items-center justify-between">
+                  <div class="text-[11px] font-bold text-ink">Szerződések alakulása</div>
+                  <div class="rounded-full bg-teal/10 px-2 py-0.5 text-[9px] font-semibold text-teal">+12%</div>
+                </div>
+                <div class="mt-3 flex h-16 items-end gap-1.5">
+                  <div class="w-full rounded-sm bg-ink/10" style="height:40%"></div>
+                  <div class="w-full rounded-sm bg-ink/15" style="height:60%"></div>
+                  <div class="w-full rounded-sm bg-ink/10" style="height:45%"></div>
+                  <div class="w-full rounded-sm bg-teal/30" style="height:75%"></div>
+                  <div class="w-full rounded-sm bg-teal/40" style="height:90%"></div>
+                  <div class="w-full rounded-sm bg-teal" style="height:100%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Bizalmi sáv -->
+  <section class="border-b border-slate-100 bg-white">
+    <div class="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-5 px-5 py-8 sm:px-8 lg:grid-cols-4">
+      <template x-for="t in trust" :key="t.label">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface">
+            <i :data-lucide="t.icon" class="h-5 w-5 text-teal"></i>
+          </div>
+          <div class="text-[13.5px] font-semibold leading-tight text-ink" x-text="t.label"></div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- 4. Funkciók -->
+  <section id="funkciok" class="bg-white py-20 sm:py-24">
+    <div class="mx-auto max-w-6xl px-5 sm:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <div class="text-[13px] font-bold uppercase tracking-[0.12em] text-teal">Funkciók</div>
+        <h2 class="mt-3 text-[28px] font-extrabold tracking-tight text-ink sm:text-[36px]">Minden, ami a napi munkához kell</h2>
+        <p class="mt-4 text-[16px] leading-relaxed text-muted">Egy rendszer az ügyféltől a kész, biztosítóhoz beküldött szerződésig — kézi adminisztráció nélkül.</p>
+      </div>
+
+      <div class="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <template x-for="f in features" :key="f.title">
+          <div class="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft transition hover:-translate-y-1 hover:border-teal/30 hover:shadow-card">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-ink transition group-hover:bg-teal">
+              <i :data-lucide="f.icon" class="h-6 w-6 text-white"></i>
+            </div>
+            <h3 class="mt-5 text-[17px] font-bold text-ink" x-text="f.title"></h3>
+            <p class="mt-2 text-[14px] leading-relaxed text-muted" x-text="f.desc"></p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Hogyan működik -->
+  <section id="hogyan" class="bg-surface py-20 sm:py-24">
+    <div class="mx-auto max-w-6xl px-5 sm:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <div class="text-[13px] font-bold uppercase tracking-[0.12em] text-teal">Hogyan működik</div>
+        <h2 class="mt-3 text-[28px] font-extrabold tracking-tight text-ink sm:text-[36px]">Dokumentumból kész szerződés négy lépésben</h2>
+      </div>
+
+      <div class="relative mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="pointer-events-none absolute left-0 right-0 top-7 hidden h-px bg-slate-200 lg:block"></div>
+        <template x-for="s in steps" :key="s.num">
+          <div class="relative flex flex-col items-center text-center">
+            <div class="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-ink text-white ring-8 ring-surface">
+              <i :data-lucide="s.icon" class="h-6 w-6"></i>
+              <span class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-teal text-[12px] font-bold text-white ring-4 ring-surface" x-text="s.num"></span>
+            </div>
+            <h3 class="mt-5 text-[16px] font-bold text-ink" x-text="s.title"></h3>
+            <p class="mt-2 max-w-[230px] text-[13.5px] leading-relaxed text-muted" x-text="s.desc"></p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Kettős belépés -->
+  <section id="belepes" class="bg-white py-20 sm:py-24">
+    <div class="mx-auto max-w-5xl px-5 sm:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <div class="text-[13px] font-bold uppercase tracking-[0.12em] text-teal">Belépés</div>
+        <h2 class="mt-3 text-[28px] font-extrabold tracking-tight text-ink sm:text-[36px]">Két felület, egy rendszer</h2>
+        <p class="mt-4 text-[16px] leading-relaxed text-muted">Külön, biztonságos belépés ügynököknek és ügyfeleknek.</p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- Ügynök -->
+        <div class="rounded-2xl border-2 border-ink/10 bg-white p-7 shadow-card sm:p-8">
+          <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ink"><i data-lucide="briefcase" class="h-5 w-5 text-white"></i></div>
+            <div>
+              <h3 class="text-[17px] font-bold text-ink">Ügynöki / Admin belépés</h3>
+              <p class="text-[13px] text-muted">Tanácsadóknak és adminisztrátoroknak</p>
+            </div>
+          </div>
+          <form @submit.prevent class="mt-6 space-y-4">
+            <div>
+              <label class="mb-1.5 block text-[13px] font-semibold text-ink">E-mail cím</label>
+              <input type="email" placeholder="nev@iroda.hu" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-ink focus:bg-white focus:ring-2 focus:ring-ink/15" />
+            </div>
+            <div>
+              <div class="mb-1.5 flex items-center justify-between">
+                <label class="block text-[13px] font-semibold text-ink">Jelszó</label>
+                <a href="#" class="text-[12.5px] font-semibold text-ink hover:underline">Elfelejtett jelszó?</a>
+              </div>
+              <input type="password" placeholder="••••••••" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-ink focus:bg-white focus:ring-2 focus:ring-ink/15" />
+            </div>
+            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl bg-ink py-3.5 text-[15px] font-semibold text-white transition hover:bg-ink/90">
+              Belépés <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Ügyfél -->
+        <div class="rounded-2xl border-2 border-teal/20 bg-white p-7 shadow-card sm:p-8">
+          <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal"><i data-lucide="user" class="h-5 w-5 text-white"></i></div>
+            <div>
+              <h3 class="text-[17px] font-bold text-ink">Ügyfél belépés</h3>
+              <p class="text-[13px] text-muted">Szerződések és dokumentumok megtekintése</p>
+            </div>
+          </div>
+          <form @submit.prevent class="mt-6 space-y-4">
+            <div>
+              <label class="mb-1.5 block text-[13px] font-semibold text-ink">E-mail cím</label>
+              <input type="email" placeholder="on@email.hu" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+            </div>
+            <div>
+              <div class="mb-1.5 flex items-center justify-between">
+                <label class="block text-[13px] font-semibold text-ink">Jelszó</label>
+                <a href="#" class="text-[12.5px] font-semibold text-teal hover:underline">Elfelejtett jelszó?</a>
+              </div>
+              <input type="password" placeholder="••••••••" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+            </div>
+            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal py-3.5 text-[15px] font-semibold text-white transition hover:bg-teal/90">
+              Belépés <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Lábléc -->
+  <footer id="kapcsolat" class="bg-ink text-white">
+    <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+      <div class="flex flex-col justify-between gap-10 lg:flex-row">
+        <div class="max-w-sm">
+          <a href="#" class="flex items-center gap-2.5">
+            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10"><i data-lucide="shield-check" class="h-5 w-5 text-teal"></i></div>
+            <span class="text-[17px] font-extrabold tracking-tight">Aegis<span class="text-teal">CRM</span></span>
+          </a>
+          <p class="mt-4 text-[14px] leading-relaxed text-slate-400">Modern CRM biztosítási ügynököknek és pénzügyi tanácsadóknak.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 sm:grid-cols-3">
+          <div>
+            <div class="text-[13px] font-bold uppercase tracking-wider text-slate-500">Kapcsolat</div>
+            <ul class="mt-4 space-y-2.5 text-[14px] text-slate-300">
+              <li class="flex items-center gap-2"><i data-lucide="mail" class="h-4 w-4 text-teal"></i> info@aegiscrm.hu</li>
+              <li class="flex items-center gap-2"><i data-lucide="phone" class="h-4 w-4 text-teal"></i> +36 1 234 5678</li>
+              <li class="flex items-center gap-2"><i data-lucide="map-pin" class="h-4 w-4 text-teal"></i> Budapest, Magyarország</li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-[13px] font-bold uppercase tracking-wider text-slate-500">Jogi</div>
+            <ul class="mt-4 space-y-2.5 text-[14px] text-slate-300">
+              <li><a href="#" class="transition hover:text-teal">Adatvédelem</a></li>
+              <li><a href="#" class="transition hover:text-teal">ÁSZF</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-[13px] font-bold uppercase tracking-wider text-slate-500">Termék</div>
+            <ul class="mt-4 space-y-2.5 text-[14px] text-slate-300">
+              <li><a href="#funkciok" class="transition hover:text-teal">Funkciók</a></li>
+              <li><a href="#hogyan" class="transition hover:text-teal">Hogyan működik</a></li>
+              <li><a href="#belepes" class="transition hover:text-teal">Belépés</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-slate-400 sm:flex-row">
+        <div>© 2026 AegisCRM. Minden jog fenntartva.</div>
+        <div class="flex items-center gap-2"><i data-lucide="lock" class="h-3.5 w-3.5 text-teal"></i> GDPR-megfelelő adatkezelés</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  function landing() {
+    return {
+      menuOpen: false,
+      trust: [
+        { icon: 'shield-check', label: 'GDPR-megfelelő adatkezelés' },
+        { icon: 'server', label: 'Saját SMTP — saját e-mail kiszolgáló' },
+        { icon: 'sparkles', label: 'AI-alapú adatkinyerés' },
+        { icon: 'layout-panel-left', label: 'Két külön felület' }
+      ],
+      features: [
+        { icon: 'users', title: 'Partnerkezelés', desc: 'Ügyfelek, szerződések és kapcsolattartási előzmények egy helyen, kereshetően és átláthatóan.' },
+        { icon: 'scan-text', title: 'AI-dokumentumfeldolgozás', desc: 'Az AI másodpercek alatt kinyeri az adatokat a feltöltött szerződésekből és ajánlatokból.' },
+        { icon: 'file-check-2', title: 'Automatikus dokumentumkitöltés', desc: 'A kinyert adatok automatikusan kitöltik a sablonokat — nincs többé kézi gépelés.' },
+        { icon: 'mail', title: 'E-mail folyamatok', desc: 'Évforduló-emlékeztetők, lejárati értesítések és követések automatikusan, ütemezve.' },
+        { icon: 'send', title: 'Biztosítói küldés', desc: 'Kész szerződések egy kattintással, közvetlenül a biztosítóhoz továbbítva.' },
+        { icon: 'monitor-smartphone', title: 'Ügyfélportál', desc: 'Külön, biztonságos felület, ahol az ügyfelek elérik szerződéseiket és dokumentumaikat.' }
+      ],
+      steps: [
+        { num: '1', icon: 'upload-cloud', title: 'Feltöltöd a dokumentumot', desc: 'Húzd be a szerződést vagy ajánlatot — PDF, kép vagy szkennelt fájl.' },
+        { num: '2', icon: 'sparkles', title: 'Az AI kinyeri az adatokat', desc: 'A rendszer automatikusan felismeri és strukturálja a fontos mezőket.' },
+        { num: '3', icon: 'check-circle-2', title: 'Te jóváhagyod', desc: 'Egy pillantás, egy kattintás — ellenőrzöd és megerősíted az adatokat.' },
+        { num: '4', icon: 'send', title: 'Kitöltöd és elküldöd', desc: 'A kész dokumentum automatikusan kitöltődik és mehet a biztosítóhoz.' }
+      ],
+      refreshIcons() {
+        try { window.lucide && window.lucide.createIcons(); } catch (e) {}
+      }
+    };
+  }
+</script>
+</body>
+</html>

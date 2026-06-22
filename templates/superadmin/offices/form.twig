@@ -1,0 +1,70 @@
+{% extends 'layouts/base.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új iroda' : 'Iroda szerkesztése' }} — Szuperadmin — {{ app_name }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-surface">
+  <header class="sticky top-0 z-40 border-b border-slate-100 bg-white">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gold"><i data-lucide="crown" class="h-5 w-5 text-ink"></i></div>
+        <span class="text-[16px] font-extrabold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span> · Szuperadmin</span>
+      </div>
+      <form method="post" action="/kilepes">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <button type="submit" class="flex items-center gap-2 rounded-xl border border-slate-200 px-3.5 py-2 text-[13.5px] font-semibold text-danger hover:bg-danger/5"><i data-lucide="log-out" class="h-4 w-4"></i> Kijelentkezés</button>
+      </form>
+    </div>
+    <div class="border-t border-slate-100 bg-white">
+      <div class="mx-auto flex max-w-6xl items-center gap-1 px-5 sm:px-8">
+        <a href="/superadmin" class="border-b-2 border-transparent px-3 py-3 text-[13.5px] font-semibold text-muted hover:text-ink">Vezérlőpult</a>
+        <a href="/superadmin/irodak" class="border-b-2 border-teal px-3 py-3 text-[13.5px] font-semibold text-ink">Irodák</a>
+        <a href="/superadmin/dolgozok" class="border-b-2 border-transparent px-3 py-3 text-[13.5px] font-semibold text-muted hover:text-ink">Dolgozók</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+    <div class="mb-6 flex items-center gap-3">
+      <a href="/superadmin/irodak" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+      <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új iroda' : 'Iroda szerkesztése' }}</h1>
+    </div>
+
+    <form method="post" action="{{ action }}" class="mx-auto max-w-2xl">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+      <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Iroda neve</label>
+            <input type="text" name="name" value="{{ office.name }}" placeholder="Pl. Budapesti iroda"
+              class="w-full rounded-xl border {{ errors.name is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+            {% if errors.name is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.name }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">URL-azonosító (slug) — opcionális</label>
+            <input type="text" name="slug" value="{{ office.slug }}" placeholder="Üresen hagyva a névből készül"
+              class="w-full rounded-xl border {{ errors.slug is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+            {% if errors.slug is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.slug }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="flex items-center gap-2.5 text-[14px] font-semibold text-ink">
+              <input type="checkbox" name="is_active" value="1" {{ office.is_active ? 'checked' }} class="h-4 w-4 rounded border-slate-300 text-teal focus:ring-teal">
+              Aktív iroda
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center justify-end gap-3">
+        <a href="/superadmin/irodak" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+        <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+          <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+        </button>
+      </div>
+    </form>
+  </main>
+</div>
+{% endblock %}

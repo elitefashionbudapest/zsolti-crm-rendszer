@@ -1,0 +1,81 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}Tanácsadói anyagok — {{ app_name }}{% endblock %}
+
+{% block main %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">Tanácsadói anyagok</h1>
+    <p class="mt-1 text-[13.5px] text-muted">{{ rows|length }} anyag az irodában</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="/admin/tanacsadas/uj" class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-semibold text-ink transition hover:bg-surface">
+      <i data-lucide="plus" class="h-[17px] w-[17px]"></i> Üres anyag
+    </a>
+    <a href="/admin/tanacsadas/szerkeszto" class="flex items-center gap-2 rounded-xl bg-teal px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-soft transition hover:bg-teal/90">
+      <i data-lucide="sparkles" class="h-[18px] w-[18px]"></i> AI szerkesztő
+    </a>
+  </div>
+</div>
+
+{% if flash %}
+  <div class="mb-4 flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-[13.5px] font-medium text-success">
+    <i data-lucide="check-circle-2" class="h-4 w-4"></i> {{ flash.msg }}
+  </div>
+{% endif %}
+
+<div class="rounded-2xl border border-slate-200/70 bg-white shadow-card">
+  {% if rows is empty %}
+    <div class="px-5 py-16 text-center">
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface"><i data-lucide="book-open" class="h-7 w-7 text-muted"></i></div>
+      <p class="mt-4 text-[14px] font-medium text-ink">Még nincs tanácsadói anyag</p>
+      <p class="mt-1 text-[13px] text-muted">Hozd létre az első anyagot, amelyet az ügyfelek a portálon olvashatnak.</p>
+    </div>
+  {% else %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-[13.5px]">
+        <thead class="border-b border-slate-100 text-[12px] uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Cím</th>
+            <th class="px-5 py-3 font-semibold">Közönség</th>
+            <th class="px-5 py-3 font-semibold">Állapot</th>
+            <th class="px-5 py-3 font-semibold">Dátum</th>
+            <th class="px-5 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for r in rows %}
+            <tr class="transition hover:bg-surface/60">
+              <td class="px-5 py-3.5"><a href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="font-semibold text-ink hover:text-teal">{{ r.title }}</a></td>
+              <td class="px-5 py-3.5 text-muted">
+                {% if r.client_id %}
+                  {{ clientNames[r.client_id]|default('Ügyfél #' ~ r.client_id) }}
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 text-ink"><i data-lucide="users" class="h-3.5 w-3.5"></i> Mindenki</span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-3.5">
+                {% if r.is_published %}
+                  <span class="rounded-full bg-success/10 px-2.5 py-1 text-[11.5px] font-semibold text-success">publikált</span>
+                {% else %}
+                  <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11.5px] font-semibold text-muted">piszkozat</span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-3.5 text-muted">{{ r.created_at ? r.created_at|date('Y.m.d') : '—' }}</td>
+              <td class="px-5 py-3.5 text-right">
+                <div class="flex items-center justify-end gap-1">
+                  <a href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                  <form method="post" action="/admin/tanacsadas/{{ r.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt az anyagot?');">
+                    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

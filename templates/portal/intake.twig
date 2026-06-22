@@ -1,0 +1,196 @@
+{% extends 'layouts/portal.twig' %}
+{% block title %}Adataim — Ügyfélportál{% endblock %}
+
+{% block main %}
+{% if submitted %}
+  {# Sikeres beküldés állapota #}
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-[26px] font-extrabold tracking-tight text-ink sm:text-[30px]">Adataim</h1>
+  </div>
+  <div class="mt-7 rounded-2xl border border-success/20 bg-white p-8 text-center shadow-soft">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+      <i data-lucide="check-circle-2" class="h-9 w-9 text-success"></i>
+    </div>
+    <h2 class="mt-5 text-[20px] font-extrabold text-ink">Köszönjük, beküldtük jóváhagyásra!</h2>
+    <p class="mx-auto mt-2 max-w-md text-[14.5px] leading-relaxed text-muted">Adatait sikeresen beküldtük jóváhagyásra. Ügynöke hamarosan ellenőrzi azokat, és értesítjük az eredményről.</p>
+    <a href="/portal/adataim" class="mt-6 inline-flex rounded-xl border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition hover:bg-ink hover:text-white">Vissza az adataimhoz</a>
+  </div>
+{% else %}
+  <div
+    x-data="intakeWizard()"
+    x-init="$nextTick(() => refreshIcons());
+            $watch('step', () => $nextTick(refreshIcons))"
+  >
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h1 class="text-[26px] font-extrabold tracking-tight text-ink sm:text-[30px]">Adataim</h1>
+      {% if has_pending %}
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-[12.5px] font-semibold text-warning">
+          <i data-lucide="clock" class="h-3.5 w-3.5"></i> Jóváhagyásra vár
+        </span>
+      {% endif %}
+    </div>
+    <p class="mt-1.5 text-[15px] text-muted">Kérjük, ellenőrizze és frissítse adatait. A beküldött adatokat ügynöke hagyja jóvá.</p>
+
+    {# Haladásjelző #}
+    <div class="mt-7 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft sm:p-6">
+      <div class="flex items-center">
+        <template x-for="(label, i) in stepLabels" :key="i">
+          <div class="flex items-center" :class="(i+1) === 3 ? '' : 'flex-1'">
+            <div class="flex items-center gap-2.5">
+              <div
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-bold transition"
+                :class="(i+1) < step ? 'bg-teal text-white' : (i+1) === step ? 'bg-ink text-white' : 'bg-surface text-muted'"
+              >
+                <i data-lucide="check" class="h-4 w-4" x-show="(i+1) < step"></i>
+                <span x-show="(i+1) >= step" x-text="i+1"></span>
+              </div>
+              <div
+                class="hidden text-[13px] font-semibold sm:block"
+                :class="(i+1) === step ? 'text-ink' : (i+1) < step ? 'text-teal' : 'text-muted'"
+                x-text="label"
+              ></div>
+            </div>
+            <div x-show="(i+1) !== 3" class="mx-2 h-0.5 flex-1 rounded" :class="(i+1) < step ? 'bg-teal' : 'bg-slate-200'"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    {# Űrlap #}
+    <form method="post" action="/portal/adataim" class="mt-5 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-soft sm:p-7">
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+      {# 1. lépés #}
+      <div x-show="step === 1">
+        <h2 class="text-[17px] font-bold text-ink">Személyes adatok</h2>
+        <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Vezetéknév</label>
+            <input name="vezeteknev" x-model="form.vezeteknev" placeholder="Kovács" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Keresztnév</label>
+            <input name="keresztnev" x-model="form.keresztnev" placeholder="Anna" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Születési dátum</label>
+            <input name="szuletesi_datum" x-model="form.szuletesi_datum" type="text" placeholder="1990-05-12" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Születési hely</label>
+            <input name="szuletesi_hely" x-model="form.szuletesi_hely" placeholder="Budapest" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Anyja neve</label>
+            <input name="anyja_neve" x-model="form.anyja_neve" placeholder="Nagy Mária" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Adóazonosító jel</label>
+            <input name="adoazonosito" x-model="form.adoazonosito" placeholder="8 _ _ _ _ _ _ _ _ _" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+        </div>
+      </div>
+
+      {# 2. lépés #}
+      <div x-show="step === 2">
+        <h2 class="text-[17px] font-bold text-ink">Elérhetőség</h2>
+        <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">E-mail cím</label>
+            <input name="email" x-model="form.email" type="email" placeholder="anna@email.hu" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Telefonszám</label>
+            <input name="telefon" x-model="form.telefon" placeholder="+36 30 123 4567" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Irányítószám</label>
+            <input name="iranyitoszam" x-model="form.iranyitoszam" placeholder="1051" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Város</label>
+            <input name="varos" x-model="form.varos" placeholder="Budapest" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Közterület neve</label>
+            <input name="kozterulet" x-model="form.kozterulet" placeholder="Fő utca" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-[13px] font-semibold text-ink">Házszám</label>
+            <input name="hazszam" x-model="form.hazszam" placeholder="12." class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15" />
+          </div>
+        </div>
+      </div>
+
+      {# 3. lépés: áttekintés #}
+      <div x-show="step === 3">
+        <h2 class="text-[17px] font-bold text-ink">Áttekintés</h2>
+        <p class="mt-1.5 text-[13.5px] text-muted">Kérjük, ellenőrizze az adatokat beküldés előtt.</p>
+        <div class="mt-5 grid grid-cols-1 gap-x-8 gap-y-px sm:grid-cols-2">
+          <template x-for="r in review" :key="r.label">
+            <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3">
+              <span class="text-[13px] text-muted" x-text="r.label"></span>
+              <span class="text-right text-[13.5px] font-semibold text-ink" x-text="r.value"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      {# Wizard gombok #}
+      <div class="mt-7 flex items-center justify-between gap-3">
+        <button type="button" @click="step = Math.max(1, step - 1)" class="flex items-center gap-1.5 rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-surface" :class="step === 1 ? 'invisible' : ''">
+          <i data-lucide="arrow-left" class="h-[17px] w-[17px]"></i> Vissza
+        </button>
+        <button type="submit" x-show="step === 3" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+          <i data-lucide="send" class="h-[17px] w-[17px]"></i> Beküldés
+        </button>
+        <button type="button" x-show="step !== 3" @click="step = Math.min(3, step + 1)" class="flex items-center gap-2 rounded-xl bg-ink px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-ink/90">
+          Tovább <i data-lucide="arrow-right" class="h-[17px] w-[17px]"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function intakeWizard() {
+      return {
+        step: 1,
+        form: {
+          vezeteknev: {{ form.vezeteknev|json_encode|raw }},
+          keresztnev: {{ form.keresztnev|json_encode|raw }},
+          szuletesi_datum: {{ form.szuletesi_datum|json_encode|raw }},
+          szuletesi_hely: {{ form.szuletesi_hely|json_encode|raw }},
+          anyja_neve: {{ form.anyja_neve|json_encode|raw }},
+          adoazonosito: {{ form.adoazonosito|json_encode|raw }},
+          email: {{ form.email|json_encode|raw }},
+          telefon: {{ form.telefon|json_encode|raw }},
+          iranyitoszam: {{ form.iranyitoszam|json_encode|raw }},
+          varos: {{ form.varos|json_encode|raw }},
+          kozterulet: {{ form.kozterulet|json_encode|raw }},
+          hazszam: {{ form.hazszam|json_encode|raw }}
+        },
+        stepLabels: ['Személyes adatok', 'Elérhetőség', 'Áttekintés'],
+        get review() {
+          const f = this.form;
+          const cim = ((f.iranyitoszam || '') + ' ' + (f.varos || '') + ', ' + (f.kozterulet || '') + ' ' + (f.hazszam || '')).trim();
+          return [
+            { label: 'Vezetéknév', value: f.vezeteknev || '—' },
+            { label: 'Keresztnév', value: f.keresztnev || '—' },
+            { label: 'Születési dátum', value: f.szuletesi_datum || '—' },
+            { label: 'Születési hely', value: f.szuletesi_hely || '—' },
+            { label: 'Anyja neve', value: f.anyja_neve || '—' },
+            { label: 'Adóazonosító', value: f.adoazonosito || '—' },
+            { label: 'E-mail', value: f.email || '—' },
+            { label: 'Telefonszám', value: f.telefon || '—' },
+            { label: 'Cím', value: cim === ',' ? '—' : (cim || '—') }
+          ];
+        },
+        refreshIcons() {
+          try { window.lucide && window.lucide.createIcons(); } catch (e) {}
+        }
+      };
+    }
+  </script>
+{% endif %}
+{% endblock %}

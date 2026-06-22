@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /portal
+Disallow: /belepes

@@ -1,0 +1,96 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új szerződés' : 'Szerződés szerkesztése' }} — {{ app_name }}{% endblock %}
+
+{% macro field(label, name, contract, errors, type, placeholder) %}
+  <div>
+    <label class="mb-1.5 block text-[13px] font-semibold text-ink">{{ label }}</label>
+    <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ contract[name] }}" placeholder="{{ placeholder|default('') }}"
+      class="w-full rounded-xl border {{ errors[name] is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+    {% if errors[name] is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors[name] }}</p>{% endif %}
+  </div>
+{% endmacro %}
+{% import _self as f %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/szerzodesek" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új szerződés' : 'Szerződés szerkesztése' }}</h1>
+</div>
+
+<form method="post" action="{{ action }}" class="mx-auto max-w-3xl">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Alapadatok</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Ügyfél</label>
+        <select name="client_id" class="w-full rounded-xl border {{ errors.client_id is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <option value="">— Válassz ügyfelet —</option>
+          {% for cl in clients %}
+            <option value="{{ cl.id }}" {{ contract.client_id == cl.id ? 'selected' }}>{{ cl.name }}</option>
+          {% endfor %}
+        </select>
+        {% if errors.client_id is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.client_id }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Kategória</label>
+        <select name="category" class="w-full rounded-xl border {{ errors.category is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <option value="">— Válassz kategóriát —</option>
+          {% for value, label in categories %}
+            <option value="{{ value }}" {{ contract.category == value ? 'selected' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        {% if errors.category is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors.category }}</p>{% endif %}
+      </div>
+      {{ f.field('Biztosító neve', 'insurer_name', contract, errors, 'text', 'Pl. Generali') }}
+      {{ f.field('Módozat kódja', 'module_code', contract, errors) }}
+      <div class="sm:col-span-2">{{ f.field('Módozat neve', 'module_name', contract, errors, 'text', 'Pl. Otthon casco') }}</div>
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Kötvény adatok</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Kötvényszám', 'policy_number', contract, errors) }}
+      {{ f.field('Ajánlatszám', 'offer_number', contract, errors) }}
+      {{ f.field('Kezdet dátuma (ÉÉÉÉ-HH-NN)', 'start_date', contract, errors, 'text', '2026-01-01') }}
+      {{ f.field('Lejárat dátuma (ÉÉÉÉ-HH-NN)', 'end_date', contract, errors, 'text', '2027-01-01') }}
+      {{ f.field('Évforduló (HH.NN)', 'anniversary', contract, errors, 'text', '05.14') }}
+      {{ f.field('Rendszám', 'plate', contract, errors) }}
+      {{ f.field('Éves díj (Ft)', 'annual_fee', contract, errors, 'text', '120000') }}
+      {{ f.field('Kockázatviselés helye', 'risk_location', contract, errors) }}
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Díjfizetés</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Fizetési gyakoriság', 'payment_frequency', contract, errors, 'text', 'Pl. havi') }}
+      {{ f.field('Fizetési mód', 'payment_method', contract, errors, 'text', 'Pl. csoportos beszedés') }}
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Ügynök</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Ügynök kódja', 'agent_code', contract, errors) }}
+      {{ f.field('Ügynök neve', 'agent_name', contract, errors) }}
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Státusz</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Státusz</label>
+        <select name="status" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          <option value="active" {{ contract.status == 'active' ? 'selected' }}>Élő</option>
+          <option value="terminated" {{ contract.status == 'terminated' ? 'selected' }}>Megszűnt</option>
+        </select>
+      </div>
+      {{ f.field('Megszűnés oka', 'terminated_reason', contract, errors) }}
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/szerzodesek" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}

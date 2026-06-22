@@ -1,0 +1,59 @@
+{% extends 'layouts/admin.twig' %}
+{% block title %}{{ mode == 'create' ? 'Új lead' : 'Lead szerkesztése' }} — {{ app_name }}{% endblock %}
+
+{% macro field(label, name, lead, errors, type, placeholder) %}
+  <div>
+    <label class="mb-1.5 block text-[13px] font-semibold text-ink">{{ label }}</label>
+    <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ lead[name] }}" placeholder="{{ placeholder|default('') }}"
+      class="w-full rounded-xl border {{ errors[name] is defined ? 'border-danger' : 'border-slate-200' }} bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+    {% if errors[name] is defined %}<p class="mt-1 text-[12px] font-medium text-danger">{{ errors[name] }}</p>{% endif %}
+  </div>
+{% endmacro %}
+{% import _self as f %}
+
+{% block main %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="/admin/leadek" class="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+  <h1 class="text-[22px] font-bold tracking-tight text-ink sm:text-[26px]">{{ mode == 'create' ? 'Új lead' : 'Lead szerkesztése' }}</h1>
+</div>
+
+<form method="post" action="{{ action }}" class="mx-auto max-w-3xl">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+    <h2 class="text-[15px] font-bold text-ink">Alapadatok</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ f.field('Név', 'name', lead, errors, 'text', 'Pl. Kovács Anna') }}
+      {{ f.field('E-mail', 'email', lead, errors, 'email', 'nev@email.hu') }}
+      {{ f.field('Telefon', 'phone', lead, errors, 'text', '+36 30 123 4567') }}
+      {{ f.field('Forrás', 'source', lead, errors, 'text', 'Pl. weboldal, ajánlás') }}
+    </div>
+
+    <h2 class="mt-7 text-[15px] font-bold text-ink">Pipeline</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-[13px] font-semibold text-ink">Fázis</label>
+        <select name="stage" class="w-full rounded-xl border border-slate-200 bg-surface px-3 py-3 text-[14px] outline-none focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+          {% for key, label in stages %}
+            <option value="{{ key }}" {{ lead.stage == key ? 'selected' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {{ f.field('Felelős', 'assigned_to', lead, errors, 'text', 'Az ügyintéző neve') }}
+    </div>
+
+    <div class="mt-5">
+      <label class="mb-1.5 block text-[13px] font-semibold text-ink">Megjegyzés</label>
+      <textarea name="notes" rows="3" class="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-[14px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">{{ lead.notes }}</textarea>
+    </div>
+  </div>
+
+  <div class="mt-5 flex items-center justify-end gap-3">
+    <a href="/admin/leadek" class="rounded-xl border border-slate-200 px-5 py-3 text-[14px] font-semibold text-ink transition hover:bg-white">Mégse</a>
+    <button type="submit" class="flex items-center gap-2 rounded-xl bg-teal px-6 py-3 text-[14.5px] font-semibold text-white transition hover:bg-teal/90">
+      <i data-lucide="save" class="h-[17px] w-[17px]"></i> Mentés
+    </button>
+  </div>
+</form>
+{% endblock %}
