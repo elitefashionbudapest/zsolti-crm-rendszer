@@ -22,6 +22,9 @@
 *.xlsx
 *.pdf
 
+# Deploy — a helyi SSH-konfig (host, user) nem kerül a repóba
+/deploy/deploy.config
+
 # Eszközök
 /composer.phar
 /composer-install.log

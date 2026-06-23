@@ -1,0 +1,14 @@
+# Helyi deploy.sh beállítások — másold "deploy.config" néven, és töltsd ki.
+# (A deploy.config gitignore-olt, nem kerül a repóba.)
+
+# A tárhely SSH-adatai (cPanel → Jailed SSH bekapcsolása után):
+SSH_HOST=123.45.67.89          # a szerver IP-címe (a Jailed SSH oldalon látszik)
+SSH_USER=cpanelfelhasznalo     # a cPanel felhasználóneved
+SSH_PORT=22
+
+# A repo helye a szerveren (ide klónoztad a GitHub repót):
+APP_DIR=~/zsolti-crm
+
+# Ha a CLI php régi, add meg a teljes utat a szerveren (opcionális, a remote scriptben is állítható):
+# PHP_BIN=/opt/cpanel/ea-php82/root/usr/bin/php
+# COMPOSER_BIN=$HOME/bin/composer
