@@ -22,10 +22,11 @@
 *.xlsx
 *.pdf
 
-# Deploy — a helyi SSH-konfig és jegyzetek (titkok) nem kerülnek a repóba
+# Deploy — a helyi SSH-konfig, kulcsok és jegyzetek (titkok) nem kerülnek a repóba
 /deploy/deploy.config
 /deploy.md
 /deploy/.secret
+/deploy/keys/
 
 # Eszközök
 /composer.phar

@@ -1,12 +1,10 @@
-name: Deploy to tárhely.eu
+name: Deploy to tárhely.eu (SSH)
 
-# Automatikus deploy: minden main-re érkező push után SSH-n lefuttatja a
-# szerveren a deploy-remote.sh-t (git pull + composer + migrációk).
-# Így nem kell kézzel deployolni — elég pusholni (vagy a ./deploy.sh).
+# MEGJEGYZÉS: jelenleg cPanel Git Version Control + .cpanel.yml a deploy útja.
+# Ez az SSH-alapú auto-deploy KÉZI indítású, amíg nincsenek beállítva az SSH-titkok
+# (SSH_HOST/USER/PORT/KEY/APP_DIR). Ha lesz SSH-kulcs, a push-trigger visszakapcsolható.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch: {}
 
 concurrency:
