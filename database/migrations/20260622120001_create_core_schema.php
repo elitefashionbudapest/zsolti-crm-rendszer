@@ -22,9 +22,7 @@ final class CreateCoreSchema extends AbstractMigration
             ->addColumn('key', 'string', ['limit' => 100])
             ->addColumn('value_encrypted', 'text', ['null' => true])
             ->addTimestamps()
-            ->addIndex(['office_id', 'key'], ['unique' => true])
-            ->addForeignKey('office_id', 'offices', 'id', ['delete' => 'CASCADE'])
-            ->create();
+            ->addIndex(['office_id', 'key'], ['unique' => true])            ->create();
 
         // --- Szerepek és jogosultságok (RBAC) ---
         $this->table('roles')
@@ -57,10 +55,7 @@ final class CreateCoreSchema extends AbstractMigration
         $this->table('role_user')
             ->addColumn('user_id', 'integer')
             ->addColumn('role_id', 'integer')
-            ->addIndex(['user_id', 'role_id'], ['unique' => true])
-            ->addForeignKey('user_id', 'users', 'id', ['delete' => 'CASCADE'])
-            ->addForeignKey('role_id', 'roles', 'id', ['delete' => 'CASCADE'])
-            ->create();
+            ->addIndex(['user_id', 'role_id'], ['unique' => true])            ->create();
 
         $this->table('permission_role')
             ->addColumn('permission_id', 'integer')
@@ -85,9 +80,7 @@ final class CreateCoreSchema extends AbstractMigration
             ->addColumn('status', 'string', ['limit' => 50, 'default' => 'active'])
             ->addTimestamps()
             ->addIndex(['office_id'])
-            ->addIndex(['name'])
-            ->addForeignKey('office_id', 'offices', 'id', ['delete' => 'CASCADE'])
-            ->create();
+            ->addIndex(['name'])            ->create();
 
         // --- Biztosítók ---
         $this->table('insurers')
@@ -96,9 +89,7 @@ final class CreateCoreSchema extends AbstractMigration
             ->addColumn('default_emails', 'text', ['null' => true])
             ->addColumn('is_active', 'boolean', ['default' => true])
             ->addTimestamps()
-            ->addIndex(['office_id'])
-            ->addForeignKey('office_id', 'offices', 'id', ['delete' => 'CASCADE'])
-            ->create();
+            ->addIndex(['office_id'])            ->create();
 
         // --- Szerződések / kötvények (az Excel-mezők alapján) ---
         $this->table('contracts')
@@ -127,8 +118,6 @@ final class CreateCoreSchema extends AbstractMigration
             ->addIndex(['office_id'])
             ->addIndex(['client_id'])
             ->addIndex(['end_date'])
-            ->addForeignKey('office_id', 'offices', 'id', ['delete' => 'CASCADE'])
-            ->addForeignKey('client_id', 'clients', 'id', ['delete' => 'CASCADE'])
             ->create();
 
         // --- Dokumentumok ---
@@ -145,9 +134,7 @@ final class CreateCoreSchema extends AbstractMigration
             ->addColumn('uploaded_by', 'integer', ['null' => true])
             ->addTimestamps()
             ->addIndex(['office_id'])
-            ->addIndex(['client_id'])
-            ->addForeignKey('office_id', 'offices', 'id', ['delete' => 'CASCADE'])
-            ->create();
+            ->addIndex(['client_id'])            ->create();
 
         // --- Háttérfeladatok (egyszerű DB-alapú sor) ---
         $this->table('jobs')
