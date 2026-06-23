@@ -1,3 +1,9 @@
+# Keresőrobotok kizárása — EGYELŐRE az egész app nem indexelhető.
+# (Ha élesre megy és indexelhető lesz, ezt a blokkot vedd ki.)
+<IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow, noarchive"
+</IfModule>
+
 # Minden kérés az index.php-ra (Slim front controller)
 <IfModule mod_rewrite.c>
     RewriteEngine On
