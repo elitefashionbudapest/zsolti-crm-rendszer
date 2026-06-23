@@ -15,8 +15,11 @@ final class CliKernel
 {
     public static function container(string $root): ContainerInterface
     {
-        if (is_file($root . '/.env')) {
-            Dotenv::createImmutable($root)->safeLoad();
+        $envDir = is_file($root . '/.env')
+            ? $root
+            : (is_file(dirname($root) . '/.env') ? dirname($root) : null);
+        if ($envDir !== null) {
+            Dotenv::createImmutable($envDir)->safeLoad();
         }
 
         /** @var array<string,mixed> $settings */

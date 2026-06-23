@@ -17,8 +17,13 @@ final class AppFactory
 {
     public static function create(string $root): App
     {
-        if (is_file($root . '/.env')) {
-            Dotenv::createImmutable($root)->safeLoad();
+        // A .env a repó gyökerében VAGY a szülőmappában lehet (utóbbi a szerveren,
+        // a git-munkafán kívül — így a cPanel Deploy tiszta fát lát).
+        $envDir = is_file($root . '/.env')
+            ? $root
+            : (is_file(dirname($root) . '/.env') ? dirname($root) : null);
+        if ($envDir !== null) {
+            Dotenv::createImmutable($envDir)->safeLoad();
         }
 
         /** @var array<string,mixed> $settings */

@@ -6,8 +6,12 @@ use Dotenv\Dotenv;
 
 require __DIR__ . '/vendor/autoload.php';
 
-if (is_file(__DIR__ . '/.env')) {
-    Dotenv::createImmutable(__DIR__)->safeLoad();
+// A .env a repó gyökerében VAGY a szülőmappában (szerveren, a git-munkafán kívül).
+$envDir = is_file(__DIR__ . '/.env')
+    ? __DIR__
+    : (is_file(dirname(__DIR__) . '/.env') ? dirname(__DIR__) : null);
+if ($envDir !== null) {
+    Dotenv::createImmutable($envDir)->safeLoad();
 }
 
 $driver = $_ENV['DB_DRIVER'] ?? 'mysql';
