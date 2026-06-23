@@ -6,10 +6,14 @@ use Dotenv\Dotenv;
 
 require __DIR__ . '/vendor/autoload.php';
 
-// A .env a repó gyökerében VAGY a szülőmappában (szerveren, a git-munkafán kívül).
-$envDir = is_file(__DIR__ . '/.env')
-    ? __DIR__
-    : (is_file(dirname(__DIR__) . '/.env') ? dirname(__DIR__) : null);
+// A .env a repó gyökerében, a szülő- vagy a nagyszülőmappában (a webgyökéren kívül).
+$envDir = null;
+foreach ([__DIR__, dirname(__DIR__), dirname(__DIR__, 2)] as $candidate) {
+    if (is_file($candidate . '/.env')) {
+        $envDir = $candidate;
+        break;
+    }
+}
 if ($envDir !== null) {
     Dotenv::createImmutable($envDir)->safeLoad();
 }

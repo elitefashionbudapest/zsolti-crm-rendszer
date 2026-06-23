@@ -17,11 +17,15 @@ final class AppFactory
 {
     public static function create(string $root): App
     {
-        // A .env a repó gyökerében VAGY a szülőmappában lehet (utóbbi a szerveren,
-        // a git-munkafán kívül — így a cPanel Deploy tiszta fát lát).
-        $envDir = is_file($root . '/.env')
-            ? $root
-            : (is_file(dirname($root) . '/.env') ? dirname($root) : null);
+        // A .env a repó gyökerében, a szülő- vagy a nagyszülőmappában lehet — így a
+        // szerveren a webgyökéren KÍVÜL tartható (se git-piszok, se web-elérhetőség).
+        $envDir = null;
+        foreach ([$root, dirname($root), dirname($root, 2)] as $candidate) {
+            if (is_file($candidate . '/.env')) {
+                $envDir = $candidate;
+                break;
+            }
+        }
         if ($envDir !== null) {
             Dotenv::createImmutable($envDir)->safeLoad();
         }
