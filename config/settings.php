@@ -20,6 +20,8 @@ return static function (string $rootPath): array {
             'url' => (string) $env('APP_URL', 'http://localhost:8080'),
             'timezone' => (string) $env('APP_TIMEZONE', 'Europe/Budapest'),
             'key' => (string) $env('APP_KEY', ''),
+            // Alkönyvtáras telepítéshez, pl. /zsolti_crm (gyökérnél üres marad).
+            'base_path' => rtrim('/' . trim((string) $env('BASE_PATH', ''), '/'), '/'),
         ],
         'db' => [
             'driver' => (string) $env('DB_DRIVER', 'mysql'),

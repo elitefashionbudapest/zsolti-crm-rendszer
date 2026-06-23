@@ -27,6 +27,7 @@
 /deploy.md
 /deploy/.secret
 /deploy/keys/
+/deploy/env.production
 
 # Eszközök
 /composer.phar

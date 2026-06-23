@@ -50,6 +50,15 @@ else
   echo "!! Nincs .env — hozd letre (DB adatok + APP_KEY), majd Deploy ujra."
 fi
 
+# --- Alkonyvtaras kiszolgalas: szimlink a domain dokumentumgyokerebe ---
+# A /zsolti_crm a public mappara mutasson. A domain docroot-ja altalaban
+# ~/public_html vagy ~/visualbyadam.hu — mindkettore probaljuk.
+for d in "$HOME/public_html" "$HOME/visualbyadam.hu"; do
+  if [ -d "$d" ]; then
+    ln -sfn "$DEPLOYPATH/public" "$d/zsolti_crm" && echo "==> szimlink: $d/zsolti_crm -> public"
+  fi
+done
+
 # --- Twig cache uritese ---
 rm -rf storage/cache/* 2>/dev/null || true
 echo "==> Kesz: $(git rev-parse --short HEAD 2>/dev/null)"

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Auth\Auth;
+use App\Http\Middleware\BasePathMiddleware;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\StartSessionMiddleware;
 use App\Http\Middleware\TwigGlobalsMiddleware;
@@ -28,6 +29,9 @@ return static function (App $app, array $settings): void {
     $app->addBodyParsingMiddleware();
     $app->add(new StartSessionMiddleware($settings['session'], $c->get(Auth::class)));
     $app->add($c->get(SecurityHeadersMiddleware::class));
+
+    // Legkívül: az alkönyvtár-előtag a kész válaszra (Location + HTML hivatkozások).
+    $app->add(new BasePathMiddleware((string) ($settings['app']['base_path'] ?? '')));
 
     $app->addErrorMiddleware(
         (bool) $settings['app']['debug'],

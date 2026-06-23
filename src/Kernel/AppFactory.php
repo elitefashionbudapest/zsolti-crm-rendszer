@@ -38,6 +38,12 @@ final class AppFactory
         SlimAppFactory::setContainer($container);
         $app = SlimAppFactory::create();
 
+        // Alkönyvtáras telepítés (pl. /zsolti_crm): a Slim ezzel illeszti az útvonalakat.
+        $basePath = (string) ($settings['app']['base_path'] ?? '');
+        if ($basePath !== '') {
+            $app->setBasePath($basePath);
+        }
+
         (require $root . '/config/routes.php')($app);
         (require $root . '/config/middleware.php')($app, $settings);
 
