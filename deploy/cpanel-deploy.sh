@@ -45,8 +45,8 @@ mkdir -p storage/logs storage/uploads storage/cache
 # Csak a konyvtarakat chmod-oljuk (a kovetett .gitkeep fajlokat ne).
 find storage -type d -exec chmod 775 {} + 2>/dev/null || true
 
-# --- Adatbazis: csak ha mar van .env (DB beallitasok) ---
-if [ -f .env ]; then
+# --- Adatbazis: csak ha van .env (a repoban VAGY a szulo/nagyszulo mappaban) ---
+if [ -f .env ] || [ -f ../.env ] || [ -f ../../.env ]; then
   echo "==> Migraciok…"
   "$PHP" vendor/bin/phinx migrate
   # Elso seed: letrehozza a demo irodat, a belepő-felhasznalokat es a demo adatot.
