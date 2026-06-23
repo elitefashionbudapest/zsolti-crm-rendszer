@@ -53,6 +53,11 @@
     .app-drawer.is-open { transform: translateX(0); }
     @media (min-width: 1024px) { .app-drawer { transform: translateX(0); } }
 
+    /* Drawer sötétítő-réteg: ALAPBÓL REJTVE (ne az Alpine x-show-tól függjön) */
+    .app-overlay { display: none; }
+    .app-overlay.is-open { display: block; }
+    @media (min-width: 1024px) { .app-overlay { display: none !important; } }
+
     /* Kompakt táblázatok: kisebb betű, szűkebb cellák (felülírja a Tailwind segédosztályokat) */
     table { font-size: 12.5px !important; }
     table th, table td {

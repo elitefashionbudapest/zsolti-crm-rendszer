@@ -24,7 +24,7 @@
 {% block body %}
 <div x-data="{ sidebarOpen: false }" x-cloak class="min-h-screen bg-surface">
 
-  <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-ink/40 backdrop-blur-sm lg:hidden"></div>
+  <div @click="sidebarOpen = false" :class="{ 'is-open': sidebarOpen }" class="app-overlay fixed inset-0 z-30 bg-ink/40 backdrop-blur-sm lg:hidden"></div>
 
   <aside class="app-drawer fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col bg-ink text-white" :class="{ 'is-open': sidebarOpen }">
     <div class="flex h-16 items-center gap-3 px-6">
