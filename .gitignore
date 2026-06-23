@@ -32,6 +32,7 @@
 # Eszközök
 /composer.phar
 /composer-install.log
+/composer-require.log
 /public/build/
 
 # OS / IDE
