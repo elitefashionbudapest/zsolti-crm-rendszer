@@ -22,8 +22,10 @@
 *.xlsx
 *.pdf
 
-# Deploy — a helyi SSH-konfig (host, user) nem kerül a repóba
+# Deploy — a helyi SSH-konfig és jegyzetek (titkok) nem kerülnek a repóba
 /deploy/deploy.config
+/deploy.md
+/deploy/.secret
 
 # Eszközök
 /composer.phar
