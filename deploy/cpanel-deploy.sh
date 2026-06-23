@@ -59,9 +59,11 @@ fi
 # A /zsolti_crm a public mappara mutasson. A domain docroot-ja altalaban
 # ~/public_html vagy ~/visualbyadam.hu — mindkettore probaljuk.
 for d in "$HOME/public_html" "$HOME/visualbyadam.hu"; do
-  if [ -d "$d" ]; then
-    ln -sfn "$DEPLOYPATH/public" "$d/zsolti_crm" && echo "==> szimlink: $d/zsolti_crm -> public"
-  fi
+  [ -d "$d" ] || continue
+  # Ha a cel maga a repo mappaja (a repo a docrooton belul van), NE clobbereld —
+  # ott a repo gyokerebeli .htaccess iranyit a public/-ra.
+  [ "$d/zsolti_crm" = "$DEPLOYPATH" ] && { echo "==> a repo a docrootban van, szimlink helyett a gyoker .htaccess szolgal ki"; continue; }
+  ln -sfn "$DEPLOYPATH/public" "$d/zsolti_crm" && echo "==> szimlink: $d/zsolti_crm -> public"
 done
 
 # --- Twig cache uritese ---

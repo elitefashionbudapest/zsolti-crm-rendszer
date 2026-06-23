@@ -1,0 +1,9 @@
+# Ha a domain dokumentumgyökere MAGA a repó mappája (alkönyvtáras telepítés,
+# pl. a visualbyadam.hu/zsolti_crm a repó), minden kérést a public/ alá irányítunk.
+# Így a repó gyökeréből (src, vendor, config, .env stb.) semmi nem szolgálható ki
+# közvetlenül — csak a public/ tartalma. (Szimlinkes kiszolgálásnál ez nem kerül útba.)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [L]
+    RewriteRule (.*) public/$1 [L]
+</IfModule>

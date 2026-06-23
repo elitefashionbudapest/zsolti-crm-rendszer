@@ -4,5 +4,5 @@
 # deploy/cpanel-deploy.sh végez (Composer telepítés + függőségek + migráció + seed).
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/elitediv/zsolti-crm
+    - export DEPLOYPATH=/home/elitediv/visualbyadam.hu/zsolti_crm
     - /bin/bash "$DEPLOYPATH/deploy/cpanel-deploy.sh"
