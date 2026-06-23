@@ -14,6 +14,7 @@
 !/storage/cache/.gitkeep
 /storage/uploads/*
 !/storage/uploads/.gitkeep
+/storage/sessions/
 /storage/database.sqlite
 
 # Valós ügyféladat és sablonok (SOHA ne kerüljön gitbe — érzékeny személyes adat)

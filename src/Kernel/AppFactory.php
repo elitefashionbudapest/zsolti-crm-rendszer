@@ -35,7 +35,7 @@ final class AppFactory
         date_default_timezone_set($settings['app']['timezone']);
 
         // A munkamenetet a bootstrap során indítjuk (a CSRF Guard aktív sessiont vár).
-        self::startSession($settings['session']);
+        self::startSession($settings['session'], $root);
 
         // A konténer-definíciók innen olvassák a beállításokat.
         $GLOBALS['__app_settings'] = $settings;
@@ -60,10 +60,21 @@ final class AppFactory
     }
 
     /** @param array<string,mixed> $session */
-    private static function startSession(array $session): void
+    private static function startSession(array $session, string $root): void
     {
         if (PHP_SAPI === 'cli' || session_status() === PHP_SESSION_ACTIVE || headers_sent()) {
             return;
+        }
+
+        // Saját, írható session-mappa — a megosztott tárhely alapértelmezett
+        // save_path-ja gyakran hibás/nem írható (pl. /var/cpanel/php/sessions/ea-phpXX).
+        $sessionPath = $root . '/storage/sessions';
+        if (!is_dir($sessionPath)) {
+            @mkdir($sessionPath, 0775, true);
+        }
+        if (is_dir($sessionPath) && is_writable($sessionPath)) {
+            session_save_path($sessionPath);
+            ini_set('session.gc_maxlifetime', (string) ((int) ($session['lifetime'] ?? 7200)));
         }
 
         session_set_cookie_params([

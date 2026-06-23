@@ -41,7 +41,7 @@ echo "==> Composer install…"
 "$PHP" "$COMPOSER" install --no-dev --optimize-autoloader --no-interaction
 
 # --- Konyvtarak ---
-mkdir -p storage/logs storage/uploads storage/cache
+mkdir -p storage/logs storage/uploads storage/cache storage/sessions
 # Csak a konyvtarakat chmod-oljuk (a kovetett .gitkeep fajlokat ne).
 find storage -type d -exec chmod 775 {} + 2>/dev/null || true
 
