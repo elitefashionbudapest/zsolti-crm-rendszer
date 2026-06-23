@@ -1,17 +1,8 @@
 ---
-# cPanel Git Version Control deploy.
-# A "Pull or Deploy → Deploy HEAD" gomb futtatja ezeket a lépéseket a
-# klónozott repón (/home/elitediv/zsolti-crm). Composer + migrációk + jogosultságok.
-#
-# Ha a 'php' CLI régi, cseréld a teljes útra, pl.:
-#   /opt/cpanel/ea-php82/root/usr/bin/php
+# cPanel Git Version Control deploy (nincs SSH/Terminal).
+# A "Pull or Deploy → Deploy HEAD" gomb futtatja: minden lépést a
+# deploy/cpanel-deploy.sh végez (Composer telepítés + függőségek + migráció + seed).
 deployment:
   tasks:
     - export DEPLOYPATH=/home/elitediv/zsolti-crm
-    - export COMPOSER_MEMORY_LIMIT=-1
-    - /bin/cp -n "$DEPLOYPATH/.env" "$DEPLOYPATH/.env" 2>/dev/null || true
-    - cd "$DEPLOYPATH" && if [ -f "$HOME/bin/composer" ]; then php "$HOME/bin/composer" install --no-dev --optimize-autoloader --no-interaction; else echo "FIGYELEM: ~/bin/composer hiányzik — telepítsd egyszer (lásd deploy/SETUP.md)"; fi
-    - cd "$DEPLOYPATH" && php vendor/bin/phinx migrate || echo "FIGYELEM: migracio kihagyva (ellenorizd a .env DB beallitasokat)"
-    - cd "$DEPLOYPATH" && mkdir -p storage/logs storage/uploads storage/cache && chmod -R 775 storage
-    - cd "$DEPLOYPATH" && rm -rf storage/cache/* 2>/dev/null || true
-    - echo "Deploy kész."
+    - /bin/bash "$DEPLOYPATH/deploy/cpanel-deploy.sh"
