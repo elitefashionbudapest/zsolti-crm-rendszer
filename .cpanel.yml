@@ -1,8 +1,7 @@
 ---
 # cPanel Git Version Control deploy (nincs SSH/Terminal).
-# A "Pull or Deploy → Deploy HEAD" gomb futtatja: minden lépést a
-# deploy/cpanel-deploy.sh végez (Composer telepítés + függőségek + migráció + seed).
+# A "Pull or Deploy → Deploy HEAD" gomb futtatja. Egyetlen taszk: a script a SAJÁT
+# helyéből vezeti le a repó útját, így nem kell env-öröklődés a taszkok közt.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/elitediv/visualbyadam.hu/zsolti_crm
-    - /bin/bash "$DEPLOYPATH/deploy/cpanel-deploy.sh"
+    - /bin/bash /home/elitediv/visualbyadam.hu/zsolti_crm/deploy/cpanel-deploy.sh

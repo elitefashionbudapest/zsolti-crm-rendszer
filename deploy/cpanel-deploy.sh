@@ -5,8 +5,11 @@
 # függőségek, adatbázis-migráció, első seed (belépő-felhasználók!), jogosultságok.
 #
 set -uo pipefail
-DEPLOYPATH="${DEPLOYPATH:-$HOME/zsolti-crm}"
+# A repó gyökerét a script SAJÁT helyéből vezetjük le (deploy/ szülője), így nem
+# függ a .cpanel.yml taszkok közti env-öröklődéstől (ami cPanelen nincs).
+DEPLOYPATH="${DEPLOYPATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$DEPLOYPATH" || { echo "Nincs ilyen mappa: $DEPLOYPATH"; exit 1; }
+echo "==> DEPLOYPATH: $DEPLOYPATH"
 
 # A chmod/jogosultság-változások ne tegyek a git-fat "piszkossa" (a cPanel deploy
 # tiszta fat var). A git ettol nem figyeli a fajl-mod valtozasokat.
