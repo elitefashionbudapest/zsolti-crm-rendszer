@@ -1,0 +1,6 @@
+# Alapértelmezett: a git normalizálja a szövegfájlokat
+* text=auto
+
+# Shell scriptek MINDIG LF sorvéggel (CRLF-fel Linuxon nem futnának)
+*.sh text eol=lf
+bin/console text eol=lf
