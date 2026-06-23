@@ -8,6 +8,10 @@ set -uo pipefail
 DEPLOYPATH="${DEPLOYPATH:-$HOME/zsolti-crm}"
 cd "$DEPLOYPATH" || { echo "Nincs ilyen mappa: $DEPLOYPATH"; exit 1; }
 
+# A chmod/jogosultság-változások ne tegyek a git-fat "piszkossa" (a cPanel deploy
+# tiszta fat var). A git ettol nem figyeli a fajl-mod valtozasokat.
+git config core.fileMode false 2>/dev/null || true
+
 # --- PHP binaris kivalasztasa (8.3 vagy 8.2 elonyben) ---
 PHP=""
 for v in ea-php83 ea-php82 ea-php81; do
@@ -35,7 +39,8 @@ echo "==> Composer install…"
 
 # --- Konyvtarak ---
 mkdir -p storage/logs storage/uploads storage/cache
-chmod -R 775 storage 2>/dev/null || true
+# Csak a konyvtarakat chmod-oljuk (a kovetett .gitkeep fajlokat ne).
+find storage -type d -exec chmod 775 {} + 2>/dev/null || true
 
 # --- Adatbazis: csak ha mar van .env (DB beallitasok) ---
 if [ -f .env ]; then
