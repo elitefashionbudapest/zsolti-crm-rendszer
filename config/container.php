@@ -47,14 +47,19 @@ return [
         return new App\Support\SignedState($c->get('settings')['app']['key']);
     }),
 
+    App\Support\LoginThrottle::class => factory(static function (ContainerInterface $c): App\Support\LoginThrottle {
+        return new App\Support\LoginThrottle($c->get('settings')['paths']['cache']);
+    }),
+
     App\Gmail\GmailOAuthService::class => factory(static function (ContainerInterface $c): App\Gmail\GmailOAuthService {
-        $g = $c->get('settings')['google'] ?? ['client_id' => '', 'client_secret' => ''];
+        $g = $c->get('settings')['google'] ?? ['client_id' => '', 'client_secret' => '', 'redirect_uri' => ''];
         return new App\Gmail\GmailOAuthService(
             $c->get(App\Settings\SettingsService::class),
             $c->get(App\Support\SignedState::class),
             null,
             (string) $g['client_id'],
             (string) $g['client_secret'],
+            (string) ($g['redirect_uri'] ?? ''),
         );
     }),
 

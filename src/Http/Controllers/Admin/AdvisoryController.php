@@ -8,6 +8,7 @@ use App\Advisory\AdvisoryRepository;
 use App\Auth\Auth;
 use App\Clients\ClientRepository;
 use App\Support\AuditLogger;
+use App\Support\HtmlSanitizer;
 use Slim\Views\Twig;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -24,6 +25,7 @@ final class AdvisoryController
         private AdvisoryRepository $advisory,
         private ClientRepository $clients,
         private AuditLogger $audit,
+        private HtmlSanitizer $sanitizer,
     ) {
     }
 
@@ -139,7 +141,7 @@ final class AdvisoryController
 
         return [
             'title' => $title === '' ? null : $title,
-            'body' => $bodyText === '' ? null : $bodyText,
+            'body' => $bodyText === '' ? null : $this->sanitizer->clean($bodyText),
             'client_id' => $clientId === '' ? null : (int) $clientId,
             'is_published' => isset($body['is_published']) ? 1 : 0,
         ];

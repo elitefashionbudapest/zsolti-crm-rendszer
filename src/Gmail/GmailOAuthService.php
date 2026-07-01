@@ -29,8 +29,15 @@ class GmailOAuthService
         ?Client $http = null,
         private string $appClientId = '',
         private string $appClientSecret = '',
+        private string $appRedirectUri = '',
     ) {
         $this->http = $http ?? new Client(['timeout' => 30]);
+    }
+
+    /** A .env APP_URL-ből származó, megbízható redirect URI (üres, ha nincs beállítva). */
+    public function configuredRedirectUri(): string
+    {
+        return $this->appRedirectUri;
     }
 
     /** Az iroda saját kliense elsőbbséget élvez; ha nincs, az app-szintű (.env) kliens. */

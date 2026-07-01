@@ -88,6 +88,13 @@ final class SettingsController
 
     private function gmailRedirectUri(Request $request): string
     {
+        // Elsődlegesen a MEGBÍZHATÓ, konfigurált APP_URL-ből (nem a kérés Host-fejlécéből,
+        // ami hamisítható). Fallback csak, ha az APP_URL nincs beállítva.
+        $configured = $this->gmail->configuredRedirectUri();
+        if ($configured !== '') {
+            return $configured;
+        }
+
         $rc = \Slim\Routing\RouteContext::fromRequest($request);
         $u = $request->getUri();
 

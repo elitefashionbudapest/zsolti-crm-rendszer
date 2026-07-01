@@ -9,6 +9,7 @@ use App\Ai\ClaudeClient;
 use App\Auth\Auth;
 use App\Settings\SettingsService;
 use App\Support\AuditLogger;
+use App\Support\HtmlSanitizer;
 use PDO;
 use Slim\Views\Twig;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -41,6 +42,7 @@ final class AdvisoryAiController
         private SettingsService $settings,
         private PDO $pdo,
         private AuditLogger $audit,
+        private HtmlSanitizer $sanitizer,
     ) {
     }
 
@@ -111,7 +113,7 @@ final class AdvisoryAiController
         $b = (array) $request->getParsedBody();
         $id = (int) ($b['id'] ?? 0);
         $title = trim((string) ($b['title'] ?? ''));
-        $body = (string) ($b['body'] ?? '');
+        $body = $this->sanitizer->clean((string) ($b['body'] ?? ''));
         $clientId = (int) ($b['client_id'] ?? 0);
         $published = !empty($b['is_published']) ? 1 : 0;
 

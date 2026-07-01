@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Auth\Auth;
+use App\Support\LoginThrottle;
 use Slim\Views\Twig;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -15,12 +16,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 final class LoginController
 {
-    private const MAX_ATTEMPTS = 5;
-    private const WINDOW = 900; // 15 perc
-
     public function __construct(
         private Twig $twig,
         private Auth $auth,
+        private LoginThrottle $throttle,
     ) {
     }
 
@@ -61,7 +60,8 @@ final class LoginController
     /** @param list<string> $roles */
     private function handle(Request $request, Response $response, array $roles, string $back): Response
     {
-        if ($this->throttled()) {
+        $ip = $this->clientIp($request);
+        if ($this->throttle->tooMany($ip)) {
             $_SESSION['flash_error'] = 'Túl sok sikertelen kísérlet. Próbáld újra később.';
             return $this->redirect($response, $back);
         }
@@ -76,12 +76,12 @@ final class LoginController
         }
 
         if (!$this->auth->attempt($email, $password, $roles)) {
-            $this->recordFailure();
+            $this->throttle->hit($ip);
             $_SESSION['flash_error'] = 'Hibás e-mail cím vagy jelszó.';
             return $this->redirect($response, $back);
         }
 
-        $this->clearFailures();
+        $this->throttle->clear($ip);
 
         $target = $this->auth->hasRole('super_admin')
             ? '/superadmin'
@@ -96,32 +96,13 @@ final class LoginController
         return $this->redirect($response, '/');
     }
 
-    private function throttled(): bool
+    private function clientIp(Request $request): string
     {
-        $a = $_SESSION['login_attempts'] ?? null;
-        if (!is_array($a)) {
-            return false;
-        }
-        if ((time() - (int) $a['first']) > self::WINDOW) {
-            unset($_SESSION['login_attempts']);
-            return false;
-        }
-        return (int) $a['count'] >= self::MAX_ATTEMPTS;
-    }
+        $s = $request->getServerParams();
 
-    private function recordFailure(): void
-    {
-        $a = $_SESSION['login_attempts'] ?? ['count' => 0, 'first' => time()];
-        if ((time() - (int) $a['first']) > self::WINDOW) {
-            $a = ['count' => 0, 'first' => time()];
-        }
-        $a['count'] = (int) $a['count'] + 1;
-        $_SESSION['login_attempts'] = $a;
-    }
-
-    private function clearFailures(): void
-    {
-        unset($_SESSION['login_attempts']);
+        // Közvetlen Apache (cPanel) esetén a REMOTE_ADDR a valódi kliens IP.
+        // (Az X-Forwarded-For a kliens által hamisítható, ezért nem arra kulcsolunk.)
+        return (string) ($s['REMOTE_ADDR'] ?? '0.0.0.0');
     }
 
     private function flashError(): ?string

@@ -36,7 +36,8 @@ return static function (string $rootPath): array {
         'session' => [
             'name' => (string) $env('SESSION_NAME', 'aegis_session'),
             'lifetime' => (int) $env('SESSION_LIFETIME', 7200),
-            'secure' => $bool('SESSION_SECURE', true),
+            // Éles környezetben a Secure flag KÖTELEZŐ (nem kapcsolható ki env-vel).
+            'secure' => (string) $env('APP_ENV', 'production') === 'production' ? true : $bool('SESSION_SECURE', true),
         ],
         'log' => [
             'level' => (string) $env('LOG_LEVEL', 'warning'),
@@ -56,6 +57,10 @@ return static function (string $rootPath): array {
         'google' => [
             'client_id' => (string) $env('GOOGLE_CLIENT_ID', ''),
             'client_secret' => (string) $env('GOOGLE_CLIENT_SECRET', ''),
+            // A redirect URI a MEGBÍZHATÓ APP_URL-ből (nem a kérés Host-fejlécéből).
+            'redirect_uri' => rtrim((string) $env('APP_URL', ''), '/') !== ''
+                ? rtrim((string) $env('APP_URL', ''), '/') . '/admin/beallitasok/gmail/callback'
+                : '',
         ],
     ];
 };
