@@ -51,5 +51,11 @@ return static function (string $rootPath): array {
             'key' => (string) $env('ANTHROPIC_API_KEY', ''),
             'model' => (string) $env('ANTHROPIC_MODEL', 'claude-opus-4-8'),
         ],
+        // App-szintű (közös) Google OAuth-kliens — ha ki van töltve, az irodák
+        // egyetlen gombnyomással köthetik a Gmailt (nincs per-iroda kulcs).
+        'google' => [
+            'client_id' => (string) $env('GOOGLE_CLIENT_ID', ''),
+            'client_secret' => (string) $env('GOOGLE_CLIENT_SECRET', ''),
+        ],
     ];
 };

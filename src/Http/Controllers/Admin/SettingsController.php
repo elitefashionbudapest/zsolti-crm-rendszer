@@ -78,6 +78,7 @@ final class SettingsController
             'secret' => $secretSet,
             'googleConnected' => $googleConnected,
             'gmailConfigured' => $this->gmail->isConfigured($officeId),
+            'gmailAppConfigured' => $this->gmail->appConfigured(),
             'gmailConnected' => $this->gmail->isConnected($officeId),
             'gmailEmail' => $this->gmail->connectedEmail($officeId),
             'gmailRedirectUri' => $this->gmailRedirectUri($request),

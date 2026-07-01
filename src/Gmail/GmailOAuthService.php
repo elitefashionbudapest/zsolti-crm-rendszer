@@ -27,14 +27,36 @@ class GmailOAuthService
         private SettingsService $settings,
         private SignedState $state,
         ?Client $http = null,
+        private string $appClientId = '',
+        private string $appClientSecret = '',
     ) {
         $this->http = $http ?? new Client(['timeout' => 30]);
     }
 
+    /** Az iroda saját kliense elsőbbséget élvez; ha nincs, az app-szintű (.env) kliens. */
+    private function clientId(int $officeId): string
+    {
+        $v = (string) $this->settings->get($officeId, 'google_client_id', '');
+
+        return $v !== '' ? $v : $this->appClientId;
+    }
+
+    private function clientSecret(int $officeId): string
+    {
+        $v = (string) $this->settings->get($officeId, 'google_client_secret', '');
+
+        return $v !== '' ? $v : $this->appClientSecret;
+    }
+
+    /** Van-e app-szintű (közös) kliens → ekkor az iroda egy kattintással köthet. */
+    public function appConfigured(): bool
+    {
+        return $this->appClientId !== '' && $this->appClientSecret !== '';
+    }
+
     public function isConfigured(int $officeId): bool
     {
-        return ((string) $this->settings->get($officeId, 'google_client_id', '')) !== ''
-            && ((string) $this->settings->get($officeId, 'google_client_secret', '')) !== '';
+        return $this->clientId($officeId) !== '' && $this->clientSecret($officeId) !== '';
     }
 
     public function isConnected(int $officeId): bool
@@ -52,7 +74,7 @@ class GmailOAuthService
     public function authUrl(int $officeId, string $redirectUri): string
     {
         $params = [
-            'client_id' => (string) $this->settings->get($officeId, 'google_client_id', ''),
+            'client_id' => $this->clientId($officeId),
             'redirect_uri' => $redirectUri,
             'response_type' => 'code',
             'scope' => self::SCOPE,
@@ -77,8 +99,8 @@ class GmailOAuthService
         try {
             $res = $this->http->post(self::TOKEN, ['form_params' => [
                 'code' => $code,
-                'client_id' => (string) $this->settings->get($officeId, 'google_client_id', ''),
-                'client_secret' => (string) $this->settings->get($officeId, 'google_client_secret', ''),
+                'client_id' => $this->clientId($officeId),
+                'client_secret' => $this->clientSecret($officeId),
                 'redirect_uri' => $redirectUri,
                 'grant_type' => 'authorization_code',
             ]]);
@@ -115,8 +137,8 @@ class GmailOAuthService
         }
         try {
             $res = $this->http->post(self::TOKEN, ['http_errors' => false, 'form_params' => [
-                'client_id' => (string) $this->settings->get($officeId, 'google_client_id', ''),
-                'client_secret' => (string) $this->settings->get($officeId, 'google_client_secret', ''),
+                'client_id' => $this->clientId($officeId),
+                'client_secret' => $this->clientSecret($officeId),
                 'refresh_token' => $refresh,
                 'grant_type' => 'refresh_token',
             ]]);

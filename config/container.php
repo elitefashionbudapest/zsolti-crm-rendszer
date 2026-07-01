@@ -47,6 +47,17 @@ return [
         return new App\Support\SignedState($c->get('settings')['app']['key']);
     }),
 
+    App\Gmail\GmailOAuthService::class => factory(static function (ContainerInterface $c): App\Gmail\GmailOAuthService {
+        $g = $c->get('settings')['google'] ?? ['client_id' => '', 'client_secret' => ''];
+        return new App\Gmail\GmailOAuthService(
+            $c->get(App\Settings\SettingsService::class),
+            $c->get(App\Support\SignedState::class),
+            null,
+            (string) $g['client_id'],
+            (string) $g['client_secret'],
+        );
+    }),
+
     UserRepository::class => autowire(),
     Auth::class => autowire(),
 

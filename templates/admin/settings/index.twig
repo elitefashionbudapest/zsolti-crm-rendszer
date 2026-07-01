@@ -106,26 +106,30 @@
       {% endif %}
     </div>
 
-    <p class="mt-3 text-[12.5px] text-muted">A Gmail-behúzás a Google API-n keresztül megy (HTTPS), így a tárhely tiltott IMAP-portja nem gátolja. Hozz létre egy Google Cloud OAuth-klienst, engedélyezd a Gmail API-t, és add meg lent a Client ID-t és Secretet.</p>
-
-    <div class="mt-4 rounded-xl border border-slate-200 bg-surface px-4 py-3">
-      <div class="text-[11px] font-semibold uppercase tracking-wide text-muted">Átirányítási URI (ezt írd be a Google-kliensbe)</div>
-      <div class="mt-1 break-all font-mono text-[12.5px] text-ink">{{ gmailRedirectUri }}</div>
-    </div>
-
-    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {{ f.field('Client ID', 'google_client_id', v, 'text', '...apps.googleusercontent.com') }}
-      {{ f.secret('Client Secret', 'google_client_secret', secret.google_client_secret_set) }}
-    </div>
+    {% if gmailAppConfigured %}
+      <p class="mt-3 text-[13.5px] text-muted">Kösd össze a Gmail-fiókodat egyetlen kattintással — a beérkező levelek automatikusan bekerülnek a postaládába. Nincs szükség semmilyen technikai beállításra.</p>
+    {% else %}
+      <p class="mt-3 text-[12.5px] text-muted">A Gmail-behúzás a Google API-n keresztül megy (HTTPS), így a tárhely tiltott IMAP-portja nem gátolja. Add meg a saját Google Cloud OAuth-klienced adatait.</p>
+      <div class="mt-4 rounded-xl border border-slate-200 bg-surface px-4 py-3">
+        <div class="text-[11px] font-semibold uppercase tracking-wide text-muted">Átirányítási URI (ezt írd be a Google-kliensbe)</div>
+        <div class="mt-1 break-all font-mono text-[12.5px] text-ink">{{ gmailRedirectUri }}</div>
+      </div>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {{ f.field('Client ID', 'google_client_id', v, 'text', '...apps.googleusercontent.com') }}
+        {{ f.secret('Client Secret', 'google_client_secret', secret.google_client_secret_set) }}
+      </div>
+    {% endif %}
 
     <div class="mt-5 flex flex-wrap items-center gap-3">
       {% if gmailConnected %}
         <a href="/admin/beallitasok/gmail/connect" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="refresh-cw" class="h-[17px] w-[17px]"></i> Újracsatlakoztatás</a>
       {% else %}
-        <a href="/admin/beallitasok/gmail/connect" class="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-white transition hover:bg-ink/90"><i data-lucide="link" class="h-[17px] w-[17px]"></i> Gmail csatlakoztatása</a>
+        <a href="/admin/beallitasok/gmail/connect" class="inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-ink/90"><i data-lucide="link" class="h-[18px] w-[18px]"></i> Gmail csatlakoztatása</a>
       {% endif %}
     </div>
-    <p class="mt-2 text-[12px] text-muted">A csatlakoztatás előtt mentsd a Client ID-t és Secretet a „Mentés" gombbal.</p>
+    {% if not gmailAppConfigured %}
+      <p class="mt-2 text-[12px] text-muted">A csatlakoztatás előtt mentsd a Client ID-t és Secretet a „Mentés" gombbal.</p>
+    {% endif %}
   </div>
 
   {% if gmailConnected %}
