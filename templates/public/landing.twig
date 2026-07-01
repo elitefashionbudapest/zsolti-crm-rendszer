@@ -1,78 +1,118 @@
 {% extends 'layouts/base.twig' %}
 {% block title %}{{ app_name }} — Modern CRM biztosítási ügynököknek és pénzügyi tanácsadóknak{% endblock %}
 
+{% block head %}
+<style>
+  /* Apple-keynote finomságok */
+  .h-display { letter-spacing: -0.03em; line-height: 1.03; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+  .reveal.is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; } }
+  /* Finom, lassan úszó fény-folt */
+  @keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
+  .floaty { animation: floaty 7s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .floaty { animation: none; } }
+</style>
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+{% endblock %}
+
 {% block body %}
 <div x-data="{ menuOpen: false }" x-cloak class="min-h-screen bg-white">
 
-  <header class="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-md">
-    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-      <a href="/" class="flex items-center gap-2.5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-ink"><i data-lucide="shield-check" class="h-5 w-5 text-teal"></i></div>
-        <span class="text-[17px] font-bold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span></span>
+  {# ===== Nav ===== #}
+  <header class="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-xl">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-5 sm:px-8">
+      <a href="/" class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink"><i data-lucide="shield-check" class="h-[18px] w-[18px] text-teal"></i></div>
+        <span class="text-[16px] font-bold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span></span>
       </a>
-      <nav class="hidden items-center gap-8 lg:flex">
-        <a href="#funkciok" class="text-[14px] font-medium text-muted transition hover:text-ink">Funkciók</a>
-        <a href="#hogyan" class="text-[14px] font-medium text-muted transition hover:text-ink">Hogyan működik</a>
-        <a href="#kapcsolat" class="text-[14px] font-medium text-muted transition hover:text-ink">Kapcsolat</a>
+      <nav class="hidden items-center gap-8 md:flex">
+        <a href="#funkciok" class="text-[13px] font-medium text-muted transition hover:text-ink">Funkciók</a>
+        <a href="#hogyan" class="text-[13px] font-medium text-muted transition hover:text-ink">Hogyan működik</a>
+        <a href="#portal" class="text-[13px] font-medium text-muted transition hover:text-ink">Ügyfélportál</a>
+        <a href="#belepes" class="text-[13px] font-medium text-muted transition hover:text-ink">Belépés</a>
       </nav>
-      <div class="hidden items-center gap-3 lg:flex">
-        <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface">
-          <i data-lucide="moon" class="h-[19px] w-[19px] dark:hidden"></i><i data-lucide="sun" class="hidden h-[19px] w-[19px] dark:block"></i>
-        </button>
-        <a href="/belepes/ugynok" class="rounded-xl bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-soft transition hover:bg-ink/90">Ügynöki belépés</a>
-        <a href="/belepes/ugyfel" class="rounded-xl border-2 border-ink px-4 py-2 text-[13.5px] font-semibold text-ink transition hover:bg-ink hover:text-white">Ügyfél belépés</a>
-      </div>
-      <button @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="Menü" class="flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-surface lg:hidden">
-        <i data-lucide="menu" class="h-6 w-6" x-show="!menuOpen"></i>
-        <i data-lucide="x" class="h-6 w-6" x-show="menuOpen"></i>
-      </button>
-    </div>
-    <div x-show="menuOpen" x-cloak class="border-t border-slate-100 bg-white px-5 py-4 lg:hidden">
-      <div class="flex flex-col gap-2.5">
-        <a href="/belepes/ugynok" class="w-full rounded-xl bg-ink px-4 py-3 text-center text-[14px] font-semibold text-white">Ügynöki belépés</a>
-        <a href="/belepes/ugyfel" class="w-full rounded-xl border-2 border-ink px-4 py-2.5 text-center text-[14px] font-semibold text-ink">Ügyfél belépés</a>
-        <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-[14px] font-semibold text-muted">
+      <div class="flex items-center gap-2">
+        <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface">
           <i data-lucide="moon" class="h-[18px] w-[18px] dark:hidden"></i><i data-lucide="sun" class="hidden h-[18px] w-[18px] dark:block"></i>
-          <span class="dark:hidden">Sötét mód</span><span class="hidden dark:inline">Világos mód</span>
         </button>
+        <a href="#belepes" class="hidden rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-ink/90 sm:inline-flex">Belépés</a>
+        <button @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="Menü" class="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-surface md:hidden">
+          <i data-lucide="menu" class="h-5 w-5" x-show="!menuOpen"></i><i data-lucide="x" class="h-5 w-5" x-show="menuOpen"></i>
+        </button>
+      </div>
+    </div>
+    <div x-show="menuOpen" x-cloak class="border-t border-slate-100 bg-white px-5 py-4 md:hidden">
+      <div class="flex flex-col gap-1">
+        <a href="#funkciok" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Funkciók</a>
+        <a href="#hogyan" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Hogyan működik</a>
+        <a href="#portal" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Ügyfélportál</a>
+        <a href="#belepes" @click="menuOpen=false" class="mt-1 rounded-lg bg-ink px-3 py-2.5 text-center text-[14px] font-semibold text-white">Belépés</a>
       </div>
     </div>
   </header>
 
+  {# ===== Hero ===== #}
   <section class="relative overflow-hidden bg-ink">
-    <div class="pointer-events-none absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 26px 26px;"></div>
-    <div class="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full" style="background: radial-gradient(circle, rgba(14,159,110,0.35), transparent 70%);"></div>
-    <div class="pointer-events-none absolute -bottom-32 -right-24 h-[28rem] w-[28rem] rounded-full" style="background: radial-gradient(circle, rgba(244,183,64,0.18), transparent 70%);"></div>
-    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-2 lg:py-28">
-      <div>
-        <div class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[12.5px] font-semibold text-teal">
-          <span class="relative flex h-1.5 w-1.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75"></span><span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal"></span></span> Biztosítási &amp; pénzügyi szakembereknek
-        </div>
-        <h1 class="mt-6 text-[34px] font-bold leading-[1.08] tracking-tight text-white sm:text-[44px] lg:text-[52px]">Modern CRM <span class="bg-gradient-to-r from-teal to-gold bg-clip-text text-transparent">biztosítási ügynököknek</span> és pénzügyi tanácsadóknak</h1>
-        <p class="mt-5 max-w-lg text-[16px] leading-relaxed text-slate-300 sm:text-[17px]">Egységes felület az ügyfelekhez, szerződésekhez és dokumentumokhoz — AI-alapú adatkinyeréssel, automatikus e-mail folyamatokkal és külön ügyfélportállal.</p>
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a href="#belepes" class="flex items-center justify-center gap-2 rounded-xl bg-teal px-6 py-3.5 text-[15px] font-semibold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-teal/90 hover:shadow-float"><i data-lucide="briefcase" class="h-[18px] w-[18px]"></i> Ügynöki belépés</a>
-          <a href="#belepes" class="flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 px-6 py-3 text-[15px] font-semibold text-white transition hover:border-white hover:bg-white/10"><i data-lucide="user" class="h-[18px] w-[18px]"></i> Ügyfél belépés</a>
-        </div>
-        <div class="mt-7 flex items-center gap-2 text-[13px] text-slate-400"><i data-lucide="lock" class="h-4 w-4 text-teal"></i> GDPR-megfelelő · banki szintű titkosítás</div>
+    <div class="pointer-events-none absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 30px 30px;"></div>
+    <div class="floaty pointer-events-none absolute -left-32 -top-24 h-[30rem] w-[30rem] rounded-full" style="background: radial-gradient(circle, rgba(14,159,110,0.4), transparent 70%);"></div>
+    <div class="floaty pointer-events-none absolute -bottom-40 -right-24 h-[34rem] w-[34rem] rounded-full" style="background: radial-gradient(circle, rgba(244,183,64,0.16), transparent 70%); animation-delay: 2s;"></div>
+
+    <div class="relative mx-auto max-w-5xl px-5 pt-20 text-center sm:px-8 sm:pt-28">
+      <div class="reveal inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[12.5px] font-semibold text-teal">
+        <span class="relative flex h-1.5 w-1.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75"></span><span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal"></span></span>
+        Biztosítási &amp; pénzügyi szakembereknek
       </div>
-      <div class="hidden lg:block">
-        <div class="rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
-          <div class="rounded-xl bg-white p-5 shadow-float">
-            <div class="mb-3 flex items-center justify-between">
-              <div class="flex items-center gap-2 text-[12px] font-semibold text-muted"><i data-lucide="layout-dashboard" class="h-4 w-4 text-teal"></i> Vezérlőpult</div>
-              <span class="rounded-full bg-success/10 px-2 py-0.5 text-[10.5px] font-semibold text-success">élő</span>
+      <h1 class="h-display reveal mx-auto mt-7 max-w-3xl text-[42px] font-bold text-white sm:text-[64px] lg:text-[76px]">
+        A napi munkád.<br><span class="bg-gradient-to-r from-teal via-teal to-gold bg-clip-text text-transparent">Újragondolva.</span>
+      </h1>
+      <p class="reveal mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-slate-300 sm:text-[19px]">
+        Ügyfelek, szerződések és dokumentumok egyetlen letisztult felületen — AI-adatkinyeréssel, automatikus e-mail folyamatokkal és külön ügyfélportállal.
+      </p>
+      <div class="reveal mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a href="#belepes" class="group inline-flex items-center justify-center gap-2 rounded-full bg-teal px-7 py-3.5 text-[15px] font-semibold text-white shadow-float transition hover:-translate-y-0.5 hover:bg-teal/90">Kezdés most <i data-lucide="arrow-right" class="h-[18px] w-[18px] transition group-hover:translate-x-0.5"></i></a>
+        <a href="#hogyan" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-7 py-3.5 text-[15px] font-semibold text-white transition hover:bg-white/10">Hogyan működik</a>
+      </div>
+      <div class="reveal mt-6 flex items-center justify-center gap-2 text-[12.5px] text-slate-400"><i data-lucide="lock" class="h-3.5 w-3.5 text-teal"></i> GDPR-megfelelő · banki szintű titkosítás</div>
+
+      {# ==== Hero eszköz-mockup (CSS). IDE jöhet később egy Higgsfield fotós render: <img src="/img/hero.webp" ...> ==== #}
+      <div class="reveal relative mx-auto mt-14 max-w-4xl sm:mt-20">
+        <div class="absolute inset-x-8 -bottom-6 h-24 rounded-[40px] bg-teal/20 blur-3xl"></div>
+        <div class="relative overflow-hidden rounded-t-[22px] border border-white/10 bg-white shadow-float sm:rounded-t-[28px]">
+          <div class="flex items-center gap-1.5 border-b border-slate-100 bg-surface px-4 py-3">
+            <span class="h-3 w-3 rounded-full bg-slate-300"></span><span class="h-3 w-3 rounded-full bg-slate-300"></span><span class="h-3 w-3 rounded-full bg-slate-300"></span>
+            <span class="ml-3 h-5 flex-1 rounded-md bg-white"></span>
+          </div>
+          <div class="grid grid-cols-12">
+            <div class="col-span-3 hidden flex-col gap-1.5 border-r border-slate-100 bg-ink p-3 sm:flex">
+              <div class="mb-2 h-6 w-24 rounded-md bg-white/10"></div>
+              {% for i in 1..6 %}<div class="flex items-center gap-2 rounded-lg px-2 py-2 {{ i == 1 ? 'bg-teal' : '' }}"><div class="h-3.5 w-3.5 rounded {{ i == 1 ? 'bg-white' : 'bg-white/25' }}"></div><div class="h-2.5 w-16 rounded {{ i == 1 ? 'bg-white/80' : 'bg-white/20' }}"></div></div>{% endfor %}
             </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="rounded-xl bg-surface p-3"><div class="tabular-nums text-[22px] font-bold text-ink">1 248</div><div class="text-[11px] text-muted">Aktív ügyfelek</div></div>
-              <div class="rounded-xl bg-surface p-3"><div class="tabular-nums text-[22px] font-bold text-ink">96%</div><div class="text-[11px] text-muted">Megújítás</div></div>
-            </div>
-            <div class="mt-3 rounded-xl bg-surface p-3">
-              <div class="mb-2 flex items-center justify-between text-[11px]"><span class="font-medium text-ink">Szerződések terméktípus szerint</span><span class="tabular-nums font-semibold text-muted">312</span></div>
-              <div class="space-y-1.5">
-                <div class="h-2 w-[82%] rounded-full bg-teal"></div>
-                <div class="h-2 w-[64%] rounded-full bg-ink/70"></div>
-                <div class="h-2 w-[41%] rounded-full bg-gold"></div>
+            <div class="col-span-12 p-4 text-left sm:col-span-9 sm:p-6">
+              <div class="mb-4 h-4 w-40 rounded bg-slate-200"></div>
+              <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {% for c in [['bg-ink/5','text-ink'],['bg-teal/10','text-teal'],['bg-gold/15','text-gold'],['bg-warning/10','text-warning']] %}
+                  <div class="rounded-xl border border-slate-200/70 bg-white p-3.5 shadow-soft">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg {{ c[0] }}"><div class="h-3.5 w-3.5 rounded {{ c[1] }} bg-current opacity-70"></div></div>
+                    <div class="mt-3 h-5 w-12 rounded bg-slate-800/80"></div>
+                    <div class="mt-1.5 h-2.5 w-16 rounded bg-slate-200"></div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-5">
+                <div class="rounded-xl border border-slate-200/70 bg-white p-4 shadow-soft lg:col-span-3">
+                  <div class="mb-3 h-3 w-28 rounded bg-slate-200"></div>
+                  <div class="space-y-2.5">
+                    <div class="h-2.5 w-[85%] rounded-full bg-teal"></div>
+                    <div class="h-2.5 w-[68%] rounded-full bg-ink/70"></div>
+                    <div class="h-2.5 w-[52%] rounded-full bg-gold"></div>
+                    <div class="h-2.5 w-[38%] rounded-full bg-slate-200"></div>
+                  </div>
+                </div>
+                <div class="rounded-xl border border-slate-200/70 bg-white p-4 shadow-soft lg:col-span-2">
+                  <div class="mb-3 h-3 w-20 rounded bg-slate-200"></div>
+                  {% for i in 1..4 %}<div class="mb-2.5 flex items-center justify-between"><div class="h-2.5 w-20 rounded bg-slate-200"></div><div class="h-4 w-8 rounded-full bg-surface"></div></div>{% endfor %}
+                </div>
               </div>
             </div>
           </div>
@@ -81,67 +121,129 @@
     </div>
   </section>
 
+  {# ===== Trust szalag ===== #}
   <section class="border-b border-slate-100 bg-white">
-    <div class="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-5 px-5 py-8 sm:px-8 lg:grid-cols-4">
+    <div class="mx-auto grid max-w-5xl grid-cols-2 gap-x-6 gap-y-6 px-5 py-10 sm:px-8 lg:grid-cols-4">
       {% for t in trust %}
-        <div class="flex items-center gap-3">
+        <div class="reveal flex items-center gap-3">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface"><i data-lucide="{{ t.icon }}" class="h-5 w-5 text-teal"></i></div>
-          <div class="text-[13.5px] font-semibold leading-tight text-ink">{{ t.label }}</div>
+          <div class="text-[13px] font-semibold leading-tight text-ink">{{ t.label }}</div>
         </div>
       {% endfor %}
     </div>
   </section>
 
-  <section id="funkciok" class="bg-white py-20 sm:py-24">
-    <div class="mx-auto max-w-6xl px-5 sm:px-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <div class="text-[13px] font-bold uppercase tracking-[0.12em] text-teal">Funkciók</div>
-        <h2 class="mt-3 text-[28px] font-bold tracking-tight text-ink sm:text-[36px]">Minden, ami a napi munkához kell</h2>
-      </div>
-      <div class="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {% for f in features %}
-          <div class="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft transition hover:-translate-y-1 hover:border-teal/30 hover:shadow-card">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-ink to-teal shadow-soft transition group-hover:scale-105"><i data-lucide="{{ f.icon }}" class="h-6 w-6 text-white"></i></div>
-            <h3 class="mt-5 text-[17px] font-bold text-ink">{{ f.title }}</h3>
-            <p class="mt-2 text-[14px] leading-relaxed text-muted">{{ f.desc }}</p>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section id="hogyan" class="bg-surface py-20 sm:py-24">
-    <div class="mx-auto max-w-6xl px-5 sm:px-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <div class="text-[13px] font-bold uppercase tracking-[0.12em] text-teal">Hogyan működik</div>
-        <h2 class="mt-3 text-[28px] font-bold tracking-tight text-ink sm:text-[36px]">Dokumentumból kész szerződés négy lépésben</h2>
-      </div>
-      <div class="relative mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {% for s in steps %}
-          <div class="relative flex flex-col items-center text-center">
-            <div class="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-ink text-white ring-8 ring-surface">
-              <i data-lucide="{{ s.icon }}" class="h-6 w-6"></i>
-              <span class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-teal text-[12px] font-bold text-white ring-4 ring-surface">{{ s.num }}</span>
-            </div>
-            <h3 class="mt-5 text-[16px] font-bold text-ink">{{ s.title }}</h3>
-            <p class="mt-2 max-w-[230px] text-[13.5px] leading-relaxed text-muted">{{ s.desc }}</p>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section id="belepes" class="bg-white py-20 sm:py-24">
+  {# ===== Funkciók ===== #}
+  <section id="funkciok" class="bg-white py-24 sm:py-32">
     <div class="mx-auto max-w-5xl px-5 sm:px-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <div class="text-[13px] font-bold uppercase tracking-[0.12em] text-teal">Belépés</div>
-        <h2 class="mt-3 text-[28px] font-bold tracking-tight text-ink sm:text-[36px]">Két felület, egy rendszer</h2>
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <div class="text-[13px] font-bold uppercase tracking-[0.14em] text-teal">Funkciók</div>
+        <h2 class="h-display mt-4 text-[34px] font-bold text-ink sm:text-[48px]">Minden, ami a napi munkához kell.</h2>
+        <p class="mt-5 text-[16px] leading-relaxed text-muted">Egyetlen rendszer, amely a partnerkezeléstől az AI-adatkinyerésen át a biztosítói küldésig mindent lefed.</p>
       </div>
-      <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div class="rounded-2xl border-2 border-ink/10 bg-white p-7 shadow-card sm:p-8">
+      <div class="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for f in features %}
+          <div class="reveal group rounded-3xl border border-slate-200/70 bg-white p-7 transition hover:-translate-y-1 hover:border-teal/30 hover:shadow-card">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-ink to-teal shadow-soft transition group-hover:scale-105"><i data-lucide="{{ f.icon }}" class="h-6 w-6 text-white"></i></div>
+            <h3 class="mt-6 text-[18px] font-bold tracking-tight text-ink">{{ f.title }}</h3>
+            <p class="mt-2.5 text-[14.5px] leading-relaxed text-muted">{{ f.desc }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {# ===== Kiemelt: AI-adatkinyerés (nagy állítás) ===== #}
+  <section class="bg-ink py-24 text-center sm:py-36">
+    <div class="mx-auto max-w-4xl px-5 sm:px-8">
+      <div class="reveal text-[13px] font-bold uppercase tracking-[0.14em] text-teal">AI-adatkinyerés</div>
+      <p class="h-display reveal mx-auto mt-5 max-w-3xl text-[30px] font-bold text-white sm:text-[46px]">
+        Dokumentumból kész szerződés — <span class="text-slate-400">kézi gépelés nélkül.</span>
+      </p>
+      <p class="reveal mx-auto mt-6 max-w-xl text-[16px] leading-relaxed text-slate-300 sm:text-[18px]">Töltsd fel a PDF-et vagy a szkennelt oldalt. Az AI másodpercek alatt kiolvassa és strukturálja az adatokat, te pedig csak jóváhagyod.</p>
+      <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+        {% for m in [['zap','Másodpercek alatt'],['target','Pontos kinyerés'],['file-check-2','Auto-kitöltés']] %}
+          <div class="flex items-center gap-2 text-[14px] font-semibold text-white"><i data-lucide="{{ m[0] }}" class="h-5 w-5 text-teal"></i> {{ m[1] }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {# ===== Hogyan működik ===== #}
+  <section id="hogyan" class="bg-white py-24 sm:py-32">
+    <div class="mx-auto max-w-5xl px-5 sm:px-8">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <div class="text-[13px] font-bold uppercase tracking-[0.14em] text-teal">Hogyan működik</div>
+        <h2 class="h-display mt-4 text-[34px] font-bold text-ink sm:text-[48px]">Négy lépés a kész szerződésig.</h2>
+      </div>
+      <div class="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        {% for s in steps %}
+          <div class="reveal relative flex flex-col items-center text-center">
+            <div class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-ink text-white shadow-card">
+              <i data-lucide="{{ s.icon }}" class="h-7 w-7"></i>
+              <span class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-teal text-[13px] font-bold text-white ring-4 ring-white">{{ s.num }}</span>
+            </div>
+            <h3 class="mt-6 text-[17px] font-bold tracking-tight text-ink">{{ s.title }}</h3>
+            <p class="mt-2 max-w-[240px] text-[14px] leading-relaxed text-muted">{{ s.desc }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {# ===== Ügyfélportál (telefon-mockup) ===== #}
+  <section id="portal" class="overflow-hidden bg-surface py-24 sm:py-32">
+    <div class="mx-auto grid max-w-5xl items-center gap-14 px-5 sm:px-8 lg:grid-cols-2">
+      <div class="reveal">
+        <div class="text-[13px] font-bold uppercase tracking-[0.14em] text-teal">Ügyfélportál</div>
+        <h2 class="h-display mt-4 text-[32px] font-bold text-ink sm:text-[44px]">Az ügyfeleid külön, biztonságos felülete.</h2>
+        <p class="mt-5 text-[16px] leading-relaxed text-muted">Szerződések, dokumentumok és határidők — mobilról is, bármikor. Kevesebb telefon, kevesebb e-mail, elégedettebb ügyfelek.</p>
+        <ul class="mt-7 space-y-3.5">
+          {% for p in ['Szerződések és évfordulók áttekinthetően','Dokumentumok biztonságos letöltése','Közvetlen üzenet az ügynöknek'] %}
+            <li class="flex items-center gap-3 text-[15px] font-medium text-ink"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal/10"><i data-lucide="check" class="h-4 w-4 text-teal"></i></span>{{ p }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {# ==== Telefon-mockup (CSS). IDE jöhet később: <img src="/img/portal-phone.webp" ...> ==== #}
+      <div class="reveal flex justify-center">
+        <div class="floaty relative w-[248px]">
+          <div class="absolute -inset-6 rounded-[48px] bg-teal/15 blur-3xl"></div>
+          <div class="relative rounded-[40px] border-[10px] border-ink bg-ink p-1.5 shadow-float">
+            <div class="overflow-hidden rounded-[30px] bg-surface">
+              <div class="flex items-center justify-between bg-white px-5 pb-3 pt-4">
+                <div class="h-2.5 w-16 rounded bg-slate-200"></div>
+                <div class="h-7 w-7 rounded-full bg-ink"></div>
+              </div>
+              <div class="space-y-3 p-4">
+                <div class="h-4 w-32 rounded bg-slate-800/80"></div>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div class="rounded-2xl border border-slate-200/70 bg-white p-3"><div class="h-8 w-8 rounded-lg bg-ink/5"></div><div class="mt-3 h-3.5 w-10 rounded bg-slate-800/70"></div><div class="mt-1.5 h-2 w-14 rounded bg-slate-200"></div></div>
+                  <div class="rounded-2xl border border-slate-200/70 bg-white p-3"><div class="h-8 w-8 rounded-lg bg-warning/10"></div><div class="mt-3 h-3.5 w-10 rounded bg-slate-800/70"></div><div class="mt-1.5 h-2 w-14 rounded bg-slate-200"></div></div>
+                </div>
+                <div class="rounded-2xl border border-slate-200/70 bg-white p-3.5">
+                  {% for i in 1..3 %}<div class="mb-3 flex items-center gap-3 {{ i == 3 ? 'mb-0' : '' }}"><div class="h-8 w-8 shrink-0 rounded-lg bg-surface"></div><div class="flex-1"><div class="h-2.5 w-24 rounded bg-slate-200"></div><div class="mt-1.5 h-2 w-16 rounded bg-slate-100"></div></div></div>{% endfor %}
+                </div>
+                <div class="h-11 rounded-2xl bg-teal"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ===== Belépés ===== #}
+  <section id="belepes" class="bg-white py-24 sm:py-32">
+    <div class="mx-auto max-w-4xl px-5 sm:px-8">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <div class="text-[13px] font-bold uppercase tracking-[0.14em] text-teal">Belépés</div>
+        <h2 class="h-display mt-4 text-[34px] font-bold text-ink sm:text-[48px]">Két felület, egy rendszer.</h2>
+      </div>
+      <div class="reveal mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div class="rounded-3xl border border-slate-200/70 bg-white p-7 shadow-card sm:p-8">
           <div class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ink"><i data-lucide="briefcase" class="h-5 w-5 text-white"></i></div>
-            <div><h3 class="text-[17px] font-bold text-ink">Ügynöki / Admin belépés</h3><p class="text-[13px] text-muted">Tanácsadóknak és adminisztrátoroknak</p></div>
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-ink"><i data-lucide="briefcase" class="h-5 w-5 text-white"></i></div>
+            <div><h3 class="text-[17px] font-bold text-ink">Ügynöki / Admin</h3><p class="text-[13px] text-muted">Tanácsadóknak és adminoknak</p></div>
           </div>
           <form method="post" action="/belepes/ugynok" class="mt-6 space-y-4">
             <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
@@ -153,10 +255,10 @@
             <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl bg-ink py-3.5 text-[15px] font-semibold text-white transition hover:bg-ink/90">Belépés <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i></button>
           </form>
         </div>
-        <div class="rounded-2xl border-2 border-teal/20 bg-white p-7 shadow-card sm:p-8">
+        <div class="rounded-3xl border border-teal/20 bg-white p-7 shadow-card sm:p-8">
           <div class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal"><i data-lucide="user" class="h-5 w-5 text-white"></i></div>
-            <div><h3 class="text-[17px] font-bold text-ink">Ügyfél belépés</h3><p class="text-[13px] text-muted">Szerződések és dokumentumok megtekintése</p></div>
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal"><i data-lucide="user" class="h-5 w-5 text-white"></i></div>
+            <div><h3 class="text-[17px] font-bold text-ink">Ügyfél</h3><p class="text-[13px] text-muted">Szerződések és dokumentumok</p></div>
           </div>
           <form method="post" action="/belepes/ugyfel" class="mt-6 space-y-4">
             <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
@@ -172,13 +274,28 @@
     </div>
   </section>
 
-  <footer id="kapcsolat" class="bg-ink text-white">
-    <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8">
-      <div class="flex flex-col items-center justify-between gap-3 border-white/10 text-[13px] text-slate-400 sm:flex-row">
-        <div>© 2026 {{ app_name }}. Minden jog fenntartva.</div>
-        <div class="flex items-center gap-2"><i data-lucide="lock" class="h-3.5 w-3.5 text-teal"></i> GDPR-megfelelő adatkezelés</div>
-      </div>
+  {# ===== Footer ===== #}
+  <footer class="bg-ink text-white">
+    <div class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-5 py-10 text-[13px] text-slate-400 sm:flex-row sm:px-8">
+      <div class="flex items-center gap-2.5"><div class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10"><i data-lucide="shield-check" class="h-4 w-4 text-teal"></i></div> © 2026 {{ app_name }}. Minden jog fenntartva.</div>
+      <div class="flex items-center gap-2"><i data-lucide="lock" class="h-3.5 w-3.5 text-teal"></i> GDPR-megfelelő adatkezelés</div>
     </div>
   </footer>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach(function (e) { e.classList.add('is-in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
 {% endblock %}
