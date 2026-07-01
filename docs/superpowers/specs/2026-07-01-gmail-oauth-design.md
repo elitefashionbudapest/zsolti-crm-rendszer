@@ -73,21 +73,21 @@ Ezt a korlátot a beállítások UI-ban rövid súgószöveg is jelzi.
 
 ### 4.2 Adatmodell
 
-Nincs séma-migráció. Az `office_settings` (kulcs/`value_encrypted` per iroda) tárolja:
-- `gmail_refresh_token` — **titkosítva** (a `secretKeys` whitelistán).
-- `gmail_email` — a bekötött fiók címe (megjelenítéshez).
-- `gmail_connected_at` — időbélyeg (állapothoz).
+Nincs séma-migráció. A kódbázis **már fenntartotta** a per-iroda Google-kulcsokat az `office_settings`-ben (`SettingsService::SECRET_KEYS` = `google_access_token`, `google_refresh_token`; `SettingsController` PLAIN = `google_client_id`, SECRET = `google_client_secret`), de implementáció eddig nem épült rájuk. Ezeket **újrahasznosítjuk**:
+- `google_client_id`, `google_client_secret` — **per-iroda** OAuth-kliens (a client_secret titkosítva). Minden iroda a saját Google Cloud projektjét használja → külön 100-user-limit, nincs megosztott plafon.
+- `google_refresh_token` — **titkosítva** (már a `SECRET_KEYS`-en).
+- `gmail_email` — a bekötött fiók címe (megjelenítéshez; új plain kulcs).
+- `gmail_connected_at` — időbélyeg (állapothoz; új plain kulcs).
 
 A behúzott levelek a meglévő `incoming_emails` táblába kerülnek, változatlan sémával.
 
-### 4.3 Konfiguráció (`.env`, app-szintű)
+### 4.3 Konfiguráció (per-iroda, Beállítások UI)
 
-```
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-GOOGLE_REDIRECT_URI=https://visualbyadam.hu/zsolti_crm/admin/beallitasok/gmail/callback
-```
-A `config/settings.php`-be beolvasva, a konténerben a `GmailOAuthService`-nek injektálva. Ha hiányzik a client id → a „Csatlakoztatás" gomb letiltva + súgó („állítsd be a Google-kulcsokat").
+A client id/secret **nem** `.env`-ben, hanem irodánként a Beállításokban (a meglévő `google_client_id`/`google_client_secret` mezőkön), mert a kódbázis már így tervezte, és így minden iroda saját OAuth-appja külön user-limittel bír.
+
+Egyetlen app-szintű származtatott érték a **redirect URI**: a `config/settings.php` `app.url`-jából + a fix `/admin/beallitasok/gmail/callback` útból áll össze (pl. `https://visualbyadam.hu/zsolti_crm/admin/beallitasok/gmail/callback`). Ha nincs `app.url`, a request host/base-path adja. Ezt az irodának be kell írnia a saját OAuth-kliense „Authorized redirect URIs" mezőjébe.
+
+Ha az irodának nincs `google_client_id`/`secret` beállítva → a „Csatlakoztatás" gomb letiltva + súgó („előbb add meg a Google client ID-t és secretet").
 
 ## 5. Folyamatok
 
@@ -104,8 +104,7 @@ A `config/settings.php`-be beolvasva, a konténerben a `GmailOAuthService`-nek i
 ## 6. Biztonság
 
 - **`state`** = base64url(`officeId . '.' . nonce`) + HMAC-SHA256 az `APP_KEY`-jel; a callback ellenőrzi az aláírást és a lejáratot (pl. 10 perc). Ez köti az officeId-t és véd a CSRF ellen.
-- **refresh_token** titkosítva nyugalmi állapotban (meglévő `Encryption`).
-- **client_secret** csak a szerver `.env`-jében; sosem a repóban, sosem a kliensen.
+- **refresh_token** és **client_secret** titkosítva nyugalmi állapotban (meglévő `Encryption`, `SECRET_KEYS`); sosem a repóban, sosem a kliensen.
 - A callback-útvonal az `AuthGuard` mögött (belépett admin), a `state` az officeId-hez köt.
 - A tárolt access token nem perzisztál (mindig frissül); csak a refresh_token él.
 
@@ -116,12 +115,12 @@ A `config/settings.php`-be beolvasva, a konténerben a `GmailOAuthService`-nek i
 - **Diszpécser**: Gmail-token jelenléte → Gmail ág; csak imap_host → IMAP ág; egyik sem → „nincs beállítva".
 - A meglévő `TenantIsolationTest` mintájára: az egyik iroda tokene nem szivárog a másikhoz (per-office olvasás).
 
-## 8. Előfeltételek (operatív, kódon kívül)
+## 8. Előfeltételek (operatív, kódon kívül) — irodánként
 
 1. Google Cloud projekt → **Gmail API** engedélyezése.
 2. **OAuth consent screen**: user type External; scope `gmail.readonly`; app-név, támogatási e-mail, logó; státusz **In production** (vagy Testing + test users a fejlesztéshez).
-3. **OAuth Client (Web application)**: redirect URI = a fenti `GOOGLE_REDIRECT_URI`.
-4. Client ID/secret a szerver `.env`-be.
+3. **OAuth Client (Web application)**: „Authorized redirect URIs" = `https://visualbyadam.hu/zsolti_crm/admin/beallitasok/gmail/callback`.
+4. A kapott **client ID + secret** beírása a CRM Beállítások → Gmail szekciójába (per iroda), nem `.env`-be.
 5. (Opcionális, később) verifikáció/CASA a 100-user-limit és a figyelmeztetés eltüntetéséhez.
 
 ## 9. Megvalósítási sorrend (a plan majd finomítja)
