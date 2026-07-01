@@ -12,6 +12,9 @@
   @keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
   .floaty { animation: floaty 7s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) { .floaty { animation: none; } }
+  /* Kép-szélek elhalványítása átlátszóba — beleolvad a szekcióba (világos/sötét is), nincs doboz */
+  .fade-hero { -webkit-mask-image: radial-gradient(125% 115% at 50% 42%, #000 52%, transparent 88%); mask-image: radial-gradient(125% 115% at 50% 42%, #000 52%, transparent 88%); }
+  .fade-soft { -webkit-mask-image: radial-gradient(62% 70% at 50% 46%, #000 46%, transparent 74%); mask-image: radial-gradient(62% 70% at 50% 46%, #000 46%, transparent 74%); }
 </style>
 <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
 {% endblock %}
@@ -75,12 +78,12 @@
       </div>
       <div class="reveal mt-6 flex items-center justify-center gap-2 text-[12.5px] text-slate-400"><i data-lucide="lock" class="h-3.5 w-3.5 text-teal"></i> GDPR-megfelelő · banki szintű titkosítás</div>
 
-      {# ==== Hero látvány: Higgsfield fotós render ==== #}
-      <div class="reveal relative mx-auto mt-14 max-w-4xl sm:mt-20">
-        <div class="absolute inset-x-10 bottom-2 h-28 rounded-[48px] bg-teal/25 blur-3xl"></div>
+      {# ==== Hero látvány: fotós render, szélein a navy háttérbe olvad ==== #}
+      <div class="reveal relative mx-auto -mb-10 mt-6 w-full max-w-5xl sm:mt-10">
+        <div class="pointer-events-none absolute inset-x-24 bottom-16 h-28 rounded-full bg-teal/25 blur-3xl"></div>
         <img src="/img/hero.webp" width="1376" height="768" fetchpriority="high"
           alt="AegisCRM vezérlőpult prémium laptopon és telefonon"
-          class="floaty relative mx-auto w-full max-w-3xl rounded-2xl sm:rounded-[28px]">
+          class="fade-hero floaty relative mx-auto w-full">
       </div>
     </div>
   </section>
@@ -133,7 +136,7 @@
       <div class="reveal mt-14">
         <img src="/img/security.webp" width="1376" height="768" loading="lazy"
           alt="Banki szintű titkosítás és biztonságos adatkezelés"
-          class="floaty mx-auto w-full max-w-2xl rounded-3xl">
+          class="fade-hero floaty mx-auto w-full max-w-2xl">
       </div>
     </div>
   </section>
@@ -173,13 +176,13 @@
           {% endfor %}
         </ul>
       </div>
-      {# ==== Telefon: Higgsfield fotós render ==== #}
+      {# ==== Telefon: fotós render, szélein a szekcióba olvad ==== #}
       <div class="reveal flex justify-center">
         <div class="relative">
-          <div class="absolute inset-6 rounded-[48px] bg-teal/15 blur-3xl"></div>
+          <div class="pointer-events-none absolute inset-8 rounded-full bg-teal/15 blur-3xl"></div>
           <img src="/img/portal-phone.webp" width="896" height="1200" loading="lazy"
             alt="AegisCRM ügyfélportál telefonon"
-            class="floaty relative w-[260px] sm:w-[300px]">
+            class="fade-soft floaty relative w-[300px] sm:w-[340px]">
         </div>
       </div>
     </div>
