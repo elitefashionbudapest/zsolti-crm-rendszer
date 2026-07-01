@@ -30,6 +30,9 @@
 /deploy/keys/
 /deploy/env.production
 
+# Teszt-cache
+/.phpunit.cache/
+
 # Eszközök
 /composer.phar
 /composer-install.log
