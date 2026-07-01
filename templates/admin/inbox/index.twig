@@ -55,10 +55,51 @@
             </div>
           </button>
           <div x-show="open" x-cloak class="border-t border-slate-100 bg-surface/40 px-5 py-4 sm:pl-[76px]">
-            {% if m.body %}
+            {# Partnerhez rendelés #}
+            <form method="post" action="/admin/postalada/{{ m.id }}/partner" class="mb-4 flex flex-wrap items-center gap-2">
+              <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+              <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+              <span class="text-[12.5px] font-semibold text-muted">Partner:</span>
+              <select name="client_id" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-teal">
+                <option value="0">— nincs —</option>
+                {% for c in clients %}<option value="{{ c.id }}" {{ m.client_id == c.id ? 'selected' }}>{{ c.name }}</option>{% endfor %}
+              </select>
+              <button type="submit" class="rounded-lg bg-ink px-3 py-1.5 text-[12.5px] font-semibold text-white transition hover:bg-ink/90">Hozzárendelés</button>
+              {% if m.client_name %}<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-success"><i data-lucide="user-check" class="h-3.5 w-3.5"></i> {{ m.client_name }}</span>{% endif %}
+            </form>
+
+            {# Törzs: HTML (sandbox-iframe) vagy sima szöveg #}
+            {% if m.body_html %}
+              <iframe sandbox="allow-same-origin" srcdoc="{{ m.body_html|e('html_attr') }}" title="E-mail tartalom" class="w-full rounded-lg border border-slate-200 bg-white" style="height: min(60vh, 600px);"></iframe>
+            {% elseif m.body %}
               <div class="whitespace-pre-wrap break-words text-[13.5px] leading-relaxed text-body">{{ m.body }}</div>
             {% else %}
               <p class="text-[13px] italic text-muted">Ehhez a levélhez nincs elmentett szövegtörzs.</p>
+            {% endif %}
+
+            {# Mellékletek #}
+            {% set atts = attachments[m.id] ?? [] %}
+            {% if atts is not empty %}
+              <div class="mt-4">
+                <div class="mb-2 text-[12.5px] font-semibold text-ink">Mellékletek ({{ atts|length }})</div>
+                <div class="space-y-2">
+                  {% for a in atts %}
+                    <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+                      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface"><i data-lucide="paperclip" class="h-4 w-4 text-ink"></i></div>
+                      <div class="min-w-0 flex-1"><div class="truncate text-[13px] font-semibold text-ink">{{ a.filename }}</div><div class="text-[11px] text-muted">{{ (a.size_bytes / 1024)|round }} KB · {{ a.mime }}</div></div>
+                      {% if a.saved_document_id %}
+                        <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-[11.5px] font-semibold text-success"><i data-lucide="check" class="h-3.5 w-3.5"></i> Mentve</span>
+                      {% else %}
+                        <form method="post" action="/admin/postalada/melleklet/{{ a.id }}/mentes" class="shrink-0">
+                          <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                          <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                          <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="save" class="h-4 w-4 text-teal"></i> Mentés a partnerhez</button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
             {% endif %}
           </div>
         </li>

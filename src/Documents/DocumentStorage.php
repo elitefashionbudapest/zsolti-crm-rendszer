@@ -46,6 +46,33 @@ final class DocumentStorage
         ];
     }
 
+    /**
+     * Nyers bájtok tárolása (pl. e-mail-melléklet), a save()-vel azonos elrendezésben.
+     *
+     * @return array{stored_path: string, original_name: string, mime: string, size: int}
+     */
+    public function saveBytes(int $officeId, string $bytes, string $originalName, string $mime = 'application/octet-stream'): array
+    {
+        $original = $originalName !== '' ? $originalName : 'fajl';
+        $ext = strtolower(pathinfo($original, PATHINFO_EXTENSION));
+        $ext = preg_replace('/[^a-z0-9]/', '', $ext) ?: 'bin';
+
+        $dir = $this->basePath . '/office_' . $officeId;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $name = bin2hex(random_bytes(16)) . '.' . $ext;
+        file_put_contents($dir . '/' . $name, $bytes);
+
+        return [
+            'stored_path' => 'office_' . $officeId . '/' . $name,
+            'original_name' => $original,
+            'mime' => $mime !== '' ? $mime : 'application/octet-stream',
+            'size' => strlen($bytes),
+        ];
+    }
+
     public function fullPath(string $storedPath): string
     {
         // Útvonal-bejárás elleni védelem: a feloldott útvonal a basePath alatt maradjon.

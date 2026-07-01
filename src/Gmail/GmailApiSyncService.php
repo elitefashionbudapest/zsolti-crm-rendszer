@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Gmail;
 
+use App\Documents\DocumentStorage;
 use GuzzleHttp\Client;
 use PDO;
 use Throwable;
@@ -23,6 +24,7 @@ class GmailApiSyncService
         private PDO $pdo,
         private GmailOAuthService $oauth,
         ?Client $http = null,
+        private ?DocumentStorage $storage = null,
     ) {
         $this->http = $http ?? new Client(['timeout' => 60]);
     }
@@ -58,9 +60,21 @@ class GmailApiSyncService
                 $from = $this->extractEmail($this->header($payload, 'From'));
                 $subject = $this->header($payload, 'Subject');
                 $body = $this->extractBody($payload);
+                $bodyHtml = $this->collect($payload, 'text/html');
                 $received = $this->parseDate($this->header($payload, 'Date'));
 
-                $this->store($officeId, $uid, $from, $subject, mb_substr($body, 0, 5000), $received);
+                $emailId = $this->store($officeId, $uid, $from, $subject, mb_substr($body, 0, 5000), mb_substr($bodyHtml, 0, 300000), $received);
+
+                if ($this->storage !== null) {
+                    foreach ($this->attachments($payload) as $att) {
+                        $bytes = $this->downloadAttachment($id, $att, $headers);
+                        if ($bytes === '') {
+                            continue;
+                        }
+                        $meta = $this->storage->saveBytes($officeId, $bytes, $att['filename'], $att['mime']);
+                        $this->storeAttachment($officeId, $emailId, $meta);
+                    }
+                }
                 $stored++;
             }
 
@@ -143,16 +157,76 @@ class GmailApiSyncService
         return $stmt->fetchColumn() !== false;
     }
 
-    private function store(int $officeId, string $uid, string $from, string $subject, string $body, string $receivedAt): void
+    private function store(int $officeId, string $uid, string $from, string $subject, string $body, string $bodyHtml, string $receivedAt): int
     {
         $now = date('Y-m-d H:i:s');
         $stmt = $this->pdo->prepare(
-            'INSERT INTO incoming_emails (office_id, message_uid, from_email, subject, body, received_at, created_at, updated_at)
-             VALUES (:o, :u, :f, :s, :b, :r, :c, :up)'
+            'INSERT INTO incoming_emails (office_id, message_uid, from_email, subject, body, body_html, received_at, created_at, updated_at)
+             VALUES (:o, :u, :f, :s, :b, :h, :r, :c, :up)'
         );
         $stmt->execute([
             'o' => $officeId, 'u' => $uid !== '' ? $uid : null, 'f' => $from,
-            's' => mb_substr($subject, 0, 255), 'b' => $body, 'r' => $receivedAt, 'c' => $now, 'up' => $now,
+            's' => mb_substr($subject, 0, 255), 'b' => $body, 'h' => $bodyHtml !== '' ? $bodyHtml : null,
+            'r' => $receivedAt, 'c' => $now, 'up' => $now,
+        ]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    /**
+     * Mellékletek a payload-fából: {filename, mime, attachmentId, data}.
+     *
+     * @param array<string,mixed> $node
+     * @return list<array{filename:string, mime:string, attachmentId:string, data:string}>
+     */
+    private function attachments(array $node, array &$out = []): array
+    {
+        $filename = (string) ($node['filename'] ?? '');
+        if ($filename !== '') {
+            $out[] = [
+                'filename' => $filename,
+                'mime' => (string) ($node['mimeType'] ?? 'application/octet-stream'),
+                'attachmentId' => (string) ($node['body']['attachmentId'] ?? ''),
+                'data' => (string) ($node['body']['data'] ?? ''),
+            ];
+        }
+        foreach ($node['parts'] ?? [] as $part) {
+            $this->attachments($part, $out);
+        }
+
+        return $out;
+    }
+
+    /** @param array{filename:string, mime:string, attachmentId:string, data:string} $att */
+    private function downloadAttachment(string $messageId, array $att, array $headers): string
+    {
+        if ($att['data'] !== '') {
+            return $this->b64urlDecode($att['data']);
+        }
+        if ($att['attachmentId'] === '') {
+            return '';
+        }
+        try {
+            $res = $this->http->get(self::BASE . '/messages/' . $messageId . '/attachments/' . $att['attachmentId'], ['headers' => $headers]);
+            $json = json_decode((string) $res->getBody(), true) ?: [];
+
+            return $this->b64urlDecode((string) ($json['data'] ?? ''));
+        } catch (Throwable) {
+            return '';
+        }
+    }
+
+    /** @param array{stored_path:string, original_name:string, mime:string, size:int} $meta */
+    private function storeAttachment(int $officeId, int $emailId, array $meta): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO incoming_email_attachments (office_id, email_id, filename, mime, size_bytes, stored_path, created_at, updated_at)
+             VALUES (:o, :e, :f, :m, :s, :p, :c, :up)'
+        );
+        $stmt->execute([
+            'o' => $officeId, 'e' => $emailId, 'f' => mb_substr($meta['original_name'], 0, 255),
+            'm' => $meta['mime'], 's' => $meta['size'], 'p' => $meta['stored_path'], 'c' => $now, 'up' => $now,
         ]);
     }
 }

@@ -24,7 +24,7 @@ final class GmailApiSyncServiceTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $this->pdo->exec('CREATE TABLE incoming_emails (
             id INTEGER PRIMARY KEY AUTOINCREMENT, office_id INTEGER, message_uid TEXT,
-            from_email TEXT, subject TEXT, body TEXT, received_at TEXT,
+            from_email TEXT, subject TEXT, body TEXT, body_html TEXT, received_at TEXT,
             created_at TEXT, updated_at TEXT)');
     }
 
