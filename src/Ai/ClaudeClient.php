@@ -83,6 +83,16 @@ final class ClaudeClient
                 'json' => $payload,
                 'stream' => true,
             ]);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // A 400/4xx válasz törzse tartalmazza az API valódi hibaüzenetét — hozzuk felszínre.
+            $detail = $e->getMessage();
+            if ($e->hasResponse()) {
+                $body = json_decode((string) $e->getResponse()->getBody(), true);
+                if (isset($body['error']['message'])) {
+                    $detail = (string) $body['error']['message'];
+                }
+            }
+            throw new RuntimeException('Claude API hívás sikertelen: ' . $detail, 0, $e);
         } catch (\Throwable $e) {
             throw new RuntimeException('Claude API hívás sikertelen: ' . $e->getMessage(), 0, $e);
         }
@@ -219,8 +229,10 @@ final class ClaudeClient
                 'annual_fee' => ['type' => 'string'],
                 'plate' => ['type' => 'string'],
             ],
-            'required' => [],
         ];
+        // A strukturált kimenet minden mezőt kötelezőnek vár; az ismeretlen
+        // értékeket a modell üres stringgel tölti (lásd az utasítást).
+        $schema['required'] = array_keys($schema['properties']);
 
         $instruction = 'Nyerd ki a dokumentumból az ügyfélre és a biztosítási '
             . 'szerződésre vonatkozó adatokat a megadott mezőkbe. Ahol egy adat nem '
