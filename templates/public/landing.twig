@@ -243,13 +243,35 @@
           {% endfor %}
         </ul>
       </div>
-      {# ==== Telefon: fotós render, szélein a szekcióba olvad ==== #}
+      {# ==== Telefon: éles CSS-mockup (mindkét módban tiszta) ==== #}
       <div class="reveal flex justify-center">
         <div class="relative">
-          <div class="pointer-events-none absolute inset-8 rounded-full bg-teal/15 blur-3xl"></div>
-          <img src="/img/portal-phone.webp" width="896" height="1200" loading="lazy"
-            alt="AegisCRM ügyfélportál telefonon"
-            class="fade-soft floaty relative w-[300px] sm:w-[340px]">
+          <div class="pointer-events-none absolute -inset-6 rounded-[64px] bg-teal/15 blur-3xl"></div>
+          <div class="floaty relative w-[280px] rounded-[46px] border-[10px] border-ink bg-ink p-1.5 shadow-float sm:w-[300px]">
+            <div class="overflow-hidden rounded-[36px] bg-surface">
+              <div class="flex items-center justify-between bg-white px-5 pb-3 pt-5">
+                <div><div class="text-[11px] text-muted">Üdv,</div><div class="text-[15px] font-bold text-ink">Kovács Anna</div></div>
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-[12px] font-bold text-white">KA</div>
+              </div>
+              <div class="space-y-3 p-4">
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div class="rounded-2xl border border-slate-200/70 bg-white p-3"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-ink/5"><i data-lucide="calendar-heart" class="h-[17px] w-[17px] text-ink"></i></div><div class="mt-2.5 text-[13px] font-bold text-ink">09. 14.</div><div class="text-[10.5px] text-muted">Évforduló</div></div>
+                  <div class="rounded-2xl border border-slate-200/70 bg-white p-3"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10"><i data-lucide="clock-alert" class="h-[17px] w-[17px] text-warning"></i></div><div class="mt-2.5 text-[13px] font-bold text-ink">30 nap</div><div class="text-[10.5px] text-muted">Lejárat</div></div>
+                </div>
+                <div class="rounded-2xl border border-slate-200/70 bg-white p-3.5">
+                  <div class="mb-2 flex items-center justify-between"><span class="text-[12px] font-bold text-ink">Szerződéseim</span><span class="text-[10.5px] font-semibold text-teal">Összes</span></div>
+                  {% for c in [['house','Otthonbiztosítás','48 900 Ft/év'],['heart-pulse','Életbiztosítás','12 400 Ft/hó'],['car','Kötelező gfb','31 200 Ft/év']] %}
+                    <div class="flex items-center gap-3 py-2">
+                      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface"><i data-lucide="{{ c[0] }}" class="h-[18px] w-[18px] text-ink"></i></div>
+                      <div class="min-w-0 flex-1"><div class="truncate text-[12px] font-semibold text-ink">{{ c[1] }}</div><div class="text-[10.5px] text-muted">{{ c[2] }}</div></div>
+                      <span class="rounded-full bg-success/10 px-2 py-0.5 text-[9.5px] font-semibold text-success">aktív</span>
+                    </div>
+                  {% endfor %}
+                </div>
+                <div class="flex h-11 items-center justify-center gap-2 rounded-2xl bg-teal text-[13px] font-semibold text-white"><i data-lucide="message-circle" class="h-4 w-4"></i> Ügynök írása</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
