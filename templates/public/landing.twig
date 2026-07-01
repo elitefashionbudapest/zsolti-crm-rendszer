@@ -15,78 +15,125 @@
   /* Kép-szélek elhalványítása átlátszóba — beleolvad a szekcióba (világos/sötét is), nincs doboz */
   .fade-hero { -webkit-mask-image: radial-gradient(125% 115% at 50% 42%, #000 52%, transparent 88%); mask-image: radial-gradient(125% 115% at 50% 42%, #000 52%, transparent 88%); }
   .fade-soft { -webkit-mask-image: radial-gradient(62% 70% at 50% 46%, #000 46%, transparent 74%); mask-image: radial-gradient(62% 70% at 50% 46%, #000 46%, transparent 74%); }
+  .hero-card { background: linear-gradient(to bottom, #E3E6EB, #FFFFFF); }
+  .dark .hero-card { background: linear-gradient(to bottom, #17233B, #0F1A2E) !important; }
 </style>
 <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
 {% endblock %}
 
 {% block body %}
-<div x-data="{ menuOpen: false }" x-cloak class="min-h-screen bg-white">
+<div x-data="{ menuOpen: false }" x-cloak class="min-h-screen bg-surface">
 
-  {# ===== Nav ===== #}
-  <header class="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-xl">
-    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-5 sm:px-8">
-      <a href="/" class="flex items-center gap-2">
-        <div class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink"><i data-lucide="shield-check" class="h-[18px] w-[18px] text-teal"></i></div>
-        <span class="text-[16px] font-bold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span></span>
-      </a>
-      <nav class="hidden items-center gap-8 md:flex">
-        <a href="#funkciok" class="text-[13px] font-medium text-muted transition hover:text-ink">Funkciók</a>
-        <a href="#hogyan" class="text-[13px] font-medium text-muted transition hover:text-ink">Hogyan működik</a>
-        <a href="#portal" class="text-[13px] font-medium text-muted transition hover:text-ink">Ügyfélportál</a>
-        <a href="#belepes" class="text-[13px] font-medium text-muted transition hover:text-ink">Belépés</a>
-      </nav>
-      <div class="flex items-center gap-2">
-        <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface">
-          <i data-lucide="moon" class="h-[18px] w-[18px] dark:hidden"></i><i data-lucide="sun" class="hidden h-[18px] w-[18px] dark:block"></i>
-        </button>
-        <a href="#belepes" class="hidden rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-ink/90 sm:inline-flex">Belépés</a>
-        <button @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="Menü" class="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-surface md:hidden">
-          <i data-lucide="menu" class="h-5 w-5" x-show="!menuOpen"></i><i data-lucide="x" class="h-5 w-5" x-show="menuOpen"></i>
-        </button>
+  <div class="mx-auto max-w-6xl px-3 pt-3 sm:px-5 sm:pt-5">
+    <div class="overflow-hidden rounded-[26px] bg-white shadow-card sm:rounded-[34px]">
+
+      {# ===== Nav ===== #}
+      <header class="flex items-center justify-between px-5 py-4 sm:px-8">
+        <a href="/" class="flex items-center gap-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink"><i data-lucide="shield-check" class="h-[18px] w-[18px] text-teal"></i></div>
+          <span class="text-[15px] font-bold tracking-tight text-ink">Aegis<span class="text-teal">CRM</span></span>
+        </a>
+        <nav class="hidden items-center gap-5 md:flex">
+          <a href="#funkciok" class="text-[13px] font-medium text-muted transition hover:text-ink">Funkciók</a>
+          <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+          <a href="#hogyan" class="text-[13px] font-medium text-muted transition hover:text-ink">Hogyan működik</a>
+          <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+          <a href="#portal" class="text-[13px] font-medium text-muted transition hover:text-ink">Ügyfélportál</a>
+        </nav>
+        <div class="flex items-center gap-2.5">
+          <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface">
+            <i data-lucide="moon" class="h-[18px] w-[18px] dark:hidden"></i><i data-lucide="sun" class="hidden h-[18px] w-[18px] dark:block"></i>
+          </button>
+          <a href="#belepes" class="hidden text-[13px] font-semibold text-ink hover:text-teal sm:inline-flex">Belépés</a>
+          <a href="#belepes" class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-[13px] font-semibold text-ink shadow-soft transition hover:bg-surface sm:inline-flex">Kezdés — ingyenes</a>
+          <button @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="Menü" class="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-surface md:hidden">
+            <i data-lucide="menu" class="h-5 w-5" x-show="!menuOpen"></i><i data-lucide="x" class="h-5 w-5" x-show="menuOpen"></i>
+          </button>
+        </div>
+      </header>
+      <div x-show="menuOpen" x-cloak class="border-t border-slate-100 px-5 py-4 md:hidden">
+        <div class="flex flex-col gap-1">
+          <a href="#funkciok" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Funkciók</a>
+          <a href="#hogyan" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Hogyan működik</a>
+          <a href="#portal" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Ügyfélportál</a>
+          <a href="#belepes" @click="menuOpen=false" class="mt-1 rounded-lg bg-ink px-3 py-2.5 text-center text-[14px] font-semibold text-white">Belépés</a>
+        </div>
       </div>
+
+      {# ===== Hero-kártya ===== #}
+      <div class="hero-card relative m-2 rounded-[22px] p-6 sm:m-3 sm:rounded-[28px] sm:p-10 lg:p-12">
+        <div class="grid items-center gap-10 lg:grid-cols-2">
+
+          {# bal: szöveg #}
+          <div>
+            <div class="reveal flex items-center gap-3">
+              <div class="flex h-9 w-9 items-center justify-center rounded-full bg-ink"><i data-lucide="sparkles" class="h-4 w-4 text-teal"></i></div>
+              <div class="text-[12.5px] leading-tight"><div class="font-bold text-ink">Ügynököknek &amp; tanácsadóknak</div><div class="text-muted">Egy rendszerben minden</div></div>
+            </div>
+            <h1 class="h-display reveal mt-6 text-[68px] font-bold tracking-tighter text-ink sm:text-[92px] lg:text-[108px]">Növekedj<span class="align-super text-[0.34em] font-bold text-teal">+</span></h1>
+            <p class="reveal mt-3 max-w-md text-[15.5px] leading-relaxed text-muted sm:text-[16.5px]">Kevesebb adminisztráció, több ügyfél — AI-adatkinyeréssel és automatikus dokumentumkitöltéssel, akár tízszer gyorsabban.</p>
+
+            <div class="reveal mt-7 flex items-center gap-5">
+              <div class="flex items-center gap-2.5">
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-teal/10"><i data-lucide="shield-check" class="h-[18px] w-[18px] text-teal"></i></div>
+                <div class="text-[12.5px] leading-tight"><div class="font-semibold text-ink">100% papírmentes</div><div class="text-muted">Banki szintű titkosítás</div></div>
+              </div>
+              <div class="h-9 w-px bg-slate-200"></div>
+              <div class="flex items-center gap-1.5 text-[13px] font-semibold text-ink"><i data-lucide="lock" class="h-4 w-4 text-teal"></i> GDPR</div>
+            </div>
+
+            <div class="reveal mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a href="#belepes" class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-[14.5px] font-semibold text-white transition hover:-translate-y-0.5 hover:bg-ink/90">Ügynöki belépés <i data-lucide="arrow-right" class="h-[17px] w-[17px]"></i></a>
+              <a href="#belepes" class="inline-flex items-center gap-1.5 text-[14px] font-semibold text-ink transition hover:text-teal">Ügyfél belépés <i data-lucide="arrow-up-right" class="h-4 w-4"></i></a>
+            </div>
+          </div>
+
+          {# jobb: portré + üveges kártyák #}
+          <div class="reveal relative">
+            <div class="relative mx-auto max-w-[340px]">
+              <div class="aspect-[3/4] overflow-hidden rounded-[26px] bg-ink shadow-float">
+                <img src="/img/advisor.webp" width="896" height="1200" fetchpriority="high"
+                  alt="AegisCRM — pénzügyi tanácsadó" class="h-full w-full object-cover">
+              </div>
+
+              {# chat-buborékok #}
+              <div class="absolute left-[-5%] top-[24%] flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 shadow-card backdrop-blur">
+                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-teal text-white"><i data-lucide="check" class="h-3 w-3"></i></span><span class="text-[12px] font-semibold text-ink">Lejár a szerződése?</span>
+              </div>
+              <div class="absolute left-[2%] top-[38%] flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 shadow-card backdrop-blur">
+                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-ink"><i data-lucide="check" class="h-3 w-3"></i></span><span class="text-[12px] font-semibold text-ink">Új ajánlat kész</span>
+              </div>
+
+              {# stat üvegkártya (jobb felül) #}
+              <div class="absolute right-[-7%] top-[7%] w-[128px] rounded-2xl border border-white/50 bg-white/70 p-3.5 shadow-card backdrop-blur-md">
+                <div class="text-[10px] font-semibold uppercase tracking-wide text-muted">— akár</div>
+                <div class="text-[30px] font-bold leading-none text-ink">10×</div>
+                <div class="mt-1 text-[11px] leading-tight text-muted">gyorsabb ügyintézés</div>
+              </div>
+
+              {# kötvény üvegkártya (jobb alul) #}
+              <div class="absolute bottom-[7%] right-[-9%] flex w-[210px] items-center gap-3 rounded-2xl border border-white/50 bg-white/80 p-3 shadow-card backdrop-blur-md">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink"><i data-lucide="house" class="h-6 w-6 text-teal"></i></div>
+                <div class="min-w-0">
+                  <div class="truncate text-[12.5px] font-bold text-ink">Otthonbiztosítás</div>
+                  <div class="text-[15px] font-bold leading-tight text-ink">48 900 Ft<span class="text-[11px] font-medium text-muted">/év</span></div>
+                  <div class="mt-0.5 flex items-center gap-1 text-[11px] font-semibold text-success"><i data-lucide="badge-check" class="h-3.5 w-3.5"></i> aktív</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ===== Biztosító-szalag ===== #}
+      <div class="flex flex-wrap items-center justify-center gap-x-9 gap-y-3 px-6 pb-8 pt-4 sm:gap-x-12 sm:px-10">
+        {% for logo in ['Allianz','Generali','Groupama','UNION','UNIQA','K&H'] %}
+          <span class="text-[15px] font-bold tracking-tight text-slate-400 grayscale">{{ logo }}</span>
+        {% endfor %}
+      </div>
+
     </div>
-    <div x-show="menuOpen" x-cloak class="border-t border-slate-100 bg-white px-5 py-4 md:hidden">
-      <div class="flex flex-col gap-1">
-        <a href="#funkciok" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Funkciók</a>
-        <a href="#hogyan" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Hogyan működik</a>
-        <a href="#portal" @click="menuOpen=false" class="rounded-lg px-3 py-2.5 text-[14px] font-medium text-ink hover:bg-surface">Ügyfélportál</a>
-        <a href="#belepes" @click="menuOpen=false" class="mt-1 rounded-lg bg-ink px-3 py-2.5 text-center text-[14px] font-semibold text-white">Belépés</a>
-      </div>
-    </div>
-  </header>
-
-  {# ===== Hero ===== #}
-  <section class="relative overflow-hidden bg-ink">
-    <div class="pointer-events-none absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 30px 30px;"></div>
-    <div class="floaty pointer-events-none absolute -left-32 -top-24 h-[30rem] w-[30rem] rounded-full" style="background: radial-gradient(circle, rgba(14,159,110,0.4), transparent 70%);"></div>
-    <div class="floaty pointer-events-none absolute -bottom-40 -right-24 h-[34rem] w-[34rem] rounded-full" style="background: radial-gradient(circle, rgba(244,183,64,0.16), transparent 70%); animation-delay: 2s;"></div>
-
-    <div class="relative mx-auto max-w-5xl px-5 pt-20 text-center sm:px-8 sm:pt-28">
-      <div class="reveal inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[12.5px] font-semibold text-teal">
-        <span class="relative flex h-1.5 w-1.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75"></span><span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal"></span></span>
-        Biztosítási &amp; pénzügyi szakembereknek
-      </div>
-      <h1 class="h-display reveal mx-auto mt-7 max-w-3xl text-[42px] font-bold text-white sm:text-[64px] lg:text-[76px]">
-        A napi munkád.<br><span class="bg-gradient-to-r from-teal via-teal to-gold bg-clip-text text-transparent">Újragondolva.</span>
-      </h1>
-      <p class="reveal mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-slate-300 sm:text-[19px]">
-        Ügyfelek, szerződések és dokumentumok egyetlen letisztult felületen — AI-adatkinyeréssel, automatikus e-mail folyamatokkal és külön ügyfélportállal.
-      </p>
-      <div class="reveal mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href="#belepes" class="group inline-flex items-center justify-center gap-2 rounded-full bg-teal px-7 py-3.5 text-[15px] font-semibold text-white shadow-float transition hover:-translate-y-0.5 hover:bg-teal/90">Kezdés most <i data-lucide="arrow-right" class="h-[18px] w-[18px] transition group-hover:translate-x-0.5"></i></a>
-        <a href="#hogyan" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-7 py-3.5 text-[15px] font-semibold text-white transition hover:bg-white/10">Hogyan működik</a>
-      </div>
-      <div class="reveal mt-6 flex items-center justify-center gap-2 text-[12.5px] text-slate-400"><i data-lucide="lock" class="h-3.5 w-3.5 text-teal"></i> GDPR-megfelelő · banki szintű titkosítás</div>
-
-      {# ==== Hero látvány: fotós render, szélein a navy háttérbe olvad ==== #}
-      <div class="reveal relative mx-auto -mb-10 mt-6 w-full max-w-5xl sm:mt-10">
-        <div class="pointer-events-none absolute inset-x-24 bottom-16 h-28 rounded-full bg-teal/25 blur-3xl"></div>
-        <img src="/img/hero.webp" width="1376" height="768" fetchpriority="high"
-          alt="AegisCRM vezérlőpult prémium laptopon és telefonon"
-          class="fade-hero floaty relative mx-auto w-full">
-      </div>
-    </div>
-  </section>
+  </div>
 
   {# ===== Trust szalag ===== #}
   <section class="border-b border-slate-100 bg-white">
