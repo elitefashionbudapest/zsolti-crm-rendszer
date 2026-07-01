@@ -24,8 +24,8 @@
 {% block body %}
 <div x-data="{ menuOpen: false }" x-cloak class="min-h-screen bg-surface">
 
-  <div class="mx-auto max-w-6xl px-3 pt-3 sm:px-5 sm:pt-5">
-    <div class="overflow-hidden rounded-[26px] bg-white shadow-card sm:rounded-[34px]">
+  <div class="mx-auto max-w-6xl px-3 pt-3 sm:px-5 sm:pt-5 lg:max-w-none lg:px-0 lg:pt-0">
+    <div class="overflow-hidden rounded-[26px] bg-white shadow-card sm:rounded-[34px] lg:flex lg:min-h-screen lg:flex-col lg:rounded-none lg:shadow-none">
 
       {# ===== Nav ===== #}
       <header class="flex items-center justify-between px-5 py-4 sm:px-8">
@@ -61,8 +61,8 @@
       </div>
 
       {# ===== Hero-kártya ===== #}
-      <div class="hero-card relative m-2 rounded-[22px] p-6 sm:m-3 sm:rounded-[28px] sm:p-10 lg:p-12">
-        <div class="grid items-center gap-10 lg:grid-cols-2">
+      <div class="hero-card relative m-2 rounded-[22px] p-6 sm:m-3 sm:rounded-[28px] sm:p-10 lg:m-0 lg:flex lg:flex-1 lg:items-center lg:rounded-none lg:p-12 xl:p-16">
+        <div class="grid w-full items-center gap-10 lg:mx-auto lg:max-w-6xl lg:grid-cols-2">
 
           {# bal: szöveg #}
           <div>
