@@ -24,7 +24,8 @@ final class SecurityHeadersMiddleware implements MiddlewareInterface
             . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
             // 'unsafe-eval' KELL az Alpine.js v3-nak (a direktívákat new Function()-nel értékeli ki)
             . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; "
-            . "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
+            // A jsdelivr/unpkg a CDN-szkriptek forrás-térképeihez (.map) kell — csak devtoolsban tölt.
+            . "connect-src 'self' https://cdn.jsdelivr.net https://unpkg.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
 
         return $response
             ->withHeader('X-Content-Type-Options', 'nosniff')

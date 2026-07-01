@@ -52,7 +52,10 @@ if [ -f .env ] || [ -f ../.env ] || [ -f ../../.env ]; then
   # Elso seed: letrehozza a demo irodat, a belepő-felhasznalokat es a demo adatot.
   if [ ! -f storage/.seeded ]; then
     echo "==> Elso seed (belepő-felhasznalok + demo adat)…"
-    "$PHP" vendor/bin/phinx seed:run && touch storage/.seeded
+    # A seed idempotens jelolese: ha a DB mar seedelt (duplikatum-hiba), akkor is
+    # letrehozzuk a markert, hogy a kovetkezo deploy ne probalja ujra.
+    "$PHP" vendor/bin/phinx seed:run || echo "   (seed kihagyva — a DB valoszinuleg mar seedelt)"
+    touch storage/.seeded
   fi
 else
   echo "!! Nincs .env — hozd letre (DB adatok + APP_KEY), majd Deploy ujra."
