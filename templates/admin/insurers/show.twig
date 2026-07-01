@@ -56,7 +56,7 @@
                     <form method="post" action="/admin/biztositok/{{ insurer.id }}/cimlista/{{ route.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt a címlistát?');">
                       <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
                       <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
-                      <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                      <button aria-label="Törlés" type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
                     </form>
                   </td>
                 </tr>

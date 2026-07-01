@@ -19,7 +19,7 @@
         <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ s.iconWrap }}"><i data-lucide="{{ s.icon }}" class="h-[22px] w-[22px]"></i></div>
         <div class="flex items-center gap-1 rounded-full px-2 py-1 text-[12px] font-semibold {{ s.trendCls }}"><i data-lucide="{{ s.trendIcon }}" class="h-3.5 w-3.5"></i> {{ s.trend }}</div>
       </div>
-      <div class="mt-4 text-[30px] font-extrabold leading-none tracking-tight text-ink">{{ s.value }}</div>
+      <div class="mt-4 tabular-nums text-[30px] font-bold leading-none tracking-tight text-ink">{{ s.value }}</div>
       <div class="mt-1.5 text-[13px] font-medium text-muted">{{ s.label }}</div>
     </div>
   {% endfor %}
@@ -29,10 +29,12 @@
   <section class="rounded-2xl border border-slate-200/70 bg-white shadow-card lg:col-span-3">
     <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
       <div class="flex items-center gap-2.5"><i data-lucide="list-checks" class="h-[19px] w-[19px] text-teal"></i><h2 class="text-[15px] font-bold text-ink">Teendők</h2></div>
+      <a href="/admin/feladatok" class="text-[13px] font-semibold text-teal hover:underline">Összes</a>
     </div>
     <div class="px-5 py-10 text-center">
       <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-surface"><i data-lucide="check-square" class="h-6 w-6 text-muted"></i></div>
-      <p class="mt-3 text-[13.5px] text-muted">Még nincs teendő. A feladatok modul a következő fázisban készül el.</p>
+      <p class="mt-3 text-[13.5px] text-muted">Jelenleg nincs függő teendője. Kezdje egy új feladat rögzítésével.</p>
+      <a href="/admin/feladatok" class="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-white transition hover:bg-ink/90"><i data-lucide="plus" class="h-4 w-4"></i> Új feladat</a>
     </div>
   </section>
 
@@ -42,7 +44,8 @@
     </div>
     <div class="px-5 py-10 text-center">
       <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-surface"><i data-lucide="activity" class="h-6 w-6 text-muted"></i></div>
-      <p class="mt-3 text-[13.5px] text-muted">Nincs még tevékenység.</p>
+      <p class="mt-3 text-[13.5px] text-muted">Itt jelennek meg a legutóbbi módosítások, ahogy dolgozni kezd a rendszerben.</p>
+      <a href="/admin/partnerek" class="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="users" class="h-4 w-4 text-teal"></i> Partnerek megnyitása</a>
     </div>
   </section>
 </div>

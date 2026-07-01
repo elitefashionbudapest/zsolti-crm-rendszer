@@ -33,14 +33,14 @@
     </div>
     <nav class="mt-2 flex-1 space-y-0.5 overflow-y-auto px-3 pb-6">
       {% for item in nav %}
-        <a href="{{ item.href }}" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-colors {{ active == item.id ? 'bg-teal text-white shadow-soft' : 'text-white/65 hover:bg-white/10 hover:text-white' }}">
+        <a href="{{ item.href }}"{{ active == item.id ? ' aria-current="page"' : '' }} class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-colors {{ active == item.id ? 'bg-teal text-white shadow-soft' : 'text-white/65 hover:bg-white/10 hover:text-white' }}">
           <i data-lucide="{{ item.icon }}" class="h-[18px] w-[18px] shrink-0"></i><span>{{ item.label }}</span>
         </a>
       {% endfor %}
     </nav>
     <div class="border-t border-white/10 p-4">
       <div class="flex items-center gap-3 rounded-xl bg-white/5 p-3">
-        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gold/90 text-[13px] font-bold text-ink">{{ current_user.name|slice(0,2)|upper }}</div>
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gold/90 text-[13px] font-bold text-[#0F2A4A]">{{ current_user.name|slice(0,2)|upper }}</div>
         <div class="min-w-0 leading-tight"><div class="truncate text-[13px] font-semibold">{{ current_user.name }}</div><div class="truncate text-[11px] text-white/50">{{ current_user.email }}</div></div>
       </div>
     </div>
@@ -48,13 +48,17 @@
 
   <div class="lg:pl-[260px]">
     <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200/70 bg-white px-4 sm:px-6">
-      <button @click="sidebarOpen = true" class="flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button>
+      <button @click="sidebarOpen = true" aria-label="Menü megnyitása" class="flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button>
       <div class="relative hidden flex-1 max-w-md sm:block">
+        <label for="admin-search" class="sr-only">Keresés</label>
         <i data-lucide="search" class="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted"></i>
-        <input type="text" placeholder="Keresés partnerek, szerződések, dokumentumok között…" class="w-full rounded-xl border border-slate-200 bg-surface py-2.5 pl-11 pr-4 text-[13.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
+        <input id="admin-search" type="search" placeholder="Keresés partnerek, szerződések, dokumentumok között…" class="w-full rounded-xl border border-slate-200 bg-surface py-2.5 pl-11 pr-4 text-[13.5px] outline-none transition focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15">
       </div>
       <div class="ml-auto flex items-center gap-2 sm:gap-3">
-        <button class="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface"><i data-lucide="bell" class="h-[19px] w-[19px]"></i></button>
+        <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface">
+          <i data-lucide="moon" class="h-[19px] w-[19px] dark:hidden"></i><i data-lucide="sun" class="hidden h-[19px] w-[19px] dark:block"></i>
+        </button>
+        <button type="button" aria-label="Értesítések" class="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface"><i data-lucide="bell" class="h-[19px] w-[19px]"></i></button>
         <div class="hidden h-9 w-9 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-white sm:flex">{{ current_user.name|slice(0,2)|upper }}</div>
         <form method="post" action="/kilepes">
           <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
@@ -76,7 +80,7 @@
       <a href="/admin/partnerek" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'clients' ? 'text-teal' : 'text-muted' }}"><i data-lucide="users" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Partnerek</span></a>
       <a href="/admin/szerzodesek" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'contracts' ? 'text-teal' : 'text-muted' }}"><i data-lucide="file-text" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Szerződés</span></a>
       <a href="/admin/feladatok" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == 'tasks' ? 'text-teal' : 'text-muted' }}"><i data-lucide="check-square" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Feladatok</span></a>
-      <button type="button" @click="sidebarOpen = true" class="flex flex-col items-center gap-1 py-2.5 text-muted transition"><i data-lucide="menu" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Menü</span></button>
+      <button type="button" @click="sidebarOpen = true" aria-label="Menü megnyitása" class="flex flex-col items-center gap-1 py-2.5 text-muted transition"><i data-lucide="menu" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">Menü</span></button>
     </div>
   </nav>
 </div>

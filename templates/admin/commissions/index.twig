@@ -21,12 +21,12 @@
 <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
   <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card">
     <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-warning/10"><i data-lucide="hourglass" class="h-[22px] w-[22px] text-warning"></i></div>
-    <div class="mt-4 text-[30px] font-extrabold text-ink">{{ totals.pending|number_format(0, ',', ' ') }} Ft</div>
+    <div class="mt-4 text-[30px] font-bold text-ink">{{ totals.pending|number_format(0, ',', ' ') }} Ft</div>
     <div class="mt-1 text-[13px] font-medium text-muted">Függő összeg</div>
   </div>
   <div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card">
     <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-success/10"><i data-lucide="check-circle-2" class="h-[22px] w-[22px] text-success"></i></div>
-    <div class="mt-4 text-[30px] font-extrabold text-ink">{{ totals.settled|number_format(0, ',', ' ') }} Ft</div>
+    <div class="mt-4 text-[30px] font-bold text-ink">{{ totals.settled|number_format(0, ',', ' ') }} Ft</div>
     <div class="mt-1 text-[13px] font-medium text-muted">Rendezett összeg</div>
   </div>
 </div>
@@ -53,18 +53,18 @@
       <table class="w-full text-left text-[13.5px]">
         <thead class="border-b border-slate-100 text-[12px] uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-5 py-3 font-semibold">Szerződés</th>
-            <th class="px-5 py-3 font-semibold">Összeg</th>
-            <th class="px-5 py-3 font-semibold">Státusz</th>
-            <th class="px-5 py-3 font-semibold">Rendezve</th>
-            <th class="px-5 py-3"></th>
+            <th scope="col" class="px-5 py-3 font-semibold">Szerződés</th>
+            <th scope="col" class="num px-5 py-3 font-semibold">Összeg</th>
+            <th scope="col" class="px-5 py-3 font-semibold">Státusz</th>
+            <th scope="col" class="px-5 py-3 font-semibold">Rendezve</th>
+            <th scope="col" class="px-5 py-3"><span class="sr-only">Műveletek</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           {% for c in list.rows %}
             <tr class="transition hover:bg-surface/60">
               <td class="px-5 py-3.5 font-semibold text-ink">{{ c.contract_label ?: '—' }}</td>
-              <td class="px-5 py-3.5 text-ink">{{ c.amount is not null ? (c.amount|number_format(0, ',', ' ') ~ ' Ft') : '—' }}</td>
+              <td class="num px-5 py-3.5 text-ink">{{ c.amount is not null ? (c.amount|number_format(0, ',', ' ') ~ ' Ft') : '—' }}</td>
               <td class="px-5 py-3.5">
                 {% if c.status == 'settled' %}
                   <span class="rounded-full bg-success/10 px-2.5 py-1 text-[11.5px] font-semibold text-success">rendezett</span>
@@ -82,7 +82,7 @@
                       <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-success/20 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-success transition hover:bg-success/5"><i data-lucide="check" class="h-4 w-4"></i> Rendezés</button>
                     </form>
                   {% endif %}
-                  <a href="/admin/jutalekok/{{ c.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                  <a aria-label="Szerkesztés" href="/admin/jutalekok/{{ c.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
                 </div>
               </td>
             </tr>

@@ -15,11 +15,14 @@
     <div class="flex h-16 items-center justify-between px-5 sm:px-7">
       <div class="flex items-center gap-2.5">
         <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-ink"><i data-lucide="shield-check" class="h-5 w-5 text-teal"></i></div>
-        <div class="leading-tight"><div class="text-[15px] font-extrabold tracking-tight text-ink">Biztosító Iroda</div><div class="text-[11px] font-medium text-muted">Ügyfélportál</div></div>
+        <div class="leading-tight"><div class="text-[15px] font-bold tracking-tight text-ink">Biztosító Iroda</div><div class="text-[11px] font-medium text-muted">Ügyfélportál</div></div>
       </div>
       <div x-data="{ open: false }" class="relative flex items-center gap-3">
+        <button type="button" data-theme-toggle aria-label="Sötét vagy világos mód váltása" class="flex h-10 w-10 items-center justify-center rounded-xl text-muted transition hover:bg-surface">
+          <i data-lucide="moon" class="h-[19px] w-[19px] dark:hidden"></i><i data-lucide="sun" class="hidden h-[19px] w-[19px] dark:block"></i>
+        </button>
         <span class="hidden text-[13.5px] font-semibold text-ink sm:block">{{ current_user.name }}</span>
-        <button @click="open = !open" class="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-[14px] font-bold text-white">{{ current_user.name|slice(0,2)|upper }}</button>
+        <button @click="open = !open" aria-label="Fiók menü" :aria-expanded="open" class="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-[14px] font-bold text-white">{{ current_user.name|slice(0,2)|upper }}</button>
         <div x-show="open" @click.outside="open = false" x-cloak class="absolute right-0 top-12 w-44 rounded-xl border border-slate-200 bg-white p-1.5 shadow-card">
           <form method="post" action="/kilepes">
             <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
@@ -34,7 +37,7 @@
   <aside class="fixed bottom-0 left-0 top-16 z-30 hidden w-60 flex-col border-r border-slate-100 bg-white px-4 py-6 lg:flex">
     <nav class="flex flex-col gap-1.5">
       {% for n in nav %}
-        <a href="{{ n.href }}" class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[14.5px] font-semibold transition {{ active == n.id ? 'bg-ink text-white shadow-soft' : 'text-muted hover:bg-surface hover:text-ink' }}">
+        <a href="{{ n.href }}"{{ active == n.id ? ' aria-current="page"' : '' }} class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[14.5px] font-semibold transition {{ active == n.id ? 'bg-ink text-white shadow-soft' : 'text-muted hover:bg-surface hover:text-ink' }}">
           <i data-lucide="{{ n.icon }}" class="h-5 w-5 shrink-0"></i>{{ n.label }}
         </a>
       {% endfor %}
@@ -48,7 +51,7 @@
   <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-100 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
     <div class="grid grid-cols-5">
       {% for n in nav %}
-        <a href="{{ n.href }}" class="flex flex-col items-center gap-1 py-2.5 transition {{ active == n.id ? 'text-teal' : 'text-muted' }}">
+        <a href="{{ n.href }}"{{ active == n.id ? ' aria-current="page"' : '' }} class="flex flex-col items-center gap-1 py-2.5 transition {{ active == n.id ? 'text-teal' : 'text-muted' }}">
           <i data-lucide="{{ n.icon }}" class="h-[22px] w-[22px]"></i><span class="text-[10.5px] font-semibold">{{ n.short }}</span>
         </a>
       {% endfor %}

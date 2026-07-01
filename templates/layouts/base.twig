@@ -6,8 +6,20 @@
   <title>{% block title %}{{ app_name }}{% endblock %}</title>
   {% block robots %}{% endblock %}
 
+  {# Villanásmentes téma-inicializálás: a .dark osztály még a Tailwind/CSS betöltése előtt felkerül a <html>-re. #}
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        var d = t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', d);
+      } catch (e) {}
+    })();
+  </script>
+
   {# App-szerű mobil élmény (PWA) #}
-  <meta name="theme-color" content="#0F2A4A">
+  <meta name="theme-color" content="#0F2A4A" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,12 +32,16 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style type="text/tailwindcss">
+    /* Osztály-alapú sötét mód (a böngésző-CDN-nel is működik) */
+    @custom-variant dark (&:where(.dark, .dark *));
+
     @theme {
-      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
       --color-ink: #0F2A4A;
       --color-teal: #0E9F6E;
       --color-gold: #F4B740;
@@ -43,10 +59,20 @@
   <style>
     html, body { margin: 0; padding: 0; }
     html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Inter', system-ui, sans-serif; color: #1E293B; overscroll-behavior-y: none; }
+    body { font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1E293B; overscroll-behavior-y: none; }
     *::-webkit-scrollbar { width: 9px; height: 9px; }
     *::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.28); border-radius: 9px; }
     [x-cloak] { display: none !important; }
+
+    /* Tabuláris számjegyek: KPI-k, összegek, dátumok ne csússzanak el */
+    .tabular-nums, .nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+    /* Egységes, látható fókusz-gyűrű (billentyűzetes navigáció) — ikon-gombokon is */
+    :where(a, button, [role="button"], input, select, textarea, summary):focus-visible {
+      outline: 2px solid var(--color-teal);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
 
     /* Oldalsáv-drawer (saját CSS, hogy ne függjön a Tailwind böngésző-scannertől) */
     .app-drawer { transform: translateX(-100%); transition: transform .3s ease; will-change: transform; }
@@ -65,6 +91,8 @@
       padding-left: 12px !important; padding-right: 12px !important;
     }
     table th { font-size: 11px !important; }
+    /* Szám- és összegoszlopok tabuláris igazítása */
+    table td.num, table th.num, td[data-num], th[data-num] { font-variant-numeric: tabular-nums; text-align: right; }
 
     /* App-szerű mobil nézet */
     @media (max-width: 640px) {
@@ -77,6 +105,50 @@
     }
     /* Biztonságos terület (notch) a fix alsó sávoknál */
     .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem); }
+
+    /* ================= SÖTÉT MÓD =================
+       CDN mellett osztály-szintű felülírás (a --color-white / text-white ütközés elkerülésével).
+       A márkaszínek (ink/teal/gold) minden módban állandók; csak a semleges felületek/szövegek fordulnak. */
+    .dark { color-scheme: dark; }
+    .dark body { color: #E2E8F0; }
+
+    /* Felületek: két szint — recessed (surface) és raised (white kártya) */
+    .dark .bg-surface { background-color: #0F1A2E !important; }
+    .dark .bg-white   { background-color: #16223A !important; }
+    .dark .bg-white\/90 { background-color: rgba(22,34,58,0.9) !important; }
+    .dark .bg-white\/5  { background-color: rgba(255,255,255,0.04) !important; }
+    .dark .bg-slate-100 { background-color: #24324A !important; }
+    .dark .hover\:bg-surface:hover { background-color: #0B1424 !important; }
+    .dark .hover\:bg-white:hover   { background-color: #1B2842 !important; }
+
+    /* Szövegek */
+    .dark .text-ink  { color: #E6ECF5 !important; }
+    .dark .text-body { color: #E2E8F0 !important; }
+    .dark .text-muted { color: #93A4BC !important; }
+
+    /* Keretek / elválasztók */
+    .dark .border-slate-200, .dark .border-slate-100, .dark .border-slate-200\/70 { border-color: rgba(148,163,184,0.16) !important; }
+    .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+    .dark .divide-slate-100 > * { border-color: rgba(148,163,184,0.14) !important; }
+
+    /* Beviteli mezők: sötét kitöltés, olvasható placeholder */
+    .dark input, .dark textarea, .dark select { color: #E2E8F0; }
+    .dark ::placeholder { color: #7C8BA6; }
+
+    /* Árnyékok tompítása sötét háttéren (a keretek adják az elválasztást) */
+    .dark .shadow-card, .dark .shadow-soft { box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.28) !important; }
+
+    /* Csökkentett mozgás: minden animáció/átmenet lekapcsolása kérésre */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .app-drawer { transition: none !important; }
+    }
   </style>
 
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -90,6 +162,28 @@
     function icons(){ try { window.lucide && window.lucide.createIcons(); } catch(e){} }
     document.addEventListener('DOMContentLoaded', icons);
     document.addEventListener('alpine:initialized', () => setTimeout(icons, 0));
+
+    // Téma-kapcsoló: bármely [data-theme-toggle] elem vált világos/sötét között, és menti a választást.
+    function applyTheme(dark){
+      document.documentElement.classList.toggle('dark', dark);
+      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch(e){}
+      document.querySelectorAll('[data-theme-toggle]').forEach(function(el){
+        el.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      });
+      setTimeout(icons, 0);
+    }
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest && e.target.closest('[data-theme-toggle]');
+      if (!btn) return;
+      e.preventDefault();
+      applyTheme(!document.documentElement.classList.contains('dark'));
+    });
+    document.addEventListener('DOMContentLoaded', function(){
+      var dark = document.documentElement.classList.contains('dark');
+      document.querySelectorAll('[data-theme-toggle]').forEach(function(el){
+        el.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      });
+    });
   })();
 </script>
 {% block scripts %}{% endblock %}

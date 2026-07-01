@@ -117,7 +117,7 @@
                 {% if d.size_bytes %} · {{ (d.size_bytes / 1024)|round }} KB{% endif %}
               </div>
             </div>
-            <a href="/admin/dokumentumok/{{ d.id }}/letoltes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Letöltés"><i data-lucide="download" class="h-4 w-4"></i></a>
+            <a aria-label="Letöltés" href="/admin/dokumentumok/{{ d.id }}/letoltes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Letöltés"><i data-lucide="download" class="h-4 w-4"></i></a>
           </li>
         {% endfor %}
       </ul>

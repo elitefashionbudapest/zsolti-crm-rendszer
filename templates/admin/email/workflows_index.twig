@@ -70,11 +70,11 @@
                       <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-1.5 text-[12.5px] font-semibold text-white transition hover:bg-ink/90"><i data-lucide="send" class="h-3.5 w-3.5"></i> Futtatás most</button>
                     </form>
                   {% endif %}
-                  <a href="/admin/email-folyamatok/{{ w.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                  <a aria-label="Szerkesztés" href="/admin/email-folyamatok/{{ w.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
                   <form method="post" action="/admin/email-folyamatok/{{ w.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt a folyamatot?');">
                     <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
                     <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
-                    <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                    <button aria-label="Törlés" type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
                   </form>
                 </div>
               </td>

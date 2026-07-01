@@ -9,7 +9,7 @@
 } %}
 
 {% block main %}
-<h1 class="text-[26px] font-extrabold tracking-tight text-ink sm:text-[30px]">Üdv, {{ first_name }}! 👋</h1>
+<h1 class="flex items-center gap-2.5 text-[26px] font-bold tracking-tight text-ink sm:text-[30px]">Üdv, {{ first_name }}!<i data-lucide="hand" class="h-6 w-6 text-gold"></i></h1>
 <p class="mt-1.5 text-[15px] text-muted">Itt egy helyen látja szerződéseit, a közelgő határidőket és ügynökét.</p>
 
 <div class="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -17,10 +17,10 @@
     <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ink/5"><i data-lucide="calendar-heart" class="h-[22px] w-[22px] text-ink"></i></div>
     <div class="mt-4 text-[13px] font-semibold text-muted">Következő évforduló</div>
     {% if next_anniversary %}
-      <div class="mt-1 text-[20px] font-extrabold text-ink">{{ next_anniversary.date }}</div>
+      <div class="mt-1 text-[20px] font-bold text-ink">{{ next_anniversary.date }}</div>
       <div class="mt-1 text-[12.5px] text-muted">{{ next_anniversary.label }} · {{ next_anniversary.days }} nap múlva</div>
     {% else %}
-      <div class="mt-1 text-[20px] font-extrabold text-ink">—</div>
+      <div class="mt-1 text-[20px] font-bold text-ink">—</div>
       <div class="mt-1 text-[12.5px] text-muted">Nincs közelgő évforduló</div>
     {% endif %}
   </div>
@@ -33,10 +33,10 @@
     </div>
     <div class="mt-4 text-[13px] font-semibold text-muted">Közelgő lejárat</div>
     {% if next_expiry %}
-      <div class="mt-1 text-[20px] font-extrabold text-ink">{{ next_expiry.date }}</div>
+      <div class="mt-1 text-[20px] font-bold text-ink">{{ next_expiry.date }}</div>
       <div class="mt-1 text-[12.5px] text-muted">{{ next_expiry.label }} · {{ next_expiry.days }} nap múlva</div>
     {% else %}
-      <div class="mt-1 text-[20px] font-extrabold text-ink">—</div>
+      <div class="mt-1 text-[20px] font-bold text-ink">—</div>
       <div class="mt-1 text-[12.5px] text-muted">Nincs közelgő lejárat</div>
     {% endif %}
   </div>

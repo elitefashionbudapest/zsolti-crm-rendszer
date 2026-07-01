@@ -85,11 +85,11 @@
               <td class="px-5 py-3.5 text-muted">{{ d.created_at ? d.created_at|date('Y-m-d H:i') : '—' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
-                  <a href="/admin/dokumentumok/{{ d.id }}/letoltes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Letöltés"><i data-lucide="download" class="h-4 w-4"></i></a>
+                  <a aria-label="Letöltés" href="/admin/dokumentumok/{{ d.id }}/letoltes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Letöltés"><i data-lucide="download" class="h-4 w-4"></i></a>
                   <form method="post" action="/admin/dokumentumok/{{ d.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt a dokumentumot?');">
                     <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
                     <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
-                    <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger" title="Törlés"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                    <button aria-label="Törlés" type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger" title="Törlés"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
                   </form>
                 </div>
               </td>

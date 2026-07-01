@@ -44,11 +44,11 @@
       <table class="w-full text-left text-[13.5px]">
         <thead class="border-b border-slate-100 text-[12px] uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-5 py-3 font-semibold">Név</th>
-            <th class="px-5 py-3 font-semibold">E-mail</th>
-            <th class="px-5 py-3 font-semibold">Telefon</th>
-            <th class="px-5 py-3 font-semibold">Státusz</th>
-            <th class="px-5 py-3"></th>
+            <th scope="col" class="px-5 py-3 font-semibold">Név</th>
+            <th scope="col" class="px-5 py-3 font-semibold">E-mail</th>
+            <th scope="col" class="px-5 py-3 font-semibold">Telefon</th>
+            <th scope="col" class="px-5 py-3 font-semibold">Státusz</th>
+            <th scope="col" class="px-5 py-3"><span class="sr-only">Műveletek</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -61,7 +61,7 @@
                 <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ c.status == 'active' ? 'bg-success/10 text-success' : 'bg-slate-100 text-muted' }}">{{ c.status == 'active' ? 'aktív' : 'inaktív' }}</span>
               </td>
               <td class="px-5 py-3.5 text-right">
-                <a href="/admin/partnerek/{{ c.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                <a href="/admin/partnerek/{{ c.id }}/szerkesztes" aria-label="{{ c.name }} szerkesztése" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
               </td>
             </tr>
           {% endfor %}

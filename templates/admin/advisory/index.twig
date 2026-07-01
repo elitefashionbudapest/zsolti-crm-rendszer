@@ -63,11 +63,11 @@
               <td class="px-5 py-3.5 text-muted">{{ r.created_at ? r.created_at|date('Y.m.d') : '—' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
-                  <a href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                  <a aria-label="Szerkesztés" href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
                   <form method="post" action="/admin/tanacsadas/{{ r.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt az anyagot?');">
                     <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
                     <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
-                    <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                    <button aria-label="Törlés" type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/5 hover:text-danger"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
                   </form>
                 </div>
               </td>
