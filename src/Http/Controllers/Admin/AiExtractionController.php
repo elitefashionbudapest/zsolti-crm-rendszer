@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Ai\ClaudeClient;
 use App\Ai\ExtractionRepository;
 use App\Auth\Auth;
 use App\Clients\ClientRepository;
 use App\Contracts\ContractRepository;
+use App\Documents\DocumentStorage;
 use App\Settings\SettingsService;
 use App\Support\AuditLogger;
+use PDO;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UploadedFileInterface;
@@ -38,11 +39,12 @@ final class AiExtractionController
         private Twig $twig,
         private Auth $auth,
         private ExtractionRepository $extractions,
-        private ClaudeClient $claude,
         private SettingsService $settings,
         private ClientRepository $clients,
         private ContractRepository $contracts,
         private AuditLogger $audit,
+        private DocumentStorage $storage,
+        private PDO $pdo,
     ) {
     }
 
@@ -79,27 +81,34 @@ final class AiExtractionController
 
         $binary = (string) $file->getStream()->getContents();
         $mime = (string) ($file->getClientMediaType() ?? '');
+        $meta = $this->storage->saveBytes($officeId, $binary, (string) ($file->getClientFilename() ?? 'dokumentum'), $mime);
 
-        ['schema' => $schema, 'instruction' => $instruction] = ClaudeClient::clientContractSchema();
-
-        try {
-            $result = $this->claude->extract($binary, $mime, $apiKey, $model, $schema, $instruction);
-        } catch (RuntimeException $e) {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => $e->getMessage()];
-
-            return $this->redirect($response, '/admin/ai-kinyeres');
-        }
-
+        // A tényleges AI-hívást háttérben (worker/cron) végezzük — a web-kérés
+        // a szerver request-timeoutja miatt nem tudja megvárni a hosszú feldolgozást.
         $id = $this->extractions->create([
             'document_id' => null,
             'client_id' => null,
-            'fields' => json_encode($result, JSON_UNESCAPED_UNICODE),
-            'status' => 'pending',
+            'fields' => '{}',
+            'status' => 'processing',
             'model' => $model,
             'created_by' => $this->auth->id(),
         ]);
-        $this->audit->log('ai.extract.create', 'extracted_data', $id);
-        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Az adatok kinyerése sikerült. Ellenőrizd és hagyd jóvá őket.'];
+
+        $now = date('Y-m-d H:i:s');
+        $payload = json_encode([
+            'extraction_id' => $id,
+            'office_id' => $officeId,
+            'stored_path' => $meta['stored_path'],
+            'mime' => $mime,
+            'model' => $model,
+        ], JSON_UNESCAPED_UNICODE);
+        $this->pdo->prepare(
+            'INSERT INTO jobs (queue, type, payload, attempts, available_at, created_at, updated_at)
+             VALUES (:q, :t, :p, 0, :a, :c, :u)'
+        )->execute(['q' => 'default', 't' => 'ai_extract', 'p' => $payload, 'a' => $now, 'c' => $now, 'u' => $now]);
+
+        $this->audit->log('ai.extract.enqueue', 'extracted_data', $id);
+        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'A dokumentum feldolgozás alatt van — az adatok hamarosan megjelennek.'];
 
         return $this->redirect($response, '/admin/ai-kinyeres/' . $id);
     }
@@ -123,6 +132,7 @@ final class AiExtractionController
             'active' => 'documents',
             'extraction' => $row,
             'fields' => $values,
+            'errorMsg' => is_array($decoded) ? ($decoded['_error'] ?? null) : null,
             'flash' => $this->flash(),
         ]);
     }

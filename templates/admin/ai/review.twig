@@ -25,6 +25,22 @@
   </div>
 {% endif %}
 
+{% if extraction.status == 'processing' %}
+  <meta http-equiv="refresh" content="5">
+  <div class="rounded-2xl border border-slate-200/70 bg-white p-12 text-center shadow-card">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal/10"><i data-lucide="loader-2" class="h-7 w-7 animate-spin text-teal"></i></div>
+    <p class="mt-4 text-[15px] font-semibold text-ink">Feldolgozás alatt…</p>
+    <p class="mt-1.5 text-[13.5px] text-muted">Az AI éppen kiolvassa az adatokat a dokumentumból. Az oldal 5 másodpercenként automatikusan frissül.</p>
+    <a href="/admin/ai-kinyeres/{{ extraction.id }}" class="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13.5px] font-semibold text-ink transition hover:bg-surface"><i data-lucide="refresh-cw" class="h-4 w-4"></i> Frissítés most</a>
+  </div>
+{% elseif extraction.status == 'failed' %}
+  <div class="rounded-2xl border border-danger/20 bg-white p-10 text-center shadow-card">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-danger/10"><i data-lucide="alert-triangle" class="h-7 w-7 text-danger"></i></div>
+    <p class="mt-4 text-[15px] font-semibold text-ink">A feldolgozás nem sikerült</p>
+    <p class="mt-1.5 text-[13.5px] text-muted">{{ errorMsg ?: 'Ismeretlen hiba történt a kinyerés közben.' }}</p>
+    <a href="/admin/ai-kinyeres" class="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-white transition hover:bg-ink/90"><i data-lucide="upload" class="h-4 w-4"></i> Új dokumentum feltöltése</a>
+  </div>
+{% else %}
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <div class="lg:col-span-1">
     <div class="rounded-2xl border border-teal/20 bg-teal/5 p-6 shadow-card">
@@ -84,4 +100,5 @@
     </form>
   </div>
 </div>
+{% endif %}
 {% endblock %}

@@ -20,7 +20,12 @@ $pdo = $container->get(PDO::class);
 $app = new Application('AegisCRM CLI', '1.0.0');
 $app->add(new GenerateKeyCommand());
 $app->add(new ScheduleRunCommand($pdo, $container->get(MailService::class)));
-$app->add(new WorkerCommand($pdo));
+$app->add(new WorkerCommand(
+    $pdo,
+    $container->get(App\Ai\ClaudeClient::class),
+    $container->get(App\Settings\SettingsService::class),
+    $container->get(App\Documents\DocumentStorage::class)
+));
 $app->add(new ImapSyncCommand($pdo, $container->get(MailboxSyncDispatcher::class)));
 
 $app->run();
