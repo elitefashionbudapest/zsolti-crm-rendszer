@@ -64,13 +64,13 @@
         <tbody class="divide-y divide-slate-100">
           {% for l in list.rows %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5"><a href="/admin/leadek/{{ l.id }}" class="font-semibold text-ink hover:text-teal">{{ l.name }}</a></td>
-              <td class="px-5 py-3.5 text-muted">{{ l.email ?: '—' }}</td>
-              <td class="px-5 py-3.5 text-muted">{{ l.phone ?: '—' }}</td>
-              <td class="px-5 py-3.5">
+              <td data-label="Név" class="px-5 py-3.5"><a href="/admin/leadek/{{ l.id }}" class="font-semibold text-ink hover:text-teal">{{ l.name }}</a></td>
+              <td data-label="E-mail" class="px-5 py-3.5 text-muted">{{ l.email ?: '—' }}</td>
+              <td data-label="Telefon" class="px-5 py-3.5 text-muted">{{ l.phone ?: '—' }}</td>
+              <td data-label="Fázis" class="px-5 py-3.5">
                 <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ stageStyles[l.stage] ?? 'bg-slate-100 text-muted' }}">{{ stages[l.stage] ?? l.stage }}</span>
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ l.source ?: '—' }}</td>
+              <td data-label="Forrás" class="px-5 py-3.5 text-muted">{{ l.source ?: '—' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <a aria-label="Szerkesztés" href="/admin/leadek/{{ l.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>
               </td>

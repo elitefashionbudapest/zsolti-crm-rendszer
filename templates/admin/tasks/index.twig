@@ -64,18 +64,18 @@
                   </button>
                 </form>
               </td>
-              <td class="px-5 py-3.5">
+              <td data-label="Feladat" class="px-5 py-3.5">
                 <a href="/admin/feladatok/{{ t.id }}" class="font-semibold text-ink hover:text-teal {{ t.status == 'done' ? 'line-through text-muted' }}">{{ t.title }}</a>
                 {% if t.client_name %}<div class="mt-0.5 text-[12px] text-muted">{{ t.client_name }}</div>{% endif %}
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ t.due_at ? t.due_at|date('Y-m-d H:i') : '—' }}</td>
-              <td class="px-5 py-3.5">
+              <td data-label="Határidő" class="px-5 py-3.5 text-muted">{{ t.due_at ? t.due_at|date('Y-m-d H:i') : '—' }}</td>
+              <td data-label="Prioritás" class="px-5 py-3.5">
                 <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold
                   {{ t.priority == 'high' ? 'bg-danger/10 text-danger' : (t.priority == 'low' ? 'bg-slate-100 text-muted' : 'bg-warning/10 text-warning') }}">
                   {{ t.priority == 'high' ? 'magas' : (t.priority == 'low' ? 'alacsony' : 'normál') }}
                 </span>
               </td>
-              <td class="px-5 py-3.5">
+              <td data-label="Státusz" class="px-5 py-3.5">
                 <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ t.status == 'done' ? 'bg-success/10 text-success' : 'bg-slate-100 text-muted' }}">{{ t.status == 'done' ? 'kész' : 'nyitott' }}</span>
               </td>
               <td class="px-5 py-3.5 text-right">

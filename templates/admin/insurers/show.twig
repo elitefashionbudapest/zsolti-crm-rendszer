@@ -50,8 +50,8 @@
             <tbody class="divide-y divide-slate-100">
               {% for route in routes %}
                 <tr class="align-top">
-                  <td class="px-3 py-3.5 font-semibold text-ink">{{ route.category ? categoryLabels[route.category]|default(route.category) : 'Alapértelmezett (minden típus)' }}</td>
-                  <td class="px-3 py-3.5 whitespace-pre-line text-muted">{{ route.emails }}</td>
+                  <td data-label="Kategória" class="px-3 py-3.5 font-semibold text-ink">{{ route.category ? categoryLabels[route.category]|default(route.category) : 'Alapértelmezett (minden típus)' }}</td>
+                  <td data-label="Címek" class="px-3 py-3.5 whitespace-pre-line text-muted">{{ route.emails }}</td>
                   <td class="px-3 py-3.5 text-right">
                     <form method="post" action="/admin/biztositok/{{ insurer.id }}/cimlista/{{ route.id }}/torles" onsubmit="return confirm('Biztosan törlöd ezt a címlistát?');">
                       <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">

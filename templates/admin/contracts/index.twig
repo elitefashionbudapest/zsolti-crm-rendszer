@@ -61,14 +61,14 @@
         <tbody class="divide-y divide-slate-100">
           {% for c in list.rows %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5"><a href="/admin/szerzodesek/{{ c.id }}" class="font-semibold text-ink hover:text-teal">{{ c.client_name ?: '—' }}</a></td>
-              <td class="px-5 py-3.5">
+              <td data-label="Ügyfél" class="px-5 py-3.5"><a href="/admin/szerzodesek/{{ c.id }}" class="font-semibold text-ink hover:text-teal">{{ c.client_name ?: '—' }}</a></td>
+              <td data-label="Módozat / Biztosító" class="px-5 py-3.5">
                 <div class="font-medium text-ink">{{ c.module_name ?: '—' }}</div>
                 <div class="text-[12px] text-muted">{{ c.insurer_name ?: '—' }}</div>
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ c.policy_number ?: '—' }}</td>
-              <td class="px-5 py-3.5 text-muted">{{ c.end_date ?: '—' }}</td>
-              <td class="px-5 py-3.5">
+              <td data-label="Kötvényszám" class="px-5 py-3.5 text-muted">{{ c.policy_number ?: '—' }}</td>
+              <td data-label="Lejárat" class="px-5 py-3.5 text-muted">{{ c.end_date ?: '—' }}</td>
+              <td data-label="Státusz" class="px-5 py-3.5">
                 <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ c.status == 'active' ? 'bg-success/10 text-success' : 'bg-slate-100 text-muted' }}">{{ c.status == 'active' ? 'élő' : 'megszűnt' }}</span>
               </td>
               <td class="px-5 py-3.5 text-right">

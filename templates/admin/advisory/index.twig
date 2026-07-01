@@ -45,22 +45,22 @@
         <tbody class="divide-y divide-slate-100">
           {% for r in rows %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5"><a href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="font-semibold text-ink hover:text-teal">{{ r.title }}</a></td>
-              <td class="px-5 py-3.5 text-muted">
+              <td data-label="Cím" class="px-5 py-3.5"><a href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="font-semibold text-ink hover:text-teal">{{ r.title }}</a></td>
+              <td data-label="Közönség" class="px-5 py-3.5 text-muted">
                 {% if r.client_id %}
                   {{ clientNames[r.client_id]|default('Ügyfél #' ~ r.client_id) }}
                 {% else %}
                   <span class="inline-flex items-center gap-1.5 text-ink"><i data-lucide="users" class="h-3.5 w-3.5"></i> Mindenki</span>
                 {% endif %}
               </td>
-              <td class="px-5 py-3.5">
+              <td data-label="Állapot" class="px-5 py-3.5">
                 {% if r.is_published %}
                   <span class="rounded-full bg-success/10 px-2.5 py-1 text-[11.5px] font-semibold text-success">publikált</span>
                 {% else %}
                   <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11.5px] font-semibold text-muted">piszkozat</span>
                 {% endif %}
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ r.created_at ? r.created_at|date('Y.m.d') : '—' }}</td>
+              <td data-label="Dátum" class="px-5 py-3.5 text-muted">{{ r.created_at ? r.created_at|date('Y.m.d') : '—' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
                   <a aria-label="Szerkesztés" href="/admin/tanacsadas/szerkeszto?id={{ r.id }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>

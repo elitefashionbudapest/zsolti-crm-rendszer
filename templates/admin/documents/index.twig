@@ -66,23 +66,23 @@
         <tbody class="divide-y divide-slate-100">
           {% for d in list.rows %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5">
+              <td data-label="Fájl" class="px-5 py-3.5">
                 <div class="flex items-center gap-2.5">
                   <i data-lucide="file" class="h-[18px] w-[18px] shrink-0 text-muted"></i>
                   <span class="font-semibold text-ink">{{ d.original_name }}</span>
                 </div>
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ d.client_name ?: '—' }}</td>
-              <td class="px-5 py-3.5 text-muted">{{ d.type ?: '—' }}</td>
-              <td class="px-5 py-3.5">
+              <td data-label="Ügyfél" class="px-5 py-3.5 text-muted">{{ d.client_name ?: '—' }}</td>
+              <td data-label="Típus" class="px-5 py-3.5 text-muted">{{ d.type ?: '—' }}</td>
+              <td data-label="Láthatóság" class="px-5 py-3.5">
                 {% if d.visibility == 'shared' %}
                   <span class="rounded-full bg-teal/10 px-2.5 py-1 text-[11.5px] font-semibold text-teal">megosztott</span>
                 {% else %}
                   <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11.5px] font-semibold text-muted">csak ügynök</span>
                 {% endif %}
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ fmt.filesize(d.size_bytes) }}</td>
-              <td class="px-5 py-3.5 text-muted">{{ d.created_at ? d.created_at|date('Y-m-d H:i') : '—' }}</td>
+              <td data-label="Méret" class="px-5 py-3.5 text-muted">{{ fmt.filesize(d.size_bytes) }}</td>
+              <td data-label="Feltöltve" class="px-5 py-3.5 text-muted">{{ d.created_at ? d.created_at|date('Y-m-d H:i') : '—' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
                   <a aria-label="Letöltés" href="/admin/dokumentumok/{{ d.id }}/letoltes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink" title="Letöltés"><i data-lucide="download" class="h-4 w-4"></i></a>

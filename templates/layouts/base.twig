@@ -96,12 +96,45 @@
 
     /* App-szerű mobil nézet */
     @media (max-width: 640px) {
-      /* Széles táblázatok vízszintesen görgethetők, app-szerűen */
-      table { display: block; width: 100%; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
       /* Kényelmes érintőfelületek */
       button, a[href], select, input, textarea { touch-action: manipulation; }
-      /* A táblázat-sorokban a linkek ne törjenek szét csúnyán */
       td, th { vertical-align: middle; }
+
+      /* ===== Táblázat → kártyák: NINCS vízszintes görgetés =====
+         Minden sor önálló kártya; az első cella a kártya címe, a többi „címke: érték".
+         A [data-plain] táblázatok (pl. Ügyféltáblázat) kimaradnak. */
+      table:not([data-plain]) { display: block; width: 100%; font-size: 13px !important; white-space: normal; }
+      table:not([data-plain]) thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* sr-only, de olvasható marad */
+      table:not([data-plain]) tbody { display: block; }
+      table:not([data-plain]) tr {
+        display: block; margin: 0 0 10px; padding: 4px 4px 6px;
+        border: 1px solid rgba(148,163,184,0.28); border-radius: 14px; background: #fff;
+        box-shadow: 0 1px 2px rgba(15,42,74,0.04);
+      }
+      table:not([data-plain]) tbody tr:last-child { margin-bottom: 0; }
+      table:not([data-plain]) td {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 9px 13px !important; border: 0 !important; text-align: right; white-space: normal;
+      }
+      table:not([data-plain]) td::before {
+        content: attr(data-label); text-align: left; flex: 0 0 auto; max-width: 45%;
+        font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+        color: var(--color-muted);
+      }
+      table:not([data-plain]) td:not([data-label])::before { content: none; }
+      table:not([data-plain]) td + td { border-top: 1px solid rgba(148,163,184,0.16) !important; }
+      /* Első cella = kártyacím (bal, félkövér, nagyobb, címke nélkül) */
+      table:not([data-plain]) td:first-child {
+        justify-content: flex-start; text-align: left; font-size: 14.5px; font-weight: 600;
+        padding-bottom: 10px !important;
+      }
+      table:not([data-plain]) td:first-child::before { content: none; }
+      /* Művelet-cella (nincs címke): gombok jobbra, teljes szélességben */
+      table:not([data-plain]) td:not([data-label]) { justify-content: flex-end; }
+
+      /* Sötét mód kártyák */
+      .dark table:not([data-plain]) tr { background: #16223A; border-color: rgba(148,163,184,0.22); box-shadow: none; }
+      .dark table:not([data-plain]) td + td { border-top-color: rgba(148,163,184,0.14) !important; }
     }
     /* Biztonságos terület (notch) a fix alsó sávoknál */
     .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem); }

@@ -52,13 +52,13 @@
         <tbody class="divide-y divide-slate-100">
           {% for w in workflows %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5"><a href="/admin/email-folyamatok/{{ w.id }}/szerkesztes" class="font-semibold text-ink hover:text-teal">{{ w.name }}</a></td>
-              <td class="px-5 py-3.5 text-muted">
+              <td data-label="Név" class="px-5 py-3.5"><a href="/admin/email-folyamatok/{{ w.id }}/szerkesztes" class="font-semibold text-ink hover:text-teal">{{ w.name }}</a></td>
+              <td data-label="Trigger" class="px-5 py-3.5 text-muted">
                 {{ triggerTypes[w.trigger_type] ?? w.trigger_type }}
                 {% if w.trigger_days is not null %}<span class="text-[12px]">({{ w.trigger_days }} nap)</span>{% endif %}
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ w.template_id and templates[w.template_id] ? templates[w.template_id].name : '—' }}</td>
-              <td class="px-5 py-3.5">
+              <td data-label="Sablon" class="px-5 py-3.5 text-muted">{{ w.template_id and templates[w.template_id] ? templates[w.template_id].name : '—' }}</td>
+              <td data-label="Állapot" class="px-5 py-3.5">
                 <span class="rounded-full px-2.5 py-1 text-[11.5px] font-semibold {{ w.is_active ? 'bg-success/10 text-success' : 'bg-slate-100 text-muted' }}">{{ w.is_active ? 'aktív' : 'inaktív' }}</span>
               </td>
               <td class="px-5 py-3.5 text-right">

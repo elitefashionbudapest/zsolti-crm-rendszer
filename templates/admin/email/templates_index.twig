@@ -51,9 +51,9 @@
         <tbody class="divide-y divide-slate-100">
           {% for t in templates %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5"><a href="/admin/email-sablonok/{{ t.id }}/szerkesztes" class="font-semibold text-ink hover:text-teal">{{ t.name }}</a></td>
-              <td class="px-5 py-3.5 text-muted">{{ t.subject }}</td>
-              <td class="px-5 py-3.5 text-muted">{{ t.updated_at }}</td>
+              <td data-label="Név" class="px-5 py-3.5"><a href="/admin/email-sablonok/{{ t.id }}/szerkesztes" class="font-semibold text-ink hover:text-teal">{{ t.name }}</a></td>
+              <td data-label="Tárgy" class="px-5 py-3.5 text-muted">{{ t.subject }}</td>
+              <td data-label="Módosítva" class="px-5 py-3.5 text-muted">{{ t.updated_at }}</td>
               <td class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
                   <a aria-label="Szerkesztés" href="/admin/email-sablonok/{{ t.id }}/szerkesztes" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-ink"><i data-lucide="pencil" class="h-4 w-4"></i></a>

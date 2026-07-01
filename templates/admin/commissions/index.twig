@@ -63,17 +63,17 @@
         <tbody class="divide-y divide-slate-100">
           {% for c in list.rows %}
             <tr class="transition hover:bg-surface/60">
-              <td class="px-5 py-3.5 font-semibold text-ink">{{ c.contract_label ?: '—' }}</td>
-              <td class="num px-5 py-3.5 text-ink">{{ c.amount is not null ? (c.amount|number_format(0, ',', ' ') ~ ' Ft') : '—' }}</td>
-              <td class="px-5 py-3.5">
+              <td data-label="Szerződés" class="px-5 py-3.5 font-semibold text-ink">{{ c.contract_label ?: '—' }}</td>
+              <td data-label="Összeg" class="num px-5 py-3.5 text-ink">{{ c.amount is not null ? (c.amount|number_format(0, ',', ' ') ~ ' Ft') : '—' }}</td>
+              <td data-label="Státusz" class="px-5 py-3.5">
                 {% if c.status == 'settled' %}
                   <span class="rounded-full bg-success/10 px-2.5 py-1 text-[11.5px] font-semibold text-success">rendezett</span>
                 {% else %}
                   <span class="rounded-full bg-warning/10 px-2.5 py-1 text-[11.5px] font-semibold text-warning">függő</span>
                 {% endif %}
               </td>
-              <td class="px-5 py-3.5 text-muted">{{ c.settled_at ?: '—' }}</td>
-              <td class="px-5 py-3.5 text-right">
+              <td data-label="Rendezve" class="px-5 py-3.5 text-muted">{{ c.settled_at ?: '—' }}</td>
+              <td data-label="Műveletek" class="px-5 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-2">
                   {% if c.status != 'settled' %}
                     <form method="post" action="/admin/jutalekok/{{ c.id }}/rendezes">
