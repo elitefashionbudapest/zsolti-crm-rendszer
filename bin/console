@@ -7,7 +7,7 @@ use App\Console\GenerateKeyCommand;
 use App\Console\ImapSyncCommand;
 use App\Console\ScheduleRunCommand;
 use App\Console\WorkerCommand;
-use App\Imap\ImapSyncService;
+use App\Mail\MailboxSyncDispatcher;
 use App\Kernel\CliKernel;
 use App\Mail\MailService;
 use Symfony\Component\Console\Application;
@@ -21,6 +21,6 @@ $app = new Application('AegisCRM CLI', '1.0.0');
 $app->add(new GenerateKeyCommand());
 $app->add(new ScheduleRunCommand($pdo, $container->get(MailService::class)));
 $app->add(new WorkerCommand($pdo));
-$app->add(new ImapSyncCommand($pdo, $container->get(ImapSyncService::class)));
+$app->add(new ImapSyncCommand($pdo, $container->get(MailboxSyncDispatcher::class)));
 
 $app->run();

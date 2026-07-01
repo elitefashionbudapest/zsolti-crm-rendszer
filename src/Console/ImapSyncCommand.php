@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Imap\ImapSyncService;
+use App\Mail\MailboxSyncDispatcher;
 use PDO;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +17,7 @@ final class ImapSyncCommand extends Command
 {
     public function __construct(
         private PDO $pdo,
-        private ImapSyncService $imap,
+        private MailboxSyncDispatcher $mailbox,
     ) {
         parent::__construct();
     }
@@ -34,14 +34,14 @@ final class ImapSyncCommand extends Command
 
         foreach ($offices as $office) {
             $id = (int) $office['id'];
-            if (!$this->imap->isConfigured($id)) {
+            if (!$this->mailbox->isConfigured($id)) {
                 continue;
             }
-            $result = $this->imap->syncOffice($id);
+            $result = $this->mailbox->sync($id);
             if ($result['error'] !== null) {
                 $output->writeln(sprintf('[%s] hiba: %s', $office['name'], $result['error']));
             } else {
-                $output->writeln(sprintf('[%s] %d új levél.', $office['name'], $result['count']));
+                $output->writeln(sprintf('[%s] %d új levél (%s).', $office['name'], $result['count'], $result['via']));
             }
         }
 

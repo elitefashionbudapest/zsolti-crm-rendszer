@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Auth\Auth;
-use App\Imap\ImapSyncService;
+use App\Mail\MailboxSyncDispatcher;
 use App\Support\AuditLogger;
 use PDO;
 use Slim\Views\Twig;
@@ -21,7 +21,7 @@ final class InboxController
         private Twig $twig,
         private Auth $auth,
         private PDO $pdo,
-        private ImapSyncService $imap,
+        private MailboxSyncDispatcher $mailbox,
         private AuditLogger $audit,
     ) {
     }
@@ -37,7 +37,7 @@ final class InboxController
         return $this->twig->render($response, 'admin/inbox/index.twig', [
             'active' => 'inbox',
             'emails' => $stmt->fetchAll(),
-            'configured' => $this->imap->isConfigured($officeId),
+            'configured' => $this->mailbox->isConfigured($officeId),
             'flash' => $this->flash(),
         ]);
     }
@@ -45,7 +45,7 @@ final class InboxController
     public function sync(Request $request, Response $response): Response
     {
         $officeId = (int) ($this->auth->officeId() ?? 0);
-        $result = $this->imap->syncOffice($officeId);
+        $result = $this->mailbox->sync($officeId);
         $this->audit->log('inbox.sync');
 
         if ($result['error'] !== null) {

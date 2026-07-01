@@ -13,7 +13,7 @@ use Webklex\PHPIMAP\ClientManager;
  * Beérkező levelek szinkronizálása az iroda IMAP-beállításaiból az
  * incoming_emails táblába. Hiba esetén nem dob — visszaadja a hibát.
  */
-final class ImapSyncService
+class ImapSyncService
 {
     public function __construct(
         private PDO $pdo,

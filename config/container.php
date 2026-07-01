@@ -43,6 +43,10 @@ return [
         return new Encryption($c->get('settings')['app']['key']);
     }),
 
+    App\Support\SignedState::class => factory(static function (ContainerInterface $c): App\Support\SignedState {
+        return new App\Support\SignedState($c->get('settings')['app']['key']);
+    }),
+
     UserRepository::class => autowire(),
     Auth::class => autowire(),
 

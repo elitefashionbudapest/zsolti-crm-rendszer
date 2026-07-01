@@ -43,6 +43,7 @@ final class SettingsController
         private Auth $auth,
         private SettingsService $settings,
         private AuditLogger $audit,
+        private \App\Gmail\GmailOAuthService $gmail,
     ) {
     }
 
@@ -76,8 +77,61 @@ final class SettingsController
             'v' => $values,
             'secret' => $secretSet,
             'googleConnected' => $googleConnected,
+            'gmailConfigured' => $this->gmail->isConfigured($officeId),
+            'gmailConnected' => $this->gmail->isConnected($officeId),
+            'gmailEmail' => $this->gmail->connectedEmail($officeId),
+            'gmailRedirectUri' => $this->gmailRedirectUri($request),
             'flash' => $this->flash(),
         ]);
+    }
+
+    private function gmailRedirectUri(Request $request): string
+    {
+        $rc = \Slim\Routing\RouteContext::fromRequest($request);
+        $u = $request->getUri();
+
+        return $u->getScheme() . '://' . $u->getAuthority() . $rc->getBasePath() . '/admin/beallitasok/gmail/callback';
+    }
+
+    public function gmailConnect(Request $request, Response $response): Response
+    {
+        $officeId = $this->auth->officeId();
+        if ($officeId === null || !$this->gmail->isConfigured($officeId)) {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Előbb add meg és mentsd a Google Client ID-t és Secretet.'];
+
+            return $this->redirect($response, '/admin/beallitasok');
+        }
+        $url = $this->gmail->authUrl($officeId, $this->gmailRedirectUri($request));
+
+        return $response->withHeader('Location', $url)->withStatus(302);
+    }
+
+    public function gmailCallback(Request $request, Response $response): Response
+    {
+        $q = $request->getQueryParams();
+        $code = (string) ($q['code'] ?? '');
+        $state = (string) ($q['state'] ?? '');
+        try {
+            $result = $this->gmail->handleCallback($code, $state, $this->gmailRedirectUri($request));
+            $this->audit->log('settings.gmail.connect');
+            $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Gmail csatlakoztatva: ' . ($result['email'] ?: 'ismeretlen fiók')];
+        } catch (\App\Gmail\GmailAuthException $e) {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Gmail-csatlakozási hiba: ' . $e->getMessage()];
+        }
+
+        return $this->redirect($response, '/admin/beallitasok');
+    }
+
+    public function gmailDisconnect(Request $request, Response $response): Response
+    {
+        $officeId = $this->auth->officeId();
+        if ($officeId !== null) {
+            $this->gmail->disconnect($officeId);
+            $this->audit->log('settings.gmail.disconnect');
+            $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Gmail-kapcsolat leválasztva.'];
+        }
+
+        return $this->redirect($response, '/admin/beallitasok');
     }
 
     public function save(Request $request, Response $response): Response
