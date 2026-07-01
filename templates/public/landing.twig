@@ -167,23 +167,25 @@
     </div>
   </section>
 
-  {# ===== Kiemelt: AI-adatkinyerés (nagy állítás) ===== #}
-  <section class="bg-ink py-24 text-center sm:py-36">
-    <div class="mx-auto max-w-4xl px-5 sm:px-8">
-      <div class="reveal text-[13px] font-bold uppercase tracking-[0.14em] text-teal">AI-adatkinyerés</div>
-      <p class="h-display reveal mx-auto mt-5 max-w-3xl text-[30px] font-bold text-white sm:text-[46px]">
-        Dokumentumból kész szerződés — <span class="text-slate-400">kézi gépelés nélkül.</span>
-      </p>
-      <p class="reveal mx-auto mt-6 max-w-xl text-[16px] leading-relaxed text-slate-300 sm:text-[18px]">Töltsd fel a PDF-et vagy a szkennelt oldalt. Az AI másodpercek alatt kiolvassa és strukturálja az adatokat, te pedig csak jóváhagyod.</p>
-      <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
-        {% for m in [['zap','Másodpercek alatt'],['target','Pontos kinyerés'],['file-check-2','Auto-kitöltés']] %}
-          <div class="flex items-center gap-2 text-[14px] font-semibold text-white"><i data-lucide="{{ m[0] }}" class="h-5 w-5 text-teal"></i> {{ m[1] }}</div>
-        {% endfor %}
+  {# ===== Kiemelt: AI-adatkinyerés (2 oszlop) ===== #}
+  <section class="bg-ink py-24 sm:py-32">
+    <div class="mx-auto grid max-w-5xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-2">
+      <div class="reveal">
+        <div class="text-[13px] font-bold uppercase tracking-[0.14em] text-teal">AI-adatkinyerés</div>
+        <p class="h-display mt-5 text-[30px] font-bold text-white sm:text-[44px]">
+          Dokumentumból kész szerződés — <span class="text-slate-400">kézi gépelés nélkül.</span>
+        </p>
+        <p class="mt-6 max-w-md text-[16px] leading-relaxed text-slate-300 sm:text-[17px]">Töltsd fel a PDF-et vagy a szkennelt oldalt. Az AI másodpercek alatt kiolvassa és strukturálja az adatokat, te pedig csak jóváhagyod.</p>
+        <div class="mt-8 flex flex-col gap-3.5">
+          {% for m in [['zap','Másodpercek alatt kész'],['target','Pontos, ellenőrizhető kinyerés'],['file-check-2','Automatikus dokumentumkitöltés']] %}
+            <div class="flex items-center gap-3 text-[15px] font-semibold text-white"><span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10"><i data-lucide="{{ m[0] }}" class="h-[18px] w-[18px] text-teal"></i></span>{{ m[1] }}</div>
+          {% endfor %}
+        </div>
       </div>
-      <div class="reveal mt-14">
+      <div class="reveal">
         <img src="/img/security.webp" width="1376" height="768" loading="lazy"
           alt="Banki szintű titkosítás és biztonságos adatkezelés"
-          class="fade-hero floaty mx-auto w-full max-w-2xl">
+          class="fade-hero floaty w-full">
       </div>
     </div>
   </section>
