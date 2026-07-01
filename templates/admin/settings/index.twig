@@ -132,14 +132,6 @@
     {% endif %}
   </div>
 
-  {% if gmailConnected %}
-    <form method="post" action="/admin/beallitasok/gmail/disconnect" x-show="tab === 'google'" x-cloak class="mx-auto mt-3 max-w-3xl">
-      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
-      <button type="submit" class="inline-flex items-center gap-2 rounded-xl border border-danger/20 bg-white px-4 py-2.5 text-[13px] font-semibold text-danger transition hover:bg-danger/5"><i data-lucide="unlink" class="h-[16px] w-[16px]"></i> Gmail leválasztása</button>
-    </form>
-  {% endif %}
-
   {# Arculat #}
   <div x-show="tab === 'branding'" x-cloak class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
     <h2 class="text-[15px] font-bold text-ink">Arculat</h2>
@@ -164,5 +156,14 @@
     </button>
   </div>
 </form>
+
+{# Gmail leválasztás — külön form (nem ágyazható a fő beállító-formba) #}
+{% if gmailConnected %}
+  <form method="post" action="/admin/beallitasok/gmail/disconnect" class="mx-auto mt-3 max-w-3xl">
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    <button type="submit" class="inline-flex items-center gap-2 rounded-xl border border-danger/20 bg-white px-4 py-2.5 text-[13px] font-semibold text-danger transition hover:bg-danger/5"><i data-lucide="unlink" class="h-[16px] w-[16px]"></i> Gmail leválasztása</button>
+  </form>
+{% endif %}
 {% endif %}
 {% endblock %}
