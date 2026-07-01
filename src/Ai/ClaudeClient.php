@@ -19,7 +19,8 @@ final class ClaudeClient
     {
         $this->http = $http ?? new Client([
             'base_uri' => 'https://api.anthropic.com',
-            'timeout' => 120,
+            'timeout' => 300,
+            'connect_timeout' => 15,
         ]);
     }
 
@@ -48,6 +49,9 @@ final class ClaudeClient
         $payload = [
             'model' => $model !== '' ? $model : 'claude-opus-4-8',
             'max_tokens' => 4096,
+            // Streaming: a válasz folyamatosan érkezik, így a hosszabb feldolgozás
+            // sem fut bele a „0 bájt / timeout" curl-hibába (shared hostingon fontos).
+            'stream' => true,
             'output_config' => [
                 'format' => [
                     'type' => 'json_schema',
@@ -63,37 +67,76 @@ final class ClaudeClient
             ]],
         ];
 
+        // A PHP futásidő-limitet is megemeljük a hosszú AI-hívás miatt (best-effort).
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(300);
+        }
+
         try {
             $resp = $this->http->post('/v1/messages', [
                 'headers' => [
                     'x-api-key' => $apiKey,
                     'anthropic-version' => '2023-06-01',
                     'content-type' => 'application/json',
+                    'accept' => 'text/event-stream',
                 ],
                 'json' => $payload,
+                'stream' => true,
             ]);
         } catch (\Throwable $e) {
             throw new RuntimeException('Claude API hívás sikertelen: ' . $e->getMessage(), 0, $e);
         }
 
-        $data = json_decode((string) $resp->getBody(), true);
-        if (!is_array($data)) {
-            throw new RuntimeException('Érvénytelen Claude válasz.');
-        }
-        if (($data['stop_reason'] ?? null) === 'refusal') {
-            throw new RuntimeException('A modell elutasította a kérést.');
-        }
-
-        $text = '';
-        foreach ($data['content'] ?? [] as $block) {
-            if (($block['type'] ?? '') === 'text') {
-                $text .= (string) ($block['text'] ?? '');
-            }
-        }
+        $text = $this->readStream($resp->getBody());
 
         $fields = json_decode($text, true);
 
         return is_array($fields) ? $fields : [];
+    }
+
+    /**
+     * A Claude SSE-stream (server-sent events) szöveges deltáinak összefűzése.
+     */
+    private function readStream(\Psr\Http\Message\StreamInterface $body): string
+    {
+        $text = '';
+        $buffer = '';
+
+        while (!$body->eof()) {
+            $chunk = $body->read(8192);
+            if ($chunk === '') {
+                continue;
+            }
+            $buffer .= $chunk;
+
+            while (($nl = strpos($buffer, "\n")) !== false) {
+                $line = trim(substr($buffer, 0, $nl));
+                $buffer = substr($buffer, $nl + 1);
+
+                if (!str_starts_with($line, 'data:')) {
+                    continue;
+                }
+                $json = trim(substr($line, 5));
+                if ($json === '' || $json === '[DONE]') {
+                    continue;
+                }
+                $ev = json_decode($json, true);
+                if (!is_array($ev)) {
+                    continue;
+                }
+
+                $type = (string) ($ev['type'] ?? '');
+                if ($type === 'content_block_delta' && (($ev['delta']['type'] ?? '') === 'text_delta')) {
+                    $text .= (string) ($ev['delta']['text'] ?? '');
+                } elseif ($type === 'message_delta' && (($ev['delta']['stop_reason'] ?? '') === 'refusal')) {
+                    throw new RuntimeException('A modell elutasította a kérést.');
+                } elseif ($type === 'error') {
+                    throw new RuntimeException('Claude API hiba: ' . (string) ($ev['error']['message'] ?? 'ismeretlen'));
+                }
+            }
+        }
+
+        return $text;
     }
 
     /**
