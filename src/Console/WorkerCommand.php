@@ -58,15 +58,14 @@ final class WorkerCommand extends Command
         $rows = $this->pdo->query('SELECT * FROM jobs WHERE reserved_at IS NULL ORDER BY id LIMIT 10')->fetchAll();
         $count = 0;
         foreach ($rows as $job) {
-            try {
-                if ((string) ($job['type'] ?? '') === 'ai_extract') {
-                    $this->handleExtract((array) $job, $output);
-                }
-            } catch (Throwable $e) {
-                $output->writeln('[job ' . ($job['id'] ?? '?') . '] hiba: ' . $e->getMessage());
-            }
-            $this->pdo->prepare('DELETE FROM jobs WHERE id = :id')->execute(['id' => $job['id']]);
             $count++;
+            if ((string) ($job['type'] ?? '') !== 'ai_extract') {
+                $this->deleteJob((int) $job['id']);
+                continue;
+            }
+            // handleExtract dönt a job törléséről (siker/terminál hiba); ha a
+            // folyamatot közben megöli a host, a job megmarad és újrapróbáljuk.
+            $this->handleExtract((array) $job, $output);
         }
 
         return $count;
@@ -85,6 +84,19 @@ final class WorkerCommand extends Command
         $mime = (string) ($p['mime'] ?? '');
         $model = (string) ($p['model'] ?? '');
         if ($eid <= 0 || $oid <= 0) {
+            $this->deleteJob((int) ($job['id'] ?? 0));
+            return;
+        }
+
+        // A próbálkozásokat MÉG a (megszakítható) hívás előtt rögzítjük, hogy egy
+        // megölt folyamat után is számolható legyen; 3 megszakadás után feladjuk.
+        $attempts = (int) ($job['attempts'] ?? 0) + 1;
+        $this->pdo->prepare('UPDATE jobs SET attempts = :a, updated_at = :u WHERE id = :id')
+            ->execute(['a' => $attempts, 'u' => date('Y-m-d H:i:s'), 'id' => (int) $job['id']]);
+        if ($attempts > 3) {
+            $this->finish($eid, $oid, (string) json_encode(['_error' => 'A feldolgozás többször megszakadt (a dokumentum túl nagy vagy a modell túl lassú a tárhely időkeretéhez). Próbáld a Sonnet modellt, vagy kisebb fájlt.'], JSON_UNESCAPED_UNICODE), 'failed');
+            $this->deleteJob((int) $job['id']);
+            $output->writeln('[extract ' . $eid . '] feladva ' . ($attempts - 1) . ' megszakadás után');
             return;
         }
 
@@ -97,10 +109,19 @@ final class WorkerCommand extends Command
             ['schema' => $schema, 'instruction' => $instruction] = ClaudeClient::clientContractSchema();
             $result = $this->claude->extract($binary, $mime, $apiKey, $model, $schema, $instruction);
             $this->finish($eid, $oid, (string) json_encode($result, JSON_UNESCAPED_UNICODE), 'pending');
+            $this->deleteJob((int) $job['id']);
             $output->writeln('[extract ' . $eid . '] kész');
         } catch (Throwable $e) {
             $this->finish($eid, $oid, (string) json_encode(['_error' => $e->getMessage()], JSON_UNESCAPED_UNICODE), 'failed');
+            $this->deleteJob((int) $job['id']);
             $output->writeln('[extract ' . $eid . '] hiba: ' . $e->getMessage());
+        }
+    }
+
+    private function deleteJob(int $id): void
+    {
+        if ($id > 0) {
+            $this->pdo->prepare('DELETE FROM jobs WHERE id = :id')->execute(['id' => $id]);
         }
     }
 
