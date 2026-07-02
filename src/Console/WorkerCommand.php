@@ -7,6 +7,7 @@ namespace App\Console;
 use App\Ai\ClaudeClient;
 use App\Documents\DocumentStorage;
 use App\Settings\SettingsService;
+use App\Support\PdfTrimmer;
 use PDO;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,6 +26,7 @@ final class WorkerCommand extends Command
         private ClaudeClient $claude,
         private SettingsService $settings,
         private DocumentStorage $storage,
+        private PdfTrimmer $pdfTrimmer,
     ) {
         parent::__construct();
     }
@@ -105,6 +107,11 @@ final class WorkerCommand extends Command
             $apiKey = (string) $this->settings->get($oid, 'anthropic_api_key', '');
             if ($apiKey === '' || $binary === '') {
                 throw new \RuntimeException('Hiányzó API-kulcs vagy a fájl nem elérhető.');
+            }
+            // Nagy PDF-eknél csak az első 10 oldalt küldjük a modellnek (ott vannak az
+            // adatok; a többi csak szerződési szöveg) — így sokkal kevesebb token/kredit.
+            if (str_contains($mime, 'pdf')) {
+                $binary = $this->pdfTrimmer->firstPages($binary, 10);
             }
             ['schema' => $schema, 'instruction' => $instruction] = ClaudeClient::clientContractSchema();
             $result = $this->claude->extract($binary, $mime, $apiKey, $model, $schema, $instruction);

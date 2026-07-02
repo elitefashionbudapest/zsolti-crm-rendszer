@@ -24,7 +24,8 @@ $app->add(new WorkerCommand(
     $pdo,
     $container->get(App\Ai\ClaudeClient::class),
     $container->get(App\Settings\SettingsService::class),
-    $container->get(App\Documents\DocumentStorage::class)
+    $container->get(App\Documents\DocumentStorage::class),
+    $container->get(App\Support\PdfTrimmer::class)
 ));
 $app->add(new ImapSyncCommand($pdo, $container->get(MailboxSyncDispatcher::class)));
 
