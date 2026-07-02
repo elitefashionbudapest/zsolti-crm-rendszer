@@ -63,6 +63,37 @@ final class ClientRepository extends Repository
         return $this->tenantFind($id);
     }
 
+    /**
+     * Meglévő partner keresése az AI-kinyerés jóváhagyásához: elsődlegesen
+     * adóazonosító, másodlagosan e-mail alapján, tenant-szűrve. Így az ismételt
+     * kinyerés felismeri, hogy már létező partnerről van szó (felülírás-kérdés).
+     *
+     * @return array<string,mixed>|null
+     */
+    public function findDuplicate(?string $taxId, ?string $email): ?array
+    {
+        $office = $this->tenant->requireOfficeId();
+
+        if ($taxId !== null && trim($taxId) !== '') {
+            $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE tax_id = :t AND office_id = :o LIMIT 1');
+            $stmt->execute(['t' => trim($taxId), 'o' => $office]);
+            $row = $stmt->fetch();
+            if ($row !== false) {
+                return $row;
+            }
+        }
+        if ($email !== null && trim($email) !== '') {
+            $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE email = :e AND office_id = :o LIMIT 1');
+            $stmt->execute(['e' => trim($email), 'o' => $office]);
+            $row = $stmt->fetch();
+            if ($row !== false) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
     /** @param array<string,mixed> $data */
     public function create(array $data): int
     {

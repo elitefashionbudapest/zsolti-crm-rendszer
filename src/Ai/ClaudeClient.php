@@ -212,32 +212,77 @@ final class ClaudeClient
             'type' => 'object',
             'additionalProperties' => false,
             'properties' => [
+                // Partner (ügyfél) — a clients tábla oszlopaira képezve
                 'client_name' => ['type' => 'string'],
                 'client_email' => ['type' => 'string'],
                 'client_phone' => ['type' => 'string'],
+                'client_mobile' => ['type' => 'string'],
                 'client_address' => ['type' => 'string'],
                 'tax_id' => ['type' => 'string'],
                 'birth_date' => ['type' => 'string'],
                 'birth_place' => ['type' => 'string'],
                 'mother_name' => ['type' => 'string'],
+                // Szerződés — a contracts tábla oszlopaira képezve
+                'category' => ['type' => 'string'],
                 'insurer_name' => ['type' => 'string'],
+                'module_code' => ['type' => 'string'],
                 'module_name' => ['type' => 'string'],
                 'policy_number' => ['type' => 'string'],
                 'offer_number' => ['type' => 'string'],
                 'start_date' => ['type' => 'string'],
                 'end_date' => ['type' => 'string'],
+                'anniversary' => ['type' => 'string'],
                 'annual_fee' => ['type' => 'string'],
+                'payment_frequency' => ['type' => 'string'],
+                'payment_method' => ['type' => 'string'],
+                'agent_code' => ['type' => 'string'],
+                'agent_name' => ['type' => 'string'],
+                'risk_location' => ['type' => 'string'],
                 'plate' => ['type' => 'string'],
+                // Rugalmas gyűjtő: minden további kitöltött adat ide kerül, hogy
+                // bármely PDF-típusból a maximumot kinyerjük (nem vész el semmi).
+                'additional_fields' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'additionalProperties' => false,
+                        'properties' => [
+                            'group' => ['type' => 'string'],
+                            'attr_key' => ['type' => 'string'],
+                            'label' => ['type' => 'string'],
+                            'value' => ['type' => 'string'],
+                        ],
+                        'required' => ['group', 'attr_key', 'label', 'value'],
+                    ],
+                ],
             ],
         ];
         // A strukturált kimenet minden mezőt kötelezőnek vár; az ismeretlen
-        // értékeket a modell üres stringgel tölti (lásd az utasítást).
+        // értékeket a modell üres stringgel (ill. üres tömbbel) tölti.
         $schema['required'] = array_keys($schema['properties']);
 
-        $instruction = 'Nyerd ki a dokumentumból az ügyfélre és a biztosítási '
-            . 'szerződésre vonatkozó adatokat a megadott mezőkbe. Ahol egy adat nem '
-            . 'szerepel a dokumentumban, hagyd üresen ("" érték). A dátumokat '
-            . 'ÉÉÉÉ-HH-NN formátumban add meg. Csak a kért JSON-t add vissza.';
+        $instruction = 'Egy biztosítási dokumentumból (ajánlat, kötvény, adatlap) '
+            . 'nyerd ki MINDEN kitöltött adatot. Kétféle helyre tedd az adatokat:'
+            . "\n\n1) A megadott, nevesített mezőkbe (partner- és szerződésadatok) "
+            . 'a hozzájuk tartozó értéket. Ahol egy nevesített mező nem szerepel a '
+            . 'dokumentumban, hagyd üresen ("" érték).'
+            . "\n\n2) MINDEN további kitöltött adatot — amely nem fér a nevesített "
+            . 'mezőkbe — az "additional_fields" listába. Például: devizanem (HUF/EUR), '
+            . 'második telefonszám, bankszámlaszám, IBAN, SWIFT, okmány típusa és száma, '
+            . 'lakcímkártya száma, okmány érvényessége, állampolgárság, foglalkozás, '
+            . 'munkahely, beosztás, sporttevékenység, eltartottak száma, közvetítői kód, '
+            . 'kedvezményezett(ek), a 2. biztosított összes adata, díjfelosztás, '
+            . 'biztosítási összegek, önrész, záradékok stb.'
+            . "\n\nAz additional_fields minden eleménél: 'attr_key' rövid, gépi, "
+            . 'ékezet nélküli snake_case kulcs (pl. iban, swift, bankszamla, foglalkozas, '
+            . 'okmany_tipus, okmany_szam, lakcimkartya_szam, allampolgarsag, devizanem, '
+            . 'kozvetitoi_kod, eltartottak_szama, biztositott_2_nev, biztositott_2_ado_jel); '
+            . "'label' rövid magyar felirat; 'value' a dokumentumban szereplő érték; "
+            . "'group' az adat csoportja ezek közül: szerzodo, biztositott_1, "
+            . 'biztositott_2, kedvezmenyezett, bank, szerzodes, egyeb.'
+            . "\n\nUgyanazt az adatot ne tedd egyszerre nevesített mezőbe ÉS az "
+            . 'additional_fields-be. Üres/kitöltetlen adatot ne vegyél fel a listába. '
+            . 'A dátumokat ÉÉÉÉ-HH-NN formátumban add meg. Csak a kért JSON-t add vissza.';
 
         return ['schema' => $schema, 'instruction' => $instruction];
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Auth\Auth;
+use App\Clients\ClientAttributeRepository;
 use App\Clients\ClientRepository;
 use App\Mail\MailService;
 use App\Support\AuditLogger;
@@ -25,6 +26,7 @@ final class ClientsController
         private Twig $twig,
         private Auth $auth,
         private ClientRepository $clients,
+        private ClientAttributeRepository $attributes,
         private AuditLogger $audit,
         private MailService $mail,
     ) {
@@ -93,6 +95,7 @@ final class ClientsController
             'tasks' => $this->clients->tasksFor((int) $client['id']),
             'intake' => $this->clients->intakeFor((int) $client['id']),
             'notes' => $this->clients->notesFor((int) $client['id']),
+            'attributes' => $this->groupAttributes($this->attributes->forClient((int) $client['id'])),
             'mailConfigured' => $this->mail->isConfigured((int) ($this->auth->officeId() ?? 0)),
             'flash' => $this->flash(),
         ]);
@@ -207,6 +210,103 @@ final class ClientsController
         $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Megjegyzés hozzáadva.'];
 
         return $this->redirect($response, '/admin/partnerek/' . $id);
+    }
+
+    /** Új, kézi attribútum a partnerhez (adatlapról). */
+    public function addAttribute(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+        if ($this->clients->find($id) === null) {
+            return $response->withStatus(404);
+        }
+
+        $body = (array) $request->getParsedBody();
+        $label = trim((string) ($body['label'] ?? ''));
+        $value = trim((string) ($body['value'] ?? ''));
+        $group = trim((string) ($body['group'] ?? 'egyeb')) ?: 'egyeb';
+        $key = trim((string) ($body['attr_key'] ?? ''));
+        if ($key === '') {
+            $key = $this->slugKey($label);
+        }
+
+        if ($label === '' || $value === '' || $key === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'A megnevezés és az érték megadása kötelező.'];
+
+            return $this->redirect($response, '/admin/partnerek/' . $id . '#attributumok');
+        }
+
+        $this->attributes->addManual($id, $group, $key, $label, $value);
+        $this->audit->log('client.attr.add', 'client', $id);
+        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Adat hozzáadva.'];
+
+        return $this->redirect($response, '/admin/partnerek/' . $id . '#attributumok');
+    }
+
+    /** Egy attribútum frissítése (felirat + érték). */
+    public function updateAttribute(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+        if ($this->clients->find($id) === null) {
+            return $response->withStatus(404);
+        }
+
+        $body = (array) $request->getParsedBody();
+        $label = trim((string) ($body['label'] ?? ''));
+        $value = trim((string) ($body['value'] ?? ''));
+
+        if ($label === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'A megnevezés nem lehet üres.'];
+
+            return $this->redirect($response, '/admin/partnerek/' . $id . '#attributumok');
+        }
+
+        $this->attributes->updateOne((int) $args['attrId'], $label, $value);
+        $this->audit->log('client.attr.update', 'client', $id);
+        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Adat frissítve.'];
+
+        return $this->redirect($response, '/admin/partnerek/' . $id . '#attributumok');
+    }
+
+    /** Egy attribútum törlése. */
+    public function deleteAttribute(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+        if ($this->clients->find($id) === null) {
+            return $response->withStatus(404);
+        }
+
+        $this->attributes->delete((int) $args['attrId']);
+        $this->audit->log('client.attr.delete', 'client', $id);
+        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Adat törölve.'];
+
+        return $this->redirect($response, '/admin/partnerek/' . $id . '#attributumok');
+    }
+
+    /**
+     * Az attribútumsorok csoport szerinti tömbösítése a megjelenítéshez.
+     *
+     * @param array<int,array<string,mixed>> $rows
+     * @return array<string,array<int,array<string,mixed>>>
+     */
+    private function groupAttributes(array $rows): array
+    {
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[(string) ($row['attr_group'] ?? 'egyeb')][] = $row;
+        }
+
+        return $grouped;
+    }
+
+    /** Magyar feliratból stabil, ékezet nélküli snake_case kulcs. */
+    private function slugKey(string $label): string
+    {
+        $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT', $label);
+        $ascii = $ascii !== false ? $ascii : $label;
+        $ascii = strtolower($ascii);
+        $ascii = preg_replace('/[^a-z0-9]+/', '_', $ascii) ?? '';
+
+        return trim($ascii, '_');
     }
 
     /** @return array<string,mixed> */

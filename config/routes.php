@@ -48,6 +48,9 @@ return static function (App $app): void {
         $g->post('/partnerek/{id:[0-9]+}/torles', [ClientsController::class, 'destroy']);
         $g->post('/partnerek/{id:[0-9]+}/uzenet', [ClientsController::class, 'sendMessage']);
         $g->post('/partnerek/{id:[0-9]+}/megjegyzes', [ClientsController::class, 'addNote']);
+        $g->post('/partnerek/{id:[0-9]+}/attributumok', [ClientsController::class, 'addAttribute']);
+        $g->post('/partnerek/{id:[0-9]+}/attributumok/{attrId:[0-9]+}/frissites', [ClientsController::class, 'updateAttribute']);
+        $g->post('/partnerek/{id:[0-9]+}/attributumok/{attrId:[0-9]+}/torles', [ClientsController::class, 'deleteAttribute']);
 
         // További admin modulok (szerződések, dokumentumok, feladatok, leadek, …)
         foreach (glob(__DIR__ . '/routes/admin/*.php') ?: [] as $moduleRoutes) {

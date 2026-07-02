@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Auth\Auth;
+use App\Clients\ClientAttributeRepository;
+use App\Clients\ClientDataMap;
 use App\Clients\ClientRepository;
 use App\Contracts\ContractRepository;
 use App\Documents\DocumentStorage;
@@ -34,6 +36,8 @@ final class TemplatesController
         private DocumentStorage $storage,
         private ClientRepository $clients,
         private ContractRepository $contracts,
+        private ClientAttributeRepository $attributes,
+        private ClientDataMap $dataMap,
         private AuditLogger $audit,
         private PDO $pdo,
     ) {
@@ -229,7 +233,7 @@ final class TemplatesController
             }
         }
 
-        $data = $this->resolveData($client, $contract);
+        $data = $this->dataMap->build($client, $contract, $this->attributes->forClient($clientId));
 
         $kind = (string) $tpl['kind'];
         $isDocx = $kind === 'docx';
@@ -280,37 +284,6 @@ final class TemplatesController
             ->withHeader('Content-Type', $mime)
             ->withHeader('Content-Disposition', 'attachment; filename="' . $originalName . '"')
             ->withBody($stream);
-    }
-
-    /**
-     * A kitöltési adatkulcsok feloldása a választott ügyfélből (+ szerződésből).
-     *
-     * @param array<string,mixed> $client
-     * @param array<string,mixed>|null $contract
-     * @return array<string,string>
-     */
-    private function resolveData(array $client, ?array $contract): array
-    {
-        $contract ??= [];
-
-        return [
-            'client_name' => (string) ($client['name'] ?? ''),
-            'client_email' => (string) ($client['email'] ?? ''),
-            'client_phone' => (string) ($client['mobile'] ?? $client['phone'] ?? ''),
-            'client_address' => (string) ($client['address'] ?? ''),
-            'tax_id' => (string) ($client['tax_id'] ?? ''),
-            'birth_date' => (string) ($client['birth_date'] ?? ''),
-            'birth_place' => (string) ($client['birth_place'] ?? ''),
-            'mother_name' => (string) ($client['mother_name'] ?? ''),
-            'policy_number' => (string) ($contract['policy_number'] ?? ''),
-            'insurer_name' => (string) ($contract['insurer_name'] ?? ''),
-            'module_name' => (string) ($contract['module_name'] ?? ''),
-            'start_date' => (string) ($contract['start_date'] ?? ''),
-            'end_date' => (string) ($contract['end_date'] ?? ''),
-            'annual_fee' => (string) ($contract['annual_fee'] ?? ''),
-            'plate' => (string) ($contract['plate'] ?? ''),
-            'today' => date('Y-m-d'),
-        ];
     }
 
     /**
