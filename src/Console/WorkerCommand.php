@@ -88,15 +88,15 @@ final class WorkerCommand extends Command
             return;
         }
 
-        // A próbálkozásokat MÉG a (megszakítható) hívás előtt rögzítjük, hogy egy
-        // megölt folyamat után is számolható legyen; 3 megszakadás után feladjuk.
+        // A próbálkozást MÉG a (megszakítható, költséges) hívás előtt rögzítjük, hogy
+        // egy megölt folyamat ne indítsa újra a drága kinyerést. 1 megszakadás után feladjuk.
         $attempts = (int) ($job['attempts'] ?? 0) + 1;
         $this->pdo->prepare('UPDATE jobs SET attempts = :a, updated_at = :u WHERE id = :id')
             ->execute(['a' => $attempts, 'u' => date('Y-m-d H:i:s'), 'id' => (int) $job['id']]);
-        if ($attempts > 3) {
-            $this->finish($eid, $oid, (string) json_encode(['_error' => 'A feldolgozás többször megszakadt (a dokumentum túl nagy vagy a modell túl lassú a tárhely időkeretéhez). Próbáld a Sonnet modellt, vagy kisebb fájlt.'], JSON_UNESCAPED_UNICODE), 'failed');
+        if ($attempts > 1) {
+            $this->finish($eid, $oid, (string) json_encode(['_error' => 'A feldolgozás megszakadt (a dokumentum túl nagy vagy a modell túl lassú a tárhely időkeretéhez). Tölts fel kisebb / kevesebb oldalas fájlt.'], JSON_UNESCAPED_UNICODE), 'failed');
             $this->deleteJob((int) $job['id']);
-            $output->writeln('[extract ' . $eid . '] feladva ' . ($attempts - 1) . ' megszakadás után');
+            $output->writeln('[extract ' . $eid . '] feladva (megszakadt, nem próbáljuk újra a költség miatt)');
             return;
         }
 

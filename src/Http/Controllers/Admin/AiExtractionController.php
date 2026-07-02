@@ -77,7 +77,9 @@ final class AiExtractionController
 
             return $this->redirect($response, '/admin/ai-kinyeres');
         }
-        $model = (string) $this->settings->get($officeId, 'anthropic_model', 'claude-opus-4-8');
+        // A kinyeréshez a leggyorsabb és legolcsóbb modellt használjuk (a mezők
+        // kiolvasásához bőven elég), hogy egy nagy dokumentum se fogyasszon sok kreditet.
+        $model = 'claude-haiku-4-5';
 
         $binary = (string) $file->getStream()->getContents();
         $mime = (string) ($file->getClientMediaType() ?? '');
