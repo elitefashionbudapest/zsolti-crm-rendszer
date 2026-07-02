@@ -101,12 +101,12 @@
 <div id="attributumok" class="mt-6 rounded-2xl border border-slate-200/70 bg-white shadow-card">
   <div class="flex items-center gap-2.5 border-b border-slate-100 px-5 py-4">
     <i data-lucide="database" class="h-[19px] w-[19px] text-teal"></i>
-    <h2 class="text-[15px] font-bold text-ink">Kinyert és egyéb adatok</h2>
-    <span class="rounded-full bg-surface px-2 py-0.5 text-[11.5px] font-medium text-muted">sablonokhoz is felhasználható</span>
+    <h2 class="text-[15px] font-bold text-ink">Kiemelt személyi adatok</h2>
+    <span class="rounded-full bg-surface px-2 py-0.5 text-[11.5px] font-medium text-muted">a részletek a szerződéseknél</span>
   </div>
   <div class="p-5">
     {% if attributes is empty %}
-      <p class="text-[13px] text-muted">Nincs még kinyert adat. Az AI-kinyerés jóváhagyásakor kerülnek ide, vagy adj hozzá kézzel lent.</p>
+      <p class="text-[13px] text-muted">Nincs kiemelt személyi adat. A többi kinyert adat a partner szerződéseinél jelenik meg. Kézzel is hozzáadhatsz lent.</p>
     {% else %}
       <div class="space-y-6">
         {% for group, rows in attributes %}

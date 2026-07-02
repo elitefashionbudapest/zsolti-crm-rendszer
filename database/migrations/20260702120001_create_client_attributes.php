@@ -23,8 +23,10 @@ final class CreateClientAttributes extends AbstractMigration
             // magyar felirat a megjelenítéshez
             ->addColumn('label', 'string', ['limit' => 191])
             ->addColumn('value', 'text', ['null' => true])
-            ->addColumn('created_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
-            ->addColumn('updated_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
+            // A created_at/updated_at értékeket a PHP-réteg tölti (a repository).
+            // Nincs DB-alapérték: két CURRENT_TIMESTAMP oszlop régebbi MySQL-en hibát adhat.
+            ->addColumn('created_at', 'datetime', ['null' => true])
+            ->addColumn('updated_at', 'datetime', ['null' => true])
             ->addIndex(['office_id'])
             ->addIndex(['client_id'])
             // egy partneren belül (adott szerződéshez és csoporthoz) a kulcs egyedi

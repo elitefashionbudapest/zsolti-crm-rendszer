@@ -28,6 +28,15 @@ final class AiExtractionController
     private const MAX_SIZE = 20 * 1024 * 1024;
     private const ALLOWED_EXT = ['pdf', 'png', 'jpg', 'jpeg', 'webp'];
 
+    /**
+     * A partner-adatlapon megtartott SZEMÉLYI attribútum-kulcsok (a legfontosabb
+     * kiemelt adatok). Minden más kinyert attribútum a szerződéshez kerül.
+     */
+    private const PARTNER_ATTR_KEYS = [
+        'allampolgarsag', 'okmany_tipus', 'okmany_szam',
+        'foglalkozas', 'iban', 'bankszamla',
+    ];
+
     /** A felülvizsgálati űrlapon szerkeszthető, nevesített mezők (DB-oszlopokra képezve). */
     private const FIELDS = [
         'client_name', 'client_email', 'client_phone', 'client_mobile', 'client_address',
@@ -203,11 +212,12 @@ final class AiExtractionController
         }
 
         // Ha bármilyen szerződés-mező van, hozzunk létre szerződést is.
+        $contractId = null;
         if (($data['insurer_name'] ?? null) !== null
             || ($data['module_name'] ?? null) !== null
             || ($data['policy_number'] ?? null) !== null
         ) {
-            $this->contracts->create([
+            $contractId = $this->contracts->create([
                 'client_id' => $clientId,
                 'category' => $data['category'] ?? null,
                 'insurer_name' => $data['insurer_name'] ?? null,
@@ -229,9 +239,15 @@ final class AiExtractionController
             ]);
         }
 
-        // A címezhető attribútumok mentése (felülírás = a partner régi attribútumai
-        // törlődnek, és a most jóváhagyottak kerülnek be).
-        $this->attributes->replaceForClient($clientId, $extra, $id);
+        // Attribútumok szétosztása: a legfontosabb személyi adatok a partnerhez,
+        // a többi a szerződéshez (ha van). Szerződés nélkül minden a partnerhez.
+        if ($contractId !== null) {
+            [$personal, $rest] = $this->splitExtra($extra);
+            $this->attributes->replaceForClient($clientId, $personal, $id);
+            $this->attributes->replaceForContract($clientId, $contractId, $rest, $id);
+        } else {
+            $this->attributes->replaceForClient($clientId, $extra, $id);
+        }
 
         $this->extractions->updateStatus($id, 'approved');
         $this->extractions->attachClient($id, $clientId);
@@ -345,6 +361,27 @@ final class AiExtractionController
         }
 
         return $out;
+    }
+
+    /**
+     * Az attribútumok szétosztása: [személyi (partnerhez), többi (szerződéshez)].
+     *
+     * @param array<int,array{group:string,attr_key:string,label:string,value:string}> $extra
+     * @return array{0: array<int,array<string,mixed>>, 1: array<int,array<string,mixed>>}
+     */
+    private function splitExtra(array $extra): array
+    {
+        $personal = [];
+        $rest = [];
+        foreach ($extra as $row) {
+            if (in_array($row['attr_key'], self::PARTNER_ATTR_KEYS, true)) {
+                $personal[] = $row;
+            } else {
+                $rest[] = $row;
+            }
+        }
+
+        return [$personal, $rest];
     }
 
     private function isDate(mixed $value): bool

@@ -19,7 +19,9 @@ final class ClientAttributeRepository extends Repository
     }
 
     /**
-     * Egy partner összes attribútuma, csoport majd felirat szerint rendezve.
+     * Egy partner ÖSSZES attribútuma (partner- és szerződés-szintű együtt),
+     * csoport majd felirat szerint rendezve. A sablon-kitöltéshez (ClientDataMap)
+     * kell, hogy minden adat elérhető legyen.
      *
      * @return array<int,array<string,mixed>>
      */
@@ -30,6 +32,41 @@ final class ClientAttributeRepository extends Repository
              ORDER BY attr_group ASC, label ASC, id ASC'
         );
         $stmt->execute(['c' => $clientId, 'o' => $this->tenant->requireOfficeId()]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * A partner SZEMÉLYI (szerződéshez nem kötött) attribútumai — ezek jelennek
+     * meg a partner-adatlapon (a kiemelt adatok).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function personalForClient(int $clientId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM client_attributes
+             WHERE client_id = :c AND office_id = :o AND contract_id IS NULL
+             ORDER BY attr_group ASC, label ASC, id ASC'
+        );
+        $stmt->execute(['c' => $clientId, 'o' => $this->tenant->requireOfficeId()]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Egy szerződéshez kötött attribútumok — a szerződés-adatlapon jelennek meg.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function forContract(int $contractId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM client_attributes
+             WHERE contract_id = :ct AND office_id = :o
+             ORDER BY attr_group ASC, label ASC, id ASC'
+        );
+        $stmt->execute(['ct' => $contractId, 'o' => $this->tenant->requireOfficeId()]);
 
         return $stmt->fetchAll();
     }
@@ -46,8 +83,8 @@ final class ClientAttributeRepository extends Repository
     }
 
     /**
-     * Egy partner attribútumainak teljes cseréje (felülírás): a régiek törlése,
-     * majd az új sorok beszúrása — egy tranzakcióban.
+     * A partner SZEMÉLYI (szerződéshez nem kötött) attribútumainak teljes cseréje.
+     * A szerződés-szintű sorokat NEM érinti.
      *
      * @param array<int,array{group?:string,attr_key:string,label?:string,value?:string,contract_id?:int|null}> $rows
      */
@@ -56,10 +93,12 @@ final class ClientAttributeRepository extends Repository
         $office = $this->tenant->requireOfficeId();
         $this->pdo->beginTransaction();
         try {
-            $del = $this->pdo->prepare('DELETE FROM client_attributes WHERE client_id = :c AND office_id = :o');
+            $del = $this->pdo->prepare(
+                'DELETE FROM client_attributes WHERE client_id = :c AND office_id = :o AND contract_id IS NULL'
+            );
             $del->execute(['c' => $clientId, 'o' => $office]);
 
-            $this->insertRows($clientId, $rows, $extractionId, $office);
+            $this->insertRows($clientId, null, $rows, $extractionId, $office);
             $this->pdo->commit();
         } catch (\Throwable $e) {
             $this->pdo->rollBack();
@@ -68,38 +107,29 @@ final class ClientAttributeRepository extends Repository
     }
 
     /**
-     * Attribútumok hozzáadása felülírás nélkül (csak az új kulcsok szúródnak be;
-     * a meglévők maradnak — a nem-null contract_id-re az egyedi index véd).
+     * Egy szerződéshez kötött attribútumok teljes cseréje (felülírás).
      *
      * @param array<int,array{group?:string,attr_key:string,label?:string,value?:string,contract_id?:int|null}> $rows
      */
-    public function addMissingForClient(int $clientId, array $rows, ?int $extractionId = null): void
+    public function replaceForContract(int $clientId, int $contractId, array $rows, ?int $extractionId = null): void
     {
         $office = $this->tenant->requireOfficeId();
+        $this->pdo->beginTransaction();
+        try {
+            $del = $this->pdo->prepare(
+                'DELETE FROM client_attributes WHERE contract_id = :ct AND office_id = :o'
+            );
+            $del->execute(['ct' => $contractId, 'o' => $office]);
 
-        // A már meglévő (group, key, contract_id) hármasok, hogy ne duplikáljunk.
-        $existing = [];
-        foreach ($this->forClient($clientId) as $r) {
-            $existing[$this->rowKey((string) $r['attr_group'], (string) $r['attr_key'], $r['contract_id'] === null ? null : (int) $r['contract_id'])] = true;
-        }
-
-        $fresh = [];
-        foreach ($rows as $row) {
-            $group = (string) ($row['group'] ?? 'egyeb');
-            $key = trim((string) $row['attr_key']);
-            $cid = $row['contract_id'] ?? null;
-            if ($key === '' || isset($existing[$this->rowKey($group, $key, $cid === null ? null : (int) $cid)])) {
-                continue;
-            }
-            $fresh[] = $row;
-        }
-
-        if ($fresh !== []) {
-            $this->insertRows($clientId, $fresh, $extractionId, $office);
+            $this->insertRows($clientId, $contractId, $rows, $extractionId, $office);
+            $this->pdo->commit();
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
     }
 
-    /** Egy attribútum feliratának/értékének frissítése (partner-adatlapról). */
+    /** Egy attribútum feliratának/értékének frissítése (adatlapról). */
     public function updateOne(int $id, string $label, string $value): bool
     {
         return $this->tenantUpdate($id, [
@@ -109,14 +139,17 @@ final class ClientAttributeRepository extends Repository
         ]);
     }
 
-    /** Új, kézi attribútum a partnerhez (partner-adatlapról). */
-    public function addManual(int $clientId, string $group, string $key, string $label, string $value): int
+    /**
+     * Új, kézi attribútum a partnerhez (partner-adatlapról → személyi, contract_id null;
+     * szerződés-adatlapról → az adott szerződéshez kötve).
+     */
+    public function addManual(int $clientId, string $group, string $key, string $label, string $value, ?int $contractId = null): int
     {
         $now = date('Y-m-d H:i:s');
 
         return $this->tenantInsert([
             'client_id' => $clientId,
-            'contract_id' => null,
+            'contract_id' => $contractId,
             'extraction_id' => null,
             'attr_group' => $group !== '' ? $group : 'egyeb',
             'attr_key' => $key,
@@ -133,9 +166,12 @@ final class ClientAttributeRepository extends Repository
     }
 
     /**
+     * A sorok beszúrása a megadott szinttel: $contractId = null → partner-szintű,
+     * egyébként az adott szerződéshez kötve.
+     *
      * @param array<int,array{group?:string,attr_key:string,label?:string,value?:string,contract_id?:int|null}> $rows
      */
-    private function insertRows(int $clientId, array $rows, ?int $extractionId, int $office): void
+    private function insertRows(int $clientId, ?int $contractId, array $rows, ?int $extractionId, int $office): void
     {
         $now = date('Y-m-d H:i:s');
         $ins = $this->pdo->prepare(
@@ -151,7 +187,7 @@ final class ClientAttributeRepository extends Repository
             $ins->execute([
                 'o' => $office,
                 'c' => $clientId,
-                'ct' => $row['contract_id'] ?? null,
+                'ct' => $contractId,
                 'e' => $extractionId,
                 'g' => (string) ($row['group'] ?? 'egyeb'),
                 'k' => $key,
@@ -161,10 +197,5 @@ final class ClientAttributeRepository extends Repository
                 'ua' => $now,
             ]);
         }
-    }
-
-    private function rowKey(string $group, string $key, ?int $contractId): string
-    {
-        return $group . '|' . $key . '|' . ($contractId ?? 'null');
     }
 }

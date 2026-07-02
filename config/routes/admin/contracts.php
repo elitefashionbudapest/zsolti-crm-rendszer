@@ -13,4 +13,7 @@ return static function (RouteCollectorProxy $g): void {
     $g->get('/szerzodesek/{id:[0-9]+}/szerkesztes', [ContractsController::class, 'edit']);
     $g->post('/szerzodesek/{id:[0-9]+}', [ContractsController::class, 'update']);
     $g->post('/szerzodesek/{id:[0-9]+}/torles', [ContractsController::class, 'destroy']);
+    $g->post('/szerzodesek/{id:[0-9]+}/attributumok', [ContractsController::class, 'addAttribute']);
+    $g->post('/szerzodesek/{id:[0-9]+}/attributumok/{attrId:[0-9]+}/frissites', [ContractsController::class, 'updateAttribute']);
+    $g->post('/szerzodesek/{id:[0-9]+}/attributumok/{attrId:[0-9]+}/torles', [ContractsController::class, 'deleteAttribute']);
 };

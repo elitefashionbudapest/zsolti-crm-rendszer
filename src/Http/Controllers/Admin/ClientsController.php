@@ -95,7 +95,7 @@ final class ClientsController
             'tasks' => $this->clients->tasksFor((int) $client['id']),
             'intake' => $this->clients->intakeFor((int) $client['id']),
             'notes' => $this->clients->notesFor((int) $client['id']),
-            'attributes' => $this->groupAttributes($this->attributes->forClient((int) $client['id'])),
+            'attributes' => $this->groupAttributes($this->attributes->personalForClient((int) $client['id'])),
             'mailConfigured' => $this->mail->isConfigured((int) ($this->auth->officeId() ?? 0)),
             'flash' => $this->flash(),
         ]);
